@@ -1022,15 +1022,6 @@
       if (modal) modal.classList.add("hidden");
     }
 
-    function fillStaffCreds(u, p) {
-      const uEl = document.getElementById("staff-auth-username");
-      const pEl = document.getElementById("staff-auth-password");
-      if (uEl) uEl.value = u;
-      if (pEl) pEl.value = p;
-      const errBox = document.getElementById("staff-auth-error");
-      if (errBox) errBox.classList.add("hidden");
-    }
-
     function toggleStaffPasswordVisibility() {
       const pEl = document.getElementById("staff-auth-password");
       if (pEl) {
@@ -1113,18 +1104,6 @@
 
       <!-- Modal Body -->
       <div class="p-6 space-y-4 text-xs">
-        <!-- Quick Fill Credentials -->
-        <div class="bg-[var(--bg)] p-3 rounded-xl border border-[var(--hairline)] space-y-2">
-          <span class="text-[11px] font-medium text-[var(--text-secondary)] block">ডিপার্টমেন্ট ভিত্তিক কুইক লগইন:</span>
-          <div class="flex flex-wrap gap-1.5">
-            <button type="button" onclick="fillStaffCreds('admin', 'nu_admin_2026')" class="apple-chip text-[11px] py-1 px-2.5">👑 Super Admin</button>
-            <button type="button" onclick="fillStaffCreds('solver_ict', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">💻 ICT Desk</button>
-            <button type="button" onclick="fillStaffCreds('solver_exam', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">📝 Exam Desk</button>
-            <button type="button" onclick="fillStaffCreds('solver_cert', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">📜 Certificate</button>
-            <button type="button" onclick="fillStaffCreds('solver_adm', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">🎯 Admission</button>
-          </div>
-        </div>
-
         <form onsubmit="handleStaffAuthSubmit(event)" class="space-y-3.5">
           <div>
             <label class="block font-medium text-[var(--text)] mb-1 text-[13px]">ইউজারনেম (Username):</label>

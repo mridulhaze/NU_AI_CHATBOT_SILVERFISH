@@ -36,3 +36,4 @@ Backup/
 *.zip
 hermes_agent_repo/
 graphify-out/
+*.spec
