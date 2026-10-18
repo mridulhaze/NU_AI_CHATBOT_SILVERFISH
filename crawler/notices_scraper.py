@@ -40,8 +40,18 @@ class NoticesScraper(BaseScraper):
             for row in rows:
                 cols = row.find_all("td")
                 if len(cols) >= 2:
-                    date_col = cols[0].get_text(strip=True) if len(cols) > 2 else ""
-                    title_col = cols[1].get_text(strip=True) if len(cols) > 2 else cols[0].get_text(strip=True)
+                    col0 = cols[0].get_text(strip=True)
+                    col1 = cols[1].get_text(strip=True)
+                    months = ["january","february","march","april","may","june","july","august","september","october","november","december"]
+                    if any(m in col1.lower() for m in months) or (len(col1) <= 25 and any(c.isdigit() for c in col1)):
+                        title_col = col0
+                        date_col = col1
+                    elif any(m in col0.lower() for m in months) or (len(col0) <= 25 and any(c.isdigit() for c in col0)):
+                        title_col = col1
+                        date_col = col0
+                    else:
+                        title_col = col0
+                        date_col = col1
                     
                     a_tag = row.find("a")
                     href = a_tag.get("href") if a_tag else ""

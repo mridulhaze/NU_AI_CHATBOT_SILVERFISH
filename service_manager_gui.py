@@ -26,15 +26,37 @@ from tkinter import ttk, messagebox, scrolledtext
 if getattr(sys, 'frozen', False):
     # Running as compiled .exe
     EXE_DIR = Path(sys.executable).resolve().parent
-    BASE_DIR = EXE_DIR if (EXE_DIR / "main.py").exists() else Path("E:/projects/AI_CHAT_BOT")
+    BASE_DIR = EXE_DIR if (EXE_DIR / "main.py").exists() else Path(__file__).resolve().parent
 else:
     # Running as script
     BASE_DIR = Path(__file__).resolve().parent
-    if not (BASE_DIR / "main.py").exists():
-        BASE_DIR = Path("E:/projects/AI_CHAT_BOT")
 
-DEFAULT_PORT = 8080
-DEFAULT_HOST = "127.0.0.1"
+if not (BASE_DIR / "main.py").exists():
+    BASE_DIR = Path(os.getcwd())
+
+# Try loading .env if exists
+env_path = BASE_DIR / ".env"
+if env_path.exists():
+    try:
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+    except Exception:
+        pass
+
+DEFAULT_PORT = int(os.getenv("PORT", "8000"))
+DEFAULT_HOST = os.getenv("HOST", "127.0.0.1")
+
+def find_available_port(start_port=8000, max_attempts=50):
+    for p in range(start_port, start_port + max_attempts):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.3)
+            if s.connect_ex((DEFAULT_HOST, p)) != 0:
+                return p
+    return start_port
 
 def get_python_exe():
     """
@@ -42,6 +64,15 @@ def get_python_exe():
     When running as a PyInstaller frozen .exe, sys.executable points to NU_AI_Server_Manager.exe.
     Using sys.executable to spawn main.py would mistakenly re-launch the GUI!
     """
+    # 1. Check local virtual environment inside BASE_DIR
+    venv_py = BASE_DIR / ".venv" / "Scripts" / "python.exe"
+    if venv_py.exists():
+        return str(venv_py)
+
+    venv_py_unix = BASE_DIR / ".venv" / "bin" / "python"
+    if venv_py_unix.exists():
+        return str(venv_py_unix)
+
     if not getattr(sys, 'frozen', False):
         return sys.executable
 
@@ -137,7 +168,20 @@ class ServerManagerApp:
         lbl_port = tk.Label(port_box, text="Port:", font=("Segoe UI", 9, "bold"), bg=self.c_card, fg=self.c_text)
         lbl_port.pack(side="left", padx=(0, 4))
 
-        self.port_var = tk.StringVar(value=str(DEFAULT_PORT))
+        # Check if default port is free, otherwise select next available
+        init_port = DEFAULT_PORT
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.3)
+            if s.connect_ex((DEFAULT_HOST, init_port)) == 0:
+                try:
+                    import urllib.request
+                    req = urllib.request.Request(f"http://{DEFAULT_HOST}:{init_port}/api/health", headers={"User-Agent": "NU-Server-Manager"})
+                    with urllib.request.urlopen(req, timeout=0.6) as resp:
+                        pass
+                except Exception:
+                    init_port = find_available_port(8000)
+
+        self.port_var = tk.StringVar(value=str(init_port))
         self.ent_port = tk.Entry(port_box, textvariable=self.port_var, width=6, font=("Segoe UI", 9, "bold"), justify="center")
         self.ent_port.pack(side="left")
 
@@ -165,7 +209,7 @@ class ServerManagerApp:
 
         self.lbl_url_text = tk.Label(
             status_text_box, 
-            text="Service URL: http://127.0.0.1:8080 (Click 'Start Service' to launch)", 
+            text=f"Service URL: http://{DEFAULT_HOST}:{self.port_var.get()} (Click 'Start Service' to launch)", 
             font=("Segoe UI", 9), 
             bg=self.c_card, 
             fg=self.c_text_muted
@@ -317,12 +361,28 @@ class ServerManagerApp:
             s.settimeout(0.5)
             return s.connect_ex((DEFAULT_HOST, port)) == 0
 
+    def is_ai_service_running(self, port: int) -> bool:
+        try:
+            import urllib.request
+            req = urllib.request.Request(f"http://{DEFAULT_HOST}:{port}/api/health", headers={"User-Agent": "NU-Server-Manager"})
+            with urllib.request.urlopen(req, timeout=0.8) as resp:
+                return resp.status == 200
+        except Exception:
+            return False
+
     def check_initial_port_status(self):
         try:
             port = int(self.port_var.get().strip())
             if self.check_port_in_use(port):
-                self.set_ui_running(port)
-                self.log(f"Detected active service listening on port {port}.")
+                if self.is_ai_service_running(port):
+                    self.set_ui_running(port)
+                    self.log(f"Detected active National University AI service on port {port}.")
+                else:
+                    self.log(f"⚠️ Port {port} is occupied by another application.")
+                    free_port = find_available_port(8000)
+                    self.port_var.set(str(free_port))
+                    self.lbl_url_text.config(text=f"Service URL: http://{DEFAULT_HOST}:{free_port} (Click 'Start Service' to launch)")
+                    self.log(f"Auto-selected available port: {free_port}")
         except Exception:
             pass
 
@@ -359,7 +419,7 @@ class ServerManagerApp:
         try:
             port = int(self.port_var.get().strip())
         except ValueError:
-            messagebox.showerror("Invalid Port", "Please enter a valid numeric port number (e.g. 8080).")
+            messagebox.showerror("Invalid Port", "Please enter a valid numeric port number (e.g. 8000).")
             return
 
         if self.check_port_in_use(port):
@@ -382,12 +442,16 @@ class ServerManagerApp:
             self.set_ui_stopped()
             return
 
-        cmd = [python_exe, str(main_script)]
+        cmd = [python_exe, str(main_script), "--port", str(port)]
         
         try:
             creation_flags = 0
             if sys.platform == "win32":
                 creation_flags = subprocess.CREATE_NO_WINDOW
+
+            proc_env = os.environ.copy()
+            proc_env["PORT"] = str(port)
+            proc_env["HOST"] = DEFAULT_HOST
 
             self.server_process = subprocess.Popen(
                 cmd,
@@ -396,7 +460,8 @@ class ServerManagerApp:
                 stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1,
-                creationflags=creation_flags
+                creationflags=creation_flags,
+                env=proc_env
             )
 
             # Start background thread to capture stdout/stderr logs

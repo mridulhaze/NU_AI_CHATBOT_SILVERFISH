@@ -13,7 +13,8 @@ router = APIRouter(prefix="/api/v1/chat", tags=["AI Orchestrator & Skills Chat"]
 
 @router.post("", response_model=ChatResponse)
 async def process_orchestrated_chat(payload: ChatRequest, request: Request):
-    client_ip = request.client.host if request.client else "127.0.0.1"
+    forwarded = request.headers.get("x-forwarded-for")
+    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
     rate_limiter.check_rate_limit(client_ip)
 
     user_query = payload.message.strip()

@@ -63,6 +63,118 @@ WELCOME_REPLY = """জাতীয় বিশ্ববিদ্যালয়ের
 
 আপনার নির্দিষ্ট কোনো বিষয়, পরীক্ষা বা ভর্তি সম্পর্কিত প্রশ্ন থাকলে বিস্তারিত জানান।"""
 
+# 1b. Main Menu Grid (Square Shape Cards that Fit the Screen with Colorful Icons)
+MAIN_MENU_REPLY = """<div class="space-y-3 font-sans text-left">
+  <div class="p-3.5 bg-gradient-to-r from-emerald-800 to-teal-900 text-white rounded-2xl shadow-xs">
+    <div class="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">জাতীয় বিশ্ববিদ্যালয় বাংলাদেশ (nu.ac.bd)</div>
+    <h3 class="text-base font-bold text-white mt-0.5">🏛️ মূল একাডেমিক সেবা মেনু</h3>
+    <p class="text-xs text-emerald-100 mt-1">নিচের যেকোনো সেবা বা পরীক্ষার তথ্যে ক্লিক করে সরাসরি জেনে নিন:</p>
+  </div>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+    
+    <!-- Card 1: Honours -->
+    <div onclick="handleExamCategoryClick('Honours')" class="group p-3 rounded-2xl border border-blue-200 bg-gradient-to-b from-blue-50/60 to-white hover:from-blue-100 hover:to-blue-50 hover:border-blue-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        📘
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-blue-700 transition">অনার্স পরীক্ষা</h4>
+        <p class="text-[10px] text-slate-500">১ম, ২য়, ৩য়, ৪র্থ বর্ষ</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Degree Pass -->
+    <div onclick="handleExamCategoryClick('Degree Pass')" class="group p-3 rounded-2xl border border-indigo-200 bg-gradient-to-b from-indigo-50/60 to-white hover:from-indigo-100 hover:to-indigo-50 hover:border-indigo-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        📗
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-indigo-700 transition">ডিগ্রি পরীক্ষা</h4>
+        <p class="text-[10px] text-slate-500">১ম, ২য়, ৩য় বর্ষ</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Master's -->
+    <div onclick="handleExamCategoryClick('Master\\'s')" class="group p-3 rounded-2xl border border-purple-200 bg-gradient-to-b from-purple-50/60 to-white hover:from-purple-100 hover:to-purple-50 hover:border-purple-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        📙
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-purple-700 transition">মাস্টার্স পরীক্ষা</h4>
+        <p class="text-[10px] text-slate-500">শেষ পর্ব ও প্রিলি</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Professional -->
+    <div onclick="handleExamCategoryClick('Professional')" class="group p-3 rounded-2xl border border-teal-200 bg-gradient-to-b from-teal-50/60 to-white hover:from-teal-100 hover:to-teal-50 hover:border-teal-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        🎓
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-teal-700 transition">প্রফেশনাল পরীক্ষা</h4>
+        <p class="text-[10px] text-slate-500">১ম - ৮ম সেমিস্টার</p>
+      </div>
+    </div>
+
+    <!-- Card 5: Admission -->
+    <div onclick="sendQuickQuestion('অনার্স ১ম বর্ষের ভর্তি বিজ্ঞপ্তি ও নিয়মাবলি')" class="group p-3 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50/60 to-white hover:from-emerald-100 hover:to-emerald-50 hover:border-emerald-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        🎯
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-emerald-700 transition">অনার্স ভর্তি তথ্য</h4>
+        <p class="text-[10px] text-slate-500">মেধা তালিকা ও সার্কুলার</p>
+      </div>
+    </div>
+
+    <!-- Card 6: Routine -->
+    <div onclick="sendQuickQuestion('সর্বশেষ পরীক্ষার রুটিন ও নোটিশ')" class="group p-3 rounded-2xl border border-cyan-200 bg-gradient-to-b from-cyan-50/60 to-white hover:from-cyan-100 hover:to-cyan-50 hover:border-cyan-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-cyan-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        📅
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-cyan-700 transition">পরীক্ষার রুটিন</h4>
+        <p class="text-[10px] text-slate-500">সকল শিক্ষাবর্ষ</p>
+      </div>
+    </div>
+
+    <!-- Card 7: Certificate -->
+    <div onclick="sendQuickQuestion('অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?')" class="group p-3 rounded-2xl border border-violet-200 bg-gradient-to-b from-violet-50/60 to-white hover:from-violet-100 hover:to-violet-50 hover:border-violet-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-violet-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        📜
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-violet-700 transition">সার্টিফিকেট উত্তোলন</h4>
+        <p class="text-[10px] text-slate-500">ফি ও উত্তোলনের নিয়ম</p>
+      </div>
+    </div>
+
+    <!-- Card 8: EMS -->
+    <div onclick="sendQuickQuestion('ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি')" class="group p-3 rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50/60 to-white hover:from-amber-100 hover:to-amber-50 hover:border-amber-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        📝
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-amber-700 transition">ফরম পূরণ (EMS)</h4>
+        <p class="text-[10px] text-slate-500">সময়সীমা ও ফি জমা</p>
+      </div>
+    </div>
+
+    <!-- Card 9: TC -->
+    <div onclick="sendQuickQuestion('কলেজ ছাড়পত্র (TC) নেওয়ার উপায় কি?')" class="group p-3 rounded-2xl border border-rose-200 bg-gradient-to-b from-rose-50/60 to-white hover:from-rose-100 hover:to-rose-50 hover:border-rose-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-1.5 aspect-square sm:aspect-auto sm:min-h-[110px]">
+      <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xl shadow-xs group-hover:scale-110 transition-transform">
+        🏫
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-rose-700 transition">কলেজ টিসি (TC)</h4>
+        <p class="text-[10px] text-slate-500">অনলাইন ছাড়পত্র</p>
+      </div>
+    </div>
+
+  </div>
+</div>"""
+
 # 2. Preloaded Admissions Overview
 ADMISSION_REPLY = """### 🎓 জাতীয় বিশ্ববিদ্যালয় ভর্তি নির্দেশিকা ও তথ্য (Admissions)
 
@@ -107,16 +219,26 @@ RESULTS_REPLY = """### 📊 পরীক্ষার ফলাফল ও সি�
    - ফলাফল প্রকাশের ৩০ দিনের মধ্যে সোনালী সেবার মাধ্যমে অনলাইনে ফি জমা দিয়ে আবেদন করা যায়।"""
 
 # 5. Preloaded Form Fill-Up & EMS
-EMS_REPLY = """### 💻 ফরম পূরণ ও ইএমএস পোর্টাল নির্দেশিকা (Form Fill-Up & EMS)
+EMS_REPLY = """### 💻 পরীক্ষার ফরম পূরণ ও ইএমএস পোর্টাল নির্দেশিকা (Exam Form Fill-Up & EMS)
 
-পরীক্ষায় অংশগ্রহণের জন্য অনলাইনে ফরম পূরণ বাধ্যতামূলক:
+জাতীয় বিশ্ববিদ্যালয়ের অনার্স, ডিগ্রি, মাস্টার্স ও প্রফেশনাল পরীক্ষার ফরম পূরণ কার্যক্রম সম্পূর্ণ ডিজিটালি **EMS (Exam Management System)** পোর্টালের মাধ্যমে পরিচালিত হয়:
 
-1. **ফরম পূরণ প্রক্রিয়া:**
-   - [ems.nu.ac.bd](https://ems.nu.ac.bd/) এ স্টুডেন্ট লগইন করুন অথবা স্ব-স্ব পরীক্ষার ফরম পূরণ লিংকে যান।
-   - বিষয় কোড ও ব্যক্তিগত তথ্য যাচাই করে ফরম সাবমিট করুন এবং প্রিন্ট কপি কলেজে জমা দিন।
-2. **পাসওয়ার্ড বা অ্যাকাউন্ট সমস্যা:**
-   - যদি EMS পোর্টালে পাসওয়ার্ড ভুলে যান বা অ্যাকাউন্ট ব্লক হয়ে যায়, তাহলে 'Forgot Password' অপশনে রেজিস্ট্রেশন নম্বর দিয়ে রিসেট করুন।
-   - সমস্যা সমাধান না হলে আমাদের **টোকেন সার্ভিসে** একটি সাপোর্ট টোকেন খুলুন।"""
+#### ১. সরাসরি অফিসিয়াল লগইন লিংক:
+👉 **স্টুডেন্ট লগইন পোর্টাল:** [https://ems.nu.ac.bd/student-login](https://ems.nu.ac.bd/student-login)
+
+#### ২. ফরম পূরণের পর্যায়ক্রমিক সঠিক ধাপসমূহ:
+1. **লগইন করুন:** আপনার ইন্টারনেট ব্রাউজার থেকে সরাসরি [https://ems.nu.ac.bd/student-login](https://ems.nu.ac.bd/student-login) লিংকে প্রবেশ করুন।
+2. **ইউজার ক্রেডেনশিয়াল:** আপনার রেজিস্ট্রেশন নম্বর (Registration No) এবং নির্ধারিত শিক্ষাবর্ষ (Session) ইনপুট দিয়ে ড্যাশবোর্ডে প্রবেশ করুন।
+3. **কোর্স ও সাবজেক্ট কোড যাচাই:** আপনার সংশ্লিষ্ট বর্ষের আবশ্যিক (Compulsory) এবং ঐচ্ছিক/ইলেকটিভ (Elective) বিষয় কোডগুলো সিলেবাস অনুযায়ী সঠিকভাবে নির্বাচিত আছে কি না নিশ্চিত করুন।
+4. **ফরম সাবমিট ও পে-স্লিপ প্রিন্ট:** তথ্য সঠিক থাকলে আবেদন সাবমিট করুন এবং আবেদন ফরমের প্রিন্ট কপি (Student Application Form) ও সোনালী সেবা পে-স্লিপ ডাউনলোড করে প্রিন্ট করুন।
+5. **ফি প্রদান:** কলেজ নির্ধারিত সময়সীমার মধ্যে সোনালী ব্যাংকের মাধ্যমে অথবা কলেজের নির্দেশিত মোবাইল ব্যাংকিং/অনলাইন গেটওয়েতে পরীক্ষার ফি জমা দিন।
+6. **কলেজে হার্ডকপি জমা:** প্রিন্টকৃত ফরম, পেমেন্ট স্লিপ এবং প্রয়োজনীয় ছবি ও ডকুমেন্টস নিজ কলেজের সংশ্লিষ্ট বিভাগে নির্ধারিত শেষ তারিখের পূর্বে জমা দিন।
+7. **কলেজ ভেরিফিকেশন:** কলেজ কর্তৃপক্ষ অনলাইন প্যানেলে আপনার পেমেন্ট ও ফরম ভেরিফাই করবে। কলেজ কনফার্মেশনের পরই আপনার এডমিট কার্ড ইস্যু হবে।
+
+#### ৩. পাসওয়ার্ড বা একাউন্ট সংক্রান্ত সমস্যার সমাধান:
+• **পাসওয়ার্ড ভুলে গেলে:** লগইন পেজের নিচে **'Forgot Password'** অপশনে ক্লিক করে রেজিস্ট্রেশন নম্বর ও নিবন্ধিত মোবাইল নম্বরে ওটিপি দিয়ে রিসেট করুন।
+• **তথ্য অমিল বা ডাটা নট ফাউন্ড:** যদি বিষয় কোড না আসে বা ডাটা লক দেখায়, অনতিবিলম্বে নিজ কলেজের আইসিটি সেল অথবা পরীক্ষা শাখায় যোগাযোগ করুন।
+• **সাপোর্ট সার্ভিস:** সমাধানের জন্য আমাদের চ্যাটবট ড্যাশবোর্ডের **টোকেন সার্ভিস (Token Service)**-এ আইসিটি সাপোর্ট ডেস্ক বরাবর একটি অভিযোগ টোকেন খুলতে পারেন।"""
 
 
 # 7. Services Mega-Menu Breakdown Replies
@@ -165,48 +287,67 @@ WES_VERIFICATION_REPLY = """### 🔍 সনদপত্র, নম্বরপ�
 """
 
 # 6. Preloaded Certificate, Transcript & TC Services
-TC_REPLY = """### 📜 জাতীয় বিশ্ববিদ্যালয় কলেজ ছাড়পত্র / টিসি (Transfer Certificate - TC) নির্দেশিকা
+TC_REPLY = """### 🏛️ জাতীয় বিশ্ববিদ্যালয় কলেজ ছাড়পত্র (TC / e-TC) নেওয়ার সম্পূর্ণ নিয়মাবলী
 
-জাতীয় বিশ্ববিদ্যালয়ের নিয়মিত শিক্ষার্থীদের কলেজ পরিবর্তনের (e-TC) আবেদন সম্পূর্ণ অনলাইনে **স্টুডেন্ট ERP সার্ভিসেস পোর্টাল**-এর মাধ্যমে সম্পন্ন করতে হয়:
+জাতীয় বিশ্ববিদ্যালয়ের নিয়মিত শিক্ষার্থীদের এক কলেজ থেকে অন্য কলেজে স্থানান্তরের (e-TC) আবেদন প্রক্রিয়া সম্পূর্ণ অনলাইনে সম্পন্ন করতে হয়:
 
-1. **অনলাইন স্টুডেন্ট রেজিস্ট্রেশন ও লগইন:**
-   - [জাতীয় বিশ্ববিদ্যালয় স্টুডেন্ট ERP সার্ভিসেস পোর্টাল (http://103.113.200.68/nu-app/)](http://103.113.200.68/nu-app/) অথবা [103.113.200.68/nu-app](http://103.113.200.68/nu-app/) এ যান।
-   - রেজিস্ট্রেশন নম্বর ও সেশন দিয়ে **Student Login** করুন (নতুন হলে প্রথমে 'Student Register' করুন)।
+#### ১. আবেদন যোগ্যতা ও প্রযোজ্য শর্তাবলী:
+• **কোর্স ও বর্ষ:** সাধারণত অনার্স বা ডিগ্রি কোর্সের ১ম বর্ষ উত্তীর্ণ হয়ে ২য় বর্ষে অথবা ২য় বর্ষ উত্তীর্ণ হয়ে ৩য় বর্ষে ভর্তির পর ছাড়পত্রের আবেদন করা যায়। পরীক্ষার ফরম পূরণ চলাকালীন সময়ে টিসি আবেদন স্থগিত থাকে।
+• **উপযুক্ত কারণ:** অভিভাবকের চাকুরিজাত স্থানান্তর, স্থায়ী ঠিকানা পরিবর্তন, দূরবর্তী দূরত্ব বা শারীরিক প্রতিবন্ধকতা ইত্যাদি যুক্তিসঙ্গত কারণ উল্লেখ করতে হয়। একই জেলায় সাধারণত সরকারি থেকে সরকারি বা বেসরকারি থেকে বেসরকারি কলেজে স্থানান্তর হওয়া যায়।
 
-2. **টিসি (TC) ফরম পূরণ ও কলেজ নির্বাচন:**
-   - ড্যাশবোর্ড থেকে **'Academic Services' -> 'College Transfer / TC'** অপশনে ক্লিক করুন।
-   - বর্তমান কলেজের তথ্য স্বয়ংক্রিয়ভাবে প্রদর্শিত হবে। যে কলেজে স্থানান্তর হতে চান (Target College) সেটি নির্বাচন করুন এবং যথাযথ কারণ উল্লেখ করুন।
+#### ২. অনলাইন আবেদনের সঠিক ধাপসমূহ:
+1. **স্টুডেন্ট লগইন:** জাতীয় বিশ্ববিদ্যালয়ের অফিসিয়াল [স্টুডেন্ট সার্ভিসেস পোর্টাল (http://103.113.200.68/nu-app/)](http://103.113.200.68/nu-app/) ভিজিট করুন।
+2. **রেজিস্ট্রেশন:** পূর্বে একাউন্ট না থাকলে 'Student Registration' অপশনে গিয়ে আপনার রোল, রেজিস্ট্রেশন নম্বর ও শিক্ষাবর্ষ দিয়ে সাইন-আপ করুন।
+3. **টিসি ফরম পূরণ:** ড্যাশবোর্ডে লগইন করে **'Academic Services' -> 'College Transfer (e-TC)'** নির্বাচন করুন।
+4. **কাঙ্ক্ষিত কলেজ নির্বাচন:** ড্রপডাউন মেনু থেকে আপনার পছন্দকৃত গন্তব্য কলেজ (Target College) ও বিভাগ/বিষয় নির্বাচন করুন এবং স্থানান্তরের কারণ লিখে প্রয়োজনীয় সনদ/প্রত্যয়নপত্র আপলোড করুন।
+5. **আবেদন সাবমিট ও পে-স্লিপ প্রিন্ট:** সাবমিট করার পর সোনালী সেবার অনলাইন ফি পে-স্লিপ স্বয়ংক্রিয়ভাবে তৈরি হবে।
 
-3. **ফি প্রদান (Sonali Seva e-Payment):**
-   - আবেদন সাবমিট করার পর স্বয়ংক্রিয় সোনালী সেবা পে-স্লিপ ডাউনলোড করুন অথবা অনলাইন পেমেন্ট গেটওয়ে দিয়ে নির্ধারিত ফি পরিশোধ করুন।
+#### ৩. ফি ও পরিশোধ পদ্ধতি:
+• **নির্ধারিত ফি:** জাতীয় বিশ্ববিদ্যালয় নির্ধারিত টিসি ফি ১,০০০/- (এক হাজার) টাকা।
+• **পেমেন্ট:** সোনালী সেবা পে-স্লিপটি প্রিন্ট করে যেকোনো সোনালী ব্যাংক শাখায় জমা দিন অথবা অনলাইন সোনালী পেমেন্ট গেটওয়ের মাধ্যমে (বিকাশ/নগদ/রকেট/কার্ড) পরিশোধ করুন।
 
-4. **অনলাইন ছাড়পত্র অনুমোদন ও ট্র্যাকিং:**
-   - আবেদনটি প্রথমে বর্তমান কলেজ ও পরে কাঙ্ক্ষিত কলেজের প্রিন্সিপাল প্যানেলে যায়।
-   - উভয় কলেজের অনলাইন অনাপত্তি (NOC/Acceptance) সম্পন্ন হলে জাতীয় বিশ্ববিদ্যালয়ের রেজিস্ট্রেশন শাখা চূড়ান্ত অনুমোদন দেয়।
-   - শিক্ষার্থী ERP প্রোফাইল থেকেই অনলাইন ট্রান্সফার সার্টিফিকেট (Approved e-TC) ডাউনলোড করতে পারেন।
+#### ৪. ছাড়পত্র অনুমোদন ও ভর্তি সম্পন্নকরণ:
+1. **বর্তমান কলেজের এনওসি (NOC):** ফি জমা দেওয়ার পর আবেদনটি বর্তমান কলেজের অধ্যক্ষের অনলাইন প্যানেলে যায় এবং অধ্যক্ষ অনুমোদন প্রদান করেন।
+2. **গন্তব্য কলেজের এনওসি (NOC):** এরপর প্রস্তাবিত নতুন কলেজের অধ্যক্ষ আসন শূন্য থাকা সাপেক্ষে অনলাইন অনাপত্তি (Acceptance) দেন।
+3. **বিশ্ববিদ্যালয় চূড়ান্ত অনুমোদন:** উভয় কলেজ এনওসি দেওয়ার পর জাতীয় বিশ্ববিদ্যালয়ের রেজিস্ট্রেশন শাখা যাচাই করে চূড়ান্ত ছাড়পত্র ইস্যু করে।
+4. **চূড়ান্ত ছাড়পত্র ডাউনলোড:** অনুমোদনের এসএমএস পাওয়ার পর স্টুডেন্ট পোর্টাল থেকে অনুমোদিত **e-TC Order Copy** ডাউনলোড করে নতুন কলেজে সরাসরি ভর্তি সম্পন্ন করুন।
 
 🔗 **জরুরি অফিসিয়াল লিংক:**
-- **স্টুডেন্ট ERP লগইন ও আবেদন:** [http://103.113.200.68/nu-app/](http://103.113.200.68/nu-app/) অথবা [http://103.113.200.68/nu-app/](http://103.113.200.68/nu-app/)
+- **স্টুডেন্ট ERP লগইন ও আবেদন:** [http://103.113.200.68/nu-app/](http://103.113.200.68/nu-app/)
 - **নোটিশ বোর্ড:** [সকল নোটিশ (nu.ac.bd)](https://www.nu.ac.bd/recent-news-notice.php)"""
 
-CERTIFICATE_REPLY = """### 📜 সাময়িক/মূল সনদ ও ট্রান্সক্রিপ্ট উত্তোলনের নিয়ম (Certificate & Transcript)
+CERTIFICATE_REPLY = """### 📜 জাতীয় বিশ্ববিদ্যালয় সার্টিফিকেট উত্তোলন — ফি ও উত্তোলনের পূর্ণাঙ্গ নিয়মাবলী
 
-জাতীয় বিশ্ববিদ্যালয় থেকে মূল সনদপত্র (Original Certificate), সাময়িক সনদ (Provisional Certificate) এবং একাডেমিক ট্রান্সক্রিপ্ট (Academic Transcript) উত্তোলনের আবেদন সম্পূর্ণ অনলাইনে **ERP স্টুডেন্ট সার্ভিসেস পোর্টাল**-এর মাধ্যমে করা হয়:
+জাতীয় বিশ্ববিদ্যালয়ের সকল মূল সনদ, সাময়িক সনদ, নম্বরপত্র (মার্কশিট) এবং একাডেমিক ট্রান্সক্রিপ্ট উত্তোলনের আবেদন সম্পূর্ণ অনলাইন পোর্টালের মাধ্যমে করতে হয়:
 
-1. **অনলাইন আবেদন (Student ERP Login):**
-   - [জাতীয় বিশ্ববিদ্যালয় স্টুডেন্ট সার্ভিসেস পোর্টাল (http://103.113.200.68/nu-app/)](http://103.113.200.68/nu-app/) অথবা [103.113.200.68/nu-app](http://103.113.200.68/nu-app/) এ স্টুডেন্ট একাউন্টে লগইন করুন।
-   - **'Academic Services' -> 'Certificate Application' / 'Transcript Application'** মেনু নির্বাচন করুন।
+#### ১. অনলাইন আবেদনের পোর্টাল ও প্রক্রিয়া:
+1. **পোর্টাল লিংক:** জাতীয় বিশ্ববিদ্যালয় স্টুডেন্ট সার্ভিসেস পোর্টাল: [http://103.113.200.68/nu-app/](http://103.113.200.68/nu-app/)
+2. **লগইন ও সার্ভিস নির্বাচন:** রেজিস্ট্রেশন ও মোবাইল নম্বর দিয়ে লগইন করে **'Certificate Application' / 'Document Services'** সেকশনে প্রবেশ করুন।
+3. **কাঙ্ক্ষিত সনদ নির্বাচন:** ড্রপডাউন থেকে মূল সনদ (Original), সাময়িক সনদ (Provisional), মার্কশিট (Marksheet) বা ট্রান্সক্রিপ্ট (Transcript) নির্বাচন করুন।
+4. **ডকুমেন্ট আপলোড:** সকল বর্ষের প্রবেশপত্র (Admit Card), নম্বরপত্র ও রেজিস্ট্রেশন কার্ডের স্পষ্ট স্ক্যান কপি যুক্ত করুন।
 
-2. **প্রয়োজনীয় তথ্য ও ডকুমেন্ট আপলোড:**
-   - রেজিস্ট্রেশন নম্বর, সেশন ও পাশের বছর সিলেক্ট করে প্রবেশপত্র/রেজিস্ট্রেশন কার্ড এবং ফলাফলের কপি সংযুক্ত করুন।
+#### ২. অফিসিয়াল ফি তালিকা (সোনালী সেবা):
+• **মূল সনদপত্র (Original Certificate):**
+  - সাধারণ ডেলিভারি (Regular): **৫০০/- টাকা**
+  - জরুরি ডেলিভারি (Urgent): **১,০০০/- টাকা**
+• **সাময়িক সনদপত্র (Provisional Certificate):**
+  - সাধারণ ডেলিভারি: **৩০০/- টাকা**
+  - জরুরি ডেলিভারি: **৫০০/- টাকা**
+• **একাডেমিক ট্রান্সক্রিপ্ট (Official Transcript):**
+  - প্রতি কপি সাধারণ: **৭০০/- টাকা**
+  - জরুরি ডেলিভারি: **১,০০০/- টাকা**
+• **নম্বরপত্র / গ্রেডশিট (Marksheet):**
+  - প্রতি বর্ষের মার্কশিট: **৩০০/- টাকা** (জরুরি ৫০০/- টাকা)
+*(ব্যাংক চার্জ ও সোনালী সেবা ট্রানজেকশন ফি প্রযোজ্য হতে পারে)*
 
-3. **ফি প্রদান (Sonali Seva):**
-   - সোনালী সেবা পে-স্লিপের মাধ্যমে সোনালী ব্যাংকে অথবা অনলাইন ব্যাংকিং/মোবাইল ফিনান্সিয়াল সার্ভিসের মাধ্যমে ফি পরিশোধ করুন।
+#### ৩. ফি পরিশোধ ও ডকুমেন্ট গ্রহণ:
+• **ফি প্রদান:** সোনালী সেবা ই-পেমেন্ট গেটওয়ের মাধ্যমে সরাসরি কার্ড/বিকাশ/নগদে অথবা সোনালী ব্যাংকের যেকোনো শাখায় পে-স্লিপ জমা দেওয়া যায়।
+• **ডেলিভারি মাধ্যম:**
+  - **ওয়ান স্টপ সার্ভিস (One Stop Service):** জরুরি আবেদনের ক্ষেত্রে গাজীপুর মূল ক্যাম্পাসের ওয়ান স্টপ সার্ভিস কাউন্টার থেকে নির্ধারিত তারিখে মূল রশিদ ও আইডি কার্ড দেখিয়ে সরাসরি সনদ গ্রহণ করা যায়।
+  - **আঞ্চলিক কেন্দ্র বা ডাকযোগে:** সাধারণ আবেদনের ক্ষেত্রে সংশ্লিষ্ট আঞ্চলিক কেন্দ্র অথবা নিজ কলেজের ঠিকানায় সনদ পৌঁছে দেওয়া হয়।
 
-4. **ট্র্যাকিং ও সনদপত্র ডেলিভারি:**
-   - আপনার ERP অ্যাকাউন্ট থেকে 'Application Tracking' এ সর্বশেষ অগ্রগতি যাচাই করতে পারবেন। ডেলিভারি প্রস্তুত হলে বিশ্ববিদ্যালয়ের ওয়ান-স্টপ সার্ভিস / সনদপত্র শাখা হতে সংগ্রহ করা যাবে।
+🔗 **অফিসিয়াল পোর্টাল লিংক:** [http://103.113.200.68/nu-app/](http://103.113.200.68/nu-app/)"""
 
-🔗 **অফিসিয়াল পোর্টাল লিংক:** [http://103.113.200.68/nu-app/](http://103.113.200.68/nu-app/) | [http://103.113.200.68/nu-app/](http://103.113.200.68/nu-app/)"""
 
 CORRECTION_REPLY = """### ✏️ সনদপত্র, নম্বরপত্র ও তথ্যের ভুল সংশোধন নির্দেশিকা (Document Corrections)
 
@@ -239,10 +380,38 @@ ERP_SERVICES_REPLY = """### 🌐 জাতীয় বিশ্ববিদ্য�
 
 
 
+HELPDESK_REPLY = """### 📞 জাতীয় বিশ্ববিদ্যালয় হেল্পডেস্ক ও জরুরি যোগাযোগ নম্বর
+
+জাতীয় বিশ্ববিদ্যালয়ের অফিসিয়াল যোগাযোগের জরুরি নম্বরসমূহ (সব নম্বর ইংরেজি সংখ্যায় 0-9 ব্যবহার করা হয়েছে):
+
+• **সেন্ট্রাল পিএবিএক্স (PABX):** +88029291017, +88029291018
+• **পরীক্ষা নিয়ন্ত্রক দপ্তর:** 02-9291019, 02-9291020
+• **ভর্তি ও রেজিস্ট্রেশন সেল:** 02-9291038
+• **আইসিটি ও ইআরপি সাপোর্ট শাখা:** 02-9291035, 02-9291036
+• **ইমেইল:** info@nu.ac.bd, registrar@nu.ac.bd
+• **অনলাইন সার্ভিস সাপোর্ট:** http://103.113.200.68/nu-app/
+
+📌 *যেকোনো জরুরি বিষয়ে সরাসরি আমাদের সাপোর্ট সেন্টারে টোকেন খুলতে পারেন।*"""
+
 # Direct normalized phrase mapping for instant lookups (< 0.001s)
 INSTANT_LOOKUP_MAP: Dict[str, ChatResponse] = {}
 
 def _init_instant_lookups():
+    # Helpdesk & Contacts
+    helpdesk_triggers = [
+        "helpdesk", "contact", "phone", "phone number", "contact number", "hotline",
+        "হেল্পডেস্ক", "যোগাযোগ", "ফোন নম্বর", "মোবাইল নম্বর", "হেল্পলাইন", "যোগাযোগের ফোন নম্বর",
+        "হেল্পডেস্ক বা যোগাযোগের ফোন নম্বর দিন", "যোগাযোগের নম্বর"
+    ]
+    for trig in helpdesk_triggers:
+        INSTANT_LOOKUP_MAP[trig] = ChatResponse(
+            reply=HELPDESK_REPLY,
+            citations=CITATIONS_GENERAL,
+            intent="HELPDESK_CONTACT",
+            skill_used="nu_general",
+            suggested_chips=["🎫 সাপোর্ট টোকেন খুলুন", "🌐 স্টুডেন্ট পোর্টাল", "📄 নোটিশ বোর্ড", "🏠 মূল মেনু"]
+        )
+
     # Greetings & Salutations
     greeting_triggers = [
         "hi", "hello", "hey", "start", "menu", "help", "hlo", "helo", "hy",
@@ -305,7 +474,10 @@ def _init_instant_lookups():
     # Form Fill-Up & EMS
     ems_triggers = [
         "form fillup", "form fill up", "ems", "ems login", "password reset", "student portal",
-        "ফরম পূরণ", "ইএমএস", "ইএমএস লগইন", "পাসওয়ার্ড ভুলে গেছি", "ফরম ফিলাপ"
+        "ফরম পূরণ", "ইএমএস", "ইএমএস লগইন", "পাসওয়ার্ড ভুলে গেছি", "ফরম ফিলাপ",
+        "ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি", "ফরম পূরণ (ems)", "ফরম পূরণ করার নিয়ম",
+        "ইএমএস স্টুডেন্ট লগইন", "ems student login", "https://ems.nu.ac.bd/student-login",
+        "ems.nu.ac.bd/student-login", "ফরম পূরণের নিয়ম", "ফরম পূরণ (ems)"
     ]
     for trig in ems_triggers:
         INSTANT_LOOKUP_MAP[trig] = ChatResponse(
@@ -353,7 +525,10 @@ def _init_instant_lookups():
     # College Transfer / TC (ছাড়পত্র)
     tc_triggers = [
         "tc", "transfer certificate", "college transfer", "tc form", "tc application",
-        "টিসি", "ছাড়পত্র", "কলেজ পরিবর্তন", "কলেজ ট্রান্সফার", "টিসি ফরম", "টিসি আবেদন", "ছাড়পত্র"
+        "টিসি", "ছাড়পত্র", "কলেজ পরিবর্তন", "কলেজ ট্রান্সফার", "টিসি ফরম", "টিসি আবেদন", "ছাড়পত্র",
+        "কলেজ ছাড়পত্র (tc) নেওয়ার উপায় কি?", "কলেজ ছাড়পত্র (tc) নেওয়ার উপায় কি", "কলেজ ছাড়পত্র নেওয়ার নিয়ম",
+        "টিসি নেওয়ার নিয়ম", "কলেজ পরিবর্তন করার নিয়ম", "কলেজ ছাড়পত্র", "কলেজ ছাড়পত্র (tc)", "e-tc", "etc",
+        "ছাড়পত্র নেওয়ার উপায়", "ছাড়পত্র নেওয়ার উপায়"
     ]
     for trig in tc_triggers:
         INSTANT_LOOKUP_MAP[trig] = ChatResponse(
@@ -395,7 +570,10 @@ def _init_instant_lookups():
     # Certificates & Marksheets
     cert_triggers = [
         "certificate", "transcript", "original certificate", "provisional certificate",
-        "সার্টিফিকেট", "নম্বরপত্র", "ট্রান্সক্রিপ্ট", "মূল সনদ", "সাময়িক সনদ"
+        "সার্টিফিকেট", "নম্বরপত্র", "ট্রান্সক্রিপ্ট", "মূল সনদ", "সাময়িক সনদ",
+        "সার্টিফিকেট উত্তোলন", "অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?", "অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত",
+        "ফি ও উত্তোলনের নিয়ম", "সনদ উত্তোলনের নিয়ম", "সার্টিফিকেট ফি", "সনদ উত্তোলন", "মার্কশিট উত্তোলন", "ট্রান্সক্রিপ্ট উত্তোলন",
+        "সার্টিফিকেট ফি কত", "মূল সার্টিফিকেট উত্তোলন"
     ]
     for trig in cert_triggers:
         INSTANT_LOOKUP_MAP[trig] = ChatResponse(
@@ -404,6 +582,20 @@ def _init_instant_lookups():
             intent="CERTIFICATE_INFO",
             skill_used="document_search",
             suggested_chips=["📜 সার্টিফিকেট আবেদনের নিয়ম", "🎫 সার্টিফিকেট সহায়তা টোকেন", "🏠 মূল মেনু"]
+        )
+
+    # Main Menu & Home Triggers
+    main_menu_triggers = [
+        "মূল মেনু", "মেইন মেনু", "main menu", "menu", "মেনু", "home", "হোম", "🏠 মূল মেনু", "মূল মেনুতে ফিরুন",
+        "প্রধান মেনু", "মূলমেনু", "mainmenu"
+    ]
+    for trig in main_menu_triggers:
+        INSTANT_LOOKUP_MAP[trig] = ChatResponse(
+            reply=MAIN_MENU_REPLY,
+            citations=CITATIONS_GENERAL,
+            intent="MAIN_MENU_INFO",
+            skill_used="nu_general",
+            suggested_chips=["📘 অনার্স পরীক্ষা", "📗 ডিগ্রি পরীক্ষা", "📙 মাস্টার্স পরীক্ষা", "🎓 প্রফেশনাল পরীক্ষা"]
         )
 
 _init_instant_lookups()
@@ -415,8 +607,30 @@ def get_preloaded_response(query: str) -> Optional[ChatResponse]:
     normalized = query.lower().strip(" \t\n\r.?!,;:-_~`@#$%^&*()+=/\\|")
     if normalized in INSTANT_LOOKUP_MAP:
         return INSTANT_LOOKUP_MAP[normalized]
+
+    # 1. Instant check for main menu variations
+    if any(k in normalized for k in ["মূল মেনু", "মেইন মেনু", "main menu", "মূলমেনু", "mainmenu", "🏠 মূল মেনু"]):
+        return INSTANT_LOOKUP_MAP.get("মূল মেনু")
+    if normalized in ["menu", "মেনু", "home", "হোম"]:
+        return INSTANT_LOOKUP_MAP.get("মূল মেনু")
+
+    # 2. Check TC (ছাড়পত্র / Transfer Certificate) key phrases
+    if any(k in normalized for k in ["ছাড়পত্র", "ছাড়পত্র", "টিসি", "কলেজ পরিবর্তন", "কলেজ ট্রান্সফার", "tc", "transfer certificate", "e-tc"]):
+        return INSTANT_LOOKUP_MAP.get("tc")
+
+    # 3. Check Certificate (সার্টিফিকেট / নম্বরপত্র / উত্তোলন / সনদ) key phrases
+    if any(k in normalized for k in ["সার্টিফিকেট", "সাময়িক সনদ", "সাময়িক সনদ", "মূল সনদ", "ট্রান্সক্রিপ্ট", "উত্তোলন", "certificate", "transcript", "নম্বরপত্র"]):
+        return INSTANT_LOOKUP_MAP.get("certificate")
+
+    # 4. Check EMS / Form Fill-Up key phrases
+    if any(k in normalized for k in ["ফরম পূরণ", "ফরম পুরণ", "ইএমএস", "ems", "form fill", "student-login"]):
+        return INSTANT_LOOKUP_MAP.get("ems")
+
+    # 5. Check key intent phrases
+    if any(k in normalized for k in ["যোগাযোগের ফোন নম্বর", "ফোন নম্বর", "হেল্পডেস্ক", "contact number", "phone number"]):
+        return INSTANT_LOOKUP_MAP.get("helpdesk")
     
-    # Check word-level match for short 1-2 word queries
+    # 6. Check word-level match for short 1-2 word queries
     words = normalized.split()
     if len(words) <= 2:
         for w in words:
@@ -424,3 +638,5 @@ def get_preloaded_response(query: str) -> Optional[ChatResponse]:
                 return INSTANT_LOOKUP_MAP[w]
                 
     return None
+
+

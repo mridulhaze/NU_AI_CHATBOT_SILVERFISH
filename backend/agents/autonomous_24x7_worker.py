@@ -13,6 +13,7 @@ from typing import Dict, Any, Optional
 from .scraped_data_analyzer import get_scraped_data_analyzer
 from .knowledge_enricher import get_knowledge_enricher
 from .knowledge_provenance import get_knowledge_provenance
+from backend.services.hermes_brain_service import get_hermes_brain
 
 logger = logging.getLogger("NU_AUTONOMOUS_24X7_WORKER")
 
@@ -22,6 +23,7 @@ class Autonomous24x7Worker:
         self.analyzer = get_scraped_data_analyzer()
         self.enricher = get_knowledge_enricher()
         self.provenance = get_knowledge_provenance()
+        self.hermes_brain = get_hermes_brain()
         self.is_running = False
         self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
@@ -29,6 +31,7 @@ class Autonomous24x7Worker:
         self.total_cycles = 0
         self.total_pages_processed = 0
         self.total_qa_synthesized = 0
+        self.total_gaps_resolved = 0
 
     def start_24x7_worker(self):
         """Starts the 24/7 background worker thread if not already running."""
@@ -114,18 +117,28 @@ class Autonomous24x7Worker:
             except Exception as e:
                 logger.error(f"Error processing page #{page.get('id')}: {e}", exc_info=True)
 
+        # Step 5: Process any pending knowledge gaps via Hermes Learning Brain
+        gaps_resolved = 0
+        try:
+            brain_res = self.hermes_brain.run_interactive_learning_cycle(limit_gaps=5)
+            gaps_resolved = brain_res.get("resolved_gaps_count", 0)
+            self.total_gaps_resolved += gaps_resolved
+        except Exception as e:
+            logger.warning(f"Hermes Brain gap resolution warning during 24/7 cycle: {e}")
+
         self.last_cycle_time = now_iso
         self.total_cycles += 1
         self.total_pages_processed += processed_count
         self.total_qa_synthesized += qa_count
         duration_s = time.time() - start_t
 
-        logger.info(f"✅ 24/7 Knowledge Cycle Finished in {duration_s:.2f}s: Enriched {processed_count} pages, {qa_count} QA pairs.")
+        logger.info(f"✅ 24/7 Knowledge Cycle Finished in {duration_s:.2f}s: Enriched {processed_count} pages, {qa_count} QA pairs, {gaps_resolved} gaps resolved.")
 
         return {
             "status": "success",
             "pages_processed": processed_count,
             "qa_synthesized": qa_count,
+            "gaps_resolved": gaps_resolved,
             "duration_seconds": round(duration_s, 2),
             "timestamp": now_iso
         }
@@ -139,6 +152,7 @@ class Autonomous24x7Worker:
             "total_cycles": self.total_cycles,
             "total_pages_processed": self.total_pages_processed,
             "total_qa_synthesized": self.total_qa_synthesized,
+            "total_gaps_resolved": self.total_gaps_resolved,
             "status_display": "🟢 24/7 Active & Running" if self.is_running else "⚪ Idle"
         }
 

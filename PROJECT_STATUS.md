@@ -19,7 +19,7 @@ The **National University AI Assistant** aims to be a reliable, 24/7 self-servic
 | **Flexible JSON Dataset System** | ✅ Completed | `data/nu_knowledge_base.json` and `data/quick_links.json` provide modular, editable knowledge catalogs. |
 | **Automated Knowledge Updater** | ✅ Completed | `updater.py` with standalone, daemon scheduler (`--daemon`), and REST API (`POST /api/update-knowledge`) integration. |
 | **Vector DB Ingestion** | ✅ Completed | Chunks documents and builds persistent vector embeddings in `./nu_vector_db` using `models/gemini-embedding-001` with retry & rate-limit backoff. |
-| **FastAPI Backend & Multi-Device IP** | ✅ Completed | Bound to `0.0.0.0:8080`, serves web app directly on root `GET /`, provides multi-turn chat and quick links APIs. |
+| **FastAPI Backend & Multi-Device IP** | ✅ Completed | Bound to `0.0.0.0:8000`, serves web app directly on root `GET /`, provides multi-turn chat and quick links APIs. |
 | **LLM Inference** | ✅ Completed | Powered by modern Google GenAI Client with `gemini-3.5-flash` and senior academic counselor prompt. |
 | **Interactive Portal Hub & Chat UI** | ✅ Completed | Standalone responsive floating widget & hub with 1-click official portal tiles, markdown rendering, and PDF download buttons. |
 | **Multi-turn Chat History** | ⏳ Planned | Preserve conversation history context across multiple turns. |

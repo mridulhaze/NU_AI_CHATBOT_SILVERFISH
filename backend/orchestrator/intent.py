@@ -50,6 +50,9 @@ class IntentClassifier:
                 break
 
         # 6. Intent classification based on keywords
+        if any(w in text_lower for w in ["recent notice", "latest notice", "notices", "notice", "নোটিশ", "বিজ্ঞপ্তি", "অফিস আদেশ", "সার্কুলার"]):
+            return "NOTICE_QUERY", entities
+
         if any(w in text_lower for w in ["routine", "রুটিন", "exam schedule", "পরীক্ষার সময়সূচী", "পরীক্ষা কেন্দ্র", "admit card"]):
             return "EXAM_QUERY", entities
 

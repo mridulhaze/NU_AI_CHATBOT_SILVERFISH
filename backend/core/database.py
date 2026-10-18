@@ -25,6 +25,14 @@ if db_url.startswith("sqlite"):
 engine = create_engine(db_url, connect_args=connect_args, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+def get_db_connection() -> sqlite3.Connection:
+    """Returns a raw SQLite connection to the primary database."""
+    db_path = settings.DATA_DIR / "nu_tokens.db"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def get_db_session() -> Generator[Session, None, None]:
     """Dependency for obtaining a database session."""
     session = SessionLocal()

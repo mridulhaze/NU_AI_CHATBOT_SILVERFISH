@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import threading
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from contextlib import asynccontextmanager
@@ -20,7 +21,7 @@ from crawler.scheduler import start_scheduler, stop_scheduler, run_full_crawl, g
 from crawler.deep_crawler_bridge import run_deep_crawler, get_deep_crawler_status
 from enrichment.worker import get_enrichment_worker
 from token_service import init_token_database, token_router
-from backend.api import auth_router, chat_v1_router, token_v1_router, admin_v1_router, mcp_router, credential_router, enrichment_router, ai_lab_router
+from backend.api import auth_router, chat_v1_router, token_v1_router, admin_v1_router, mcp_router, credential_router, enrichment_router, ai_lab_router, academic_exam_router
 from backend.orchestrator.agent import get_ai_orchestrator
 from backend.core.database import init_core_database
 from backend.agents.autonomous_24x7_worker import get_24x7_worker
@@ -38,11 +39,28 @@ async def lifespan(app: FastAPI):
     init_token_database()
     init_core_database()
     
-    # Start periodic background crawler (every 60 minutes)
+    # Start periodic background crawler (every 30 minutes)
     try:
         start_scheduler(crawl_interval_minutes=settings.CRAWL_INTERVAL_MINUTES)
     except Exception as e:
         logger.warning(f"Could not start background scheduler: {e}")
+
+    # Initial crawl check in background (non-blocking)
+    try:
+        def _initial_crawl_worker():
+            try:
+                notices_count = len(sql_store.get_recent_notices(limit=5))
+                if notices_count == 0:
+                    logger.info("Database has 0 notices. Triggering non-blocking initial startup crawl...")
+                    run_full_crawl()
+                else:
+                    logger.info(f"Database contains {notices_count}+ notices. Scheduler running incremental sync.")
+            except Exception as e_init:
+                logger.warning(f"Initial startup crawl background error: {e_init}")
+
+        threading.Thread(target=_initial_crawl_worker, daemon=True, name="NU_Startup_Crawler").start()
+    except Exception as e_th:
+        logger.warning(f"Could not spawn startup crawler thread: {e_th}")
 
     # Start 24/7 Autonomous Knowledge Enrichment Agent
     try:
@@ -85,8 +103,10 @@ app.include_router(admin_v1_router)
 app.include_router(mcp_router)
 app.include_router(enrichment_router)
 app.include_router(ai_lab_router)
+app.include_router(academic_exam_router)
 app.include_router(token_router)
 
+STUDENT_CHAT_FILE = settings.STATIC_DIR / "chat.html"
 HTML_FILE = settings.STATIC_DIR / "index.html"
 # Legacy fallback HTML path
 LEGACY_HTML_FILE = settings.BASE_DIR / "gemini-code-1786959765553.html"
@@ -94,19 +114,28 @@ LEGACY_HTML_FILE = settings.BASE_DIR / "gemini-code-1786959765553.html"
 # --- Frontend Serving Routes ---
 @app.get("/")
 def serve_root():
+    if STUDENT_CHAT_FILE.exists():
+        return FileResponse(STUDENT_CHAT_FILE)
     if HTML_FILE.exists():
         return FileResponse(HTML_FILE)
-    elif LEGACY_HTML_FILE.exists():
-        return FileResponse(LEGACY_HTML_FILE)
     return {"status": "online", "message": "National University AI Assistant API is running."}
 
 @app.get("/chat")
+@app.get("/widget")
 def serve_chat_ui():
+    if STUDENT_CHAT_FILE.exists():
+        return FileResponse(STUDENT_CHAT_FILE)
+    elif HTML_FILE.exists():
+        return FileResponse(HTML_FILE)
+    raise HTTPException(status_code=404, detail="Chat UI template not found.")
+
+@app.get("/admin")
+def serve_admin_portal():
     if HTML_FILE.exists():
         return FileResponse(HTML_FILE)
     elif LEGACY_HTML_FILE.exists():
         return FileResponse(LEGACY_HTML_FILE)
-    raise HTTPException(status_code=404, detail="Chat UI template not found.")
+    raise HTTPException(status_code=404, detail="Admin UI template not found.")
 
 @app.get("/docs/project-overview.pdf")
 def serve_project_overview_pdf():
@@ -139,7 +168,8 @@ def serve_project_proposal_docx():
 # --- Chat Endpoint ---
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(payload: ChatRequest, request: Request):
-    client_ip = request.client.host if request.client else "127.0.0.1"
+    forwarded = request.headers.get("x-forwarded-for")
+    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
     rate_limiter.check_rate_limit(client_ip)
 
     user_query = payload.message.strip()
@@ -316,6 +346,14 @@ def serve_index():
 @app.get("/index.html", response_class=FileResponse, include_in_schema=False)
 def serve_index_alias():
     return serve_index()
+
+@app.get("/chat", response_class=FileResponse, include_in_schema=False)
+@app.get("/student", response_class=FileResponse, include_in_schema=False)
+def serve_chat_ui():
+    chat_file = STATIC_DIR / "chat.html"
+    if chat_file.exists():
+        return FileResponse(chat_file)
+    raise HTTPException(status_code=404, detail="chat.html not found")
 
 @app.get("/embed-demo.html", response_class=FileResponse, include_in_schema=False)
 @app.get("/demo", response_class=FileResponse, include_in_schema=False)

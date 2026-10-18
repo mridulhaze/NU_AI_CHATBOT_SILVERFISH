@@ -11,6 +11,8 @@ from .models import ChatMessage, ChatResponse, SourceCitation
 from db.sql_store import get_sql_store
 from db.vector_store import get_vector_store
 from token_service.service import get_token_service
+from backend.services.session_memory import get_session_memory
+from backend.services.notice_service import get_notice_filter_service
 from .orchestrator.preloaded_responses import get_preloaded_response, WELCOME_REPLY, CITATIONS_GENERAL
 
 logger = logging.getLogger("NU_RAG_ENGINE")
@@ -459,18 +461,9 @@ class RAGEngine:
         return chips_map.get(intent, ["🎫 টোকেন সার্ভিস", "📄 সাম্প্রতিক নোটিশ", "🎓 অনার্স ভর্তি তথ্য"])
 
     def _build_system_prompt(self, query: str, context: str, history: List[ChatMessage], session_id: Optional[str], intent: str, lang: str) -> str:
-        history_text = ""
-        if history:
-            recent_turns = history[-6:]
-            history_lines = []
-            for h in recent_turns:
-                role = getattr(h, 'role', None) or (h.get('role') if isinstance(h, dict) else 'user')
-                content = getattr(h, 'content', None) or (h.get('content') if isinstance(h, dict) else str(h))
-                speaker = 'User' if role == 'user' else 'Assistant'
-                history_lines.append(f"{speaker}: {content}")
-            history_text = "\n".join(history_lines)
-
-        is_subsequent_turn = bool(history) or (session_id and session_id in self.greeted_sessions)
+        session_mem = get_session_memory()
+        history_text = session_mem.get_formatted_history_text(session_id, history)
+        is_subsequent_turn = bool(history_text) or bool(history) or (session_id and session_id in self.greeted_sessions)
 
         return f"""You are the official, highly knowledgeable AI Academic Counselor for the National University of Bangladesh (জাতীয় বিশ্ববিদ্যালয়, nu.ac.bd).
 Your purpose is to answer student, teacher, and administrative queries accurately, politely, and clearly with verified official information.
@@ -766,42 +759,41 @@ Compose a structured, formatted markdown response in Bengali (বাংলা):
                     is_fallback=False
                 )
 
-        # Fast path for General Recent Notices Request with Clickable Links
-        if intent == "notices" and any(w in query.lower() for w in ["সাম্প্রতিক", "সকল নোটিশ", "সব নোটিশ", "recent", "latest notice", "all notice", "বিজ্ঞপ্তি"]):
-            recent_notices = self.sql_store.get_recent_notices(limit=8)
-            if recent_notices:
-                notice_bullets = []
-                for n in recent_notices:
-                    n_title = n['title']
-                    n_date = n['published_date']
-                    n_url = n['url']
-                    notice_bullets.append(f"• **{n_date}:** [{n_title}]({n_url})")
-
-                bullet_text = "\n\n".join(notice_bullets)
-                notice_fast_reply = f"""### 📄 জাতীয় বিশ্ববিদ্যালয়ের সাম্প্রতিক নোটিশসমূহ:
-
-জাতীয় বিশ্ববিদ্যালয়ের অফিশিয়াল ওয়েবসাইট ([nu.ac.bd](https://www.nu.ac.bd/recent-news-notice.php)) অনুযায়ী প্রকাশিত সাম্প্রতিক নোটিশ নিচে সরাসরি দেখার সুবিধার্থে তালিকাভুক্ত করা হলো:
-
-{bullet_text}
-
----
-🔗 **সকল নোটিশ দেখতে:** [সকল নোটিশ বোর্ড (nu.ac.bd)](https://www.nu.ac.bd/recent-news-notice.php)
-💡 *যেকোনো নোটিশের শিরোনামে ক্লিক করে সরাসরি মূল বিজ্ঞপ্তি ও PDF দেখতে পারবেন।*"""
-
-                citations = [
-                    SourceCitation(title=n['title'], url=n['url'], date=n['published_date'], category="Notice")
-                    for n in recent_notices
-                ]
+        # Fast path for Subject/Course-Specific or General Notices via NoticeFilterService
+        if intent == "notices":
+            notice_service = get_notice_filter_service()
+            notice_result = notice_service.process_notice_query(query, limit=8)
+            if notice_result and (notice_result.has_subject_filter or notice_result.matched_notices or notice_result.filters.is_general_notice_query):
+                session_mem = get_session_memory()
+                session_mem.add_turn(session_id, "user", query)
+                session_mem.add_turn(session_id, "assistant", notice_result.formatted_reply)
                 return ChatResponse(
-                    reply=notice_fast_reply,
-                    sources=[c.url for c in citations],
-                    citations=citations,
+                    reply=notice_result.formatted_reply,
+                    sources=[c.url for c in notice_result.citations],
+                    citations=notice_result.citations,
                     suggested_chips=["📄 সকল নোটিশ বোর্ড", "📅 পরীক্ষার রুটিন", "🌐 ফলাফল ও SMS নিয়ম"],
                     confidence=1.0,
                     intent="notices",
                     language=lang,
                     is_fallback=False
                 )
+
+        # Fast-path: Check Admin Many-to-Many Q&A Knowledge Base
+        qa_match = self.sql_store.match_qa_knowledge(query)
+        if qa_match:
+            session_mem = get_session_memory()
+            session_mem.add_turn(session_id, "user", query)
+            session_mem.add_turn(session_id, "assistant", qa_match["answer"])
+            return ChatResponse(
+                reply=qa_match["answer"],
+                sources=["https://www.nu.ac.bd/"],
+                citations=[SourceCitation(title="Verified Q&A Knowledge Base", url="https://www.nu.ac.bd/", category="Admin Knowledge Base")],
+                suggested_chips=["📄 সাম্প্রতিক নোটিশ", "🎓 ভর্তি তথ্য", "🎫 টোকেন সার্ভিস"],
+                confidence=1.0,
+                intent="qa_knowledge_match",
+                language=lang,
+                is_fallback=False
+            )
 
         context, citations, confidence = self.retrieve_context(query, intent)
 
@@ -928,6 +920,11 @@ Compose a structured, formatted markdown response in Bengali (বাংলা):
 
         # Ensure all phone numbers in bot reply use English digits
         bot_reply = normalize_phones_in_text(bot_reply)
+
+        # Record to multi-turn session memory
+        session_mem = get_session_memory()
+        session_mem.add_turn(session_id, "user", query)
+        session_mem.add_turn(session_id, "assistant", bot_reply)
 
         if session_id:
             self.greeted_sessions.add(session_id)

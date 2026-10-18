@@ -20,6 +20,8 @@ class SkillRouter:
                 return "token_service"
 
         # Rule 4: Domain queries
+        if intent == "NOTICE_QUERY":
+            return "notice_service"
         if intent == "EXAM_QUERY":
             return "examination"
         if intent == "ADMISSION_QUERY":

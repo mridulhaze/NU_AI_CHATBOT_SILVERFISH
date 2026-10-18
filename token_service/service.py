@@ -85,6 +85,10 @@ class TokenService:
         """Saves the selected service category and problem description to the token."""
         return self.repo.update_service_and_problem(token_id=token_id, service_type=service_code, problem=problem)
 
+    def update_token_details(self, token_id: str, service_type: str, problem: str, user_name: Optional[str] = None, user_phone: Optional[str] = None, registration_no: Optional[str] = None, college_code: Optional[str] = None) -> bool:
+        """Saves service type and problem description or full submission."""
+        return self.repo.update_service_and_problem(token_id=token_id, service_type=service_type, problem=problem)
+
     def submit_token_details(self, token_id: str, service_type: str, problem: str, user_name: Optional[str] = None, user_phone: Optional[str] = None, registration_no: Optional[str] = None, college_code: Optional[str] = None) -> Optional[TokenPublicDetailResponse]:
         """Saves full problem submission details and returns updated public status."""
         ok = self.repo.update_token_submission_details(

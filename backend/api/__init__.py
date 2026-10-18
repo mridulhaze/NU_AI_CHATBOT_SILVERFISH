@@ -6,6 +6,7 @@ from .mcp_routes import router as mcp_router
 from .credential_routes import router as credential_router
 from .enrichment_routes import router as enrichment_router
 from .ai_lab_routes import router as ai_lab_router
+from .academic_exam_routes import router as academic_exam_router
 
 __all__ = [
     "auth_router",
@@ -15,5 +16,7 @@ __all__ = [
     "mcp_router",
     "credential_router",
     "enrichment_router",
-    "ai_lab_router"
+    "ai_lab_router",
+    "academic_exam_router"
 ]
+

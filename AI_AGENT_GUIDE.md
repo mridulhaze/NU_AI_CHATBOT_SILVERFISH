@@ -63,5 +63,5 @@ python -c "import os; from dotenv import load_dotenv; load_dotenv(); from langch
 
 ### Run FastAPI Server:
 ```bash
-uvicorn main:app --reload --port 8080
+uvicorn main:app --reload --port 8000
 ```

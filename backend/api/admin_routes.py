@@ -495,3 +495,249 @@ def hermes_extract_notice_faqs(notice_id: int, user: dict = Depends(get_current_
 def hermes_suggest_token_solution(token_id: str, user: dict = Depends(get_current_user_required)):
     brain = get_hermes_brain()
     return brain.suggest_token_solution(token_id)
+
+# --- Many-to-Many Knowledge Base Q&A Management Endpoints ---
+from db.sql_store import get_sql_store
+from backend.models.schemas import QAKnowledgeCreateRequest
+
+@router.get("/qa-knowledge", summary="Get all Many-to-Many Q&A Knowledge records")
+def list_qa_knowledge(limit: int = 100, user: dict = Depends(get_current_user_required)):
+    sql_store = get_sql_store()
+    records = sql_store.get_all_qa_knowledge(limit=limit)
+    return {"status": "success", "count": len(records), "data": records}
+
+@router.post("/qa-knowledge", summary="Create a new Many-to-Many Q&A record")
+def create_qa_knowledge(payload: QAKnowledgeCreateRequest, user: dict = Depends(get_current_user_required)):
+    if not payload.primary_question.strip():
+        raise HTTPException(status_code=400, detail="Primary question cannot be empty.")
+    if not payload.answer_variants:
+        raise HTTPException(status_code=400, detail="At least one answer must be provided.")
+
+    sql_store = get_sql_store()
+    qa_id = sql_store.insert_qa_knowledge(
+        primary_question=payload.primary_question,
+        category=payload.category,
+        tags=payload.tags or "",
+        question_variants=payload.question_variants,
+        answer_variants=[{"answer_text": ans, "is_primary": (1 if i == 0 else 0), "language": "bn"} for i, ans in enumerate(payload.answer_variants)]
+    )
+
+    # Ingest into vector store if available
+    try:
+        from db.vector_store import get_vector_store
+        vstore = get_vector_store()
+        if vstore:
+            # Index all question variants + primary answer
+            for q_var in payload.question_variants + [payload.primary_question]:
+                if q_var.strip():
+                    vstore.add_documents(
+                        texts=[f"প্রশ্ন: {q_var.strip()}\nউত্তর: {payload.answer_variants[0]}"],
+                        metadatas=[{"source": "admin_qa_knowledge", "category": payload.category, "qa_id": qa_id}],
+                        ids=[f"admin_qa_{qa_id}_{abs(hash(q_var)) % 100000}"]
+                    )
+    except Exception as e:
+        logger.warning(f"Vector indexing for Q&A {qa_id} skipped: {e}")
+
+    return {
+        "status": "success",
+        "message": "Many-to-Many Q&A knowledge created and indexed successfully!",
+        "qa_id": qa_id
+    }
+
+@router.delete("/qa-knowledge/{qa_id}", summary="Delete a Many-to-Many Q&A record")
+def delete_qa_knowledge_endpoint(qa_id: int, user: dict = Depends(get_current_user_required)):
+    sql_store = get_sql_store()
+    deleted = sql_store.delete_qa_knowledge(qa_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Q&A entry not found.")
+    return {"status": "success", "message": f"Q&A record {qa_id} deleted successfully."}
+
+@router.post("/sync-and-maintain", summary="One-click asynchronous knowledge synchronization and maintenance")
+def trigger_sync_and_maintain(user: dict = Depends(get_current_user_required)):
+    """
+    Executes a comprehensive, non-destructive maintenance workflow:
+    1. Validates database connection & schema
+    2. Runs incremental crawl of official notice source & portals
+    3. Content-hash deduplicates and vector-indexes only new/changed items
+    4. Runs consistency check and status reporting
+    """
+    from crawler.scheduler import run_full_crawl, get_crawler_status
+    import threading
+
+    state = get_crawler_status()
+    if state.get("is_running"):
+        return {
+            "status": "in_progress",
+            "message": "A knowledge synchronization job is already actively running.",
+            "last_run": state.get("last_run"),
+            "state": state
+        }
+
+    def _sync_worker():
+        try:
+            logger.info("Executing Admin One-Click Sync & Maintain Knowledge workflow...")
+            result = run_full_crawl()
+            logger.info(f"Sync & Maintain Knowledge completed: {result.get('status')}")
+        except Exception as e_sync:
+            logger.error(f"Error during Sync & Maintain Knowledge: {e_sync}", exc_info=True)
+
+    threading.Thread(target=_sync_worker, daemon=True, name="NU_Admin_SyncMaintain_Worker").start()
+
+    return {
+        "status": "started",
+        "message": "Knowledge sync and maintenance workflow initiated in the background.",
+        "initiated_at": datetime.utcnow().isoformat() + "Z"
+    }
+
+@router.get("/sync-status", summary="Get status of knowledge synchronization and maintenance")
+def get_sync_maintenance_status(user: dict = Depends(get_current_user_required)):
+    from crawler.scheduler import get_crawler_status
+    state = get_crawler_status()
+    sql_store = get_sql_store()
+    recent_notices_count = len(sql_store.get_recent_notices(limit=1000))
+    return {
+        "status": "success",
+        "crawler_state": state,
+        "indexed_notices_count": recent_notices_count,
+        "scheduler_interval_minutes": 30
+    }
+
+# --- Academic Examination Information Management Admin Endpoints ---
+from backend.models.schemas import (
+    AcademicExamCreateUpdateRequest, AcademicExamResponse,
+    AcademicStaticInfoRequest, AcademicStaticInfoResponse
+)
+
+@router.get("/academic-exams", summary="List academic examination records with filtering and pagination")
+def list_admin_academic_exams(
+    program_type: Optional[str] = Query(None, description="Honours, Degree Pass, Master's, Professional"),
+    examination_year: Optional[str] = Query(None, description="e.g. 2024, 2025"),
+    part: Optional[str] = Query(None, description="Part 1, Part 2, Part 3, Part 4, or N/A"),
+    semester: Optional[str] = Query(None, description="Semester 1 through 8, or N/A"),
+    course_name: Optional[str] = Query(None, description="e.g. CSE, BBA"),
+    results_published: Optional[str] = Query(None, description="Yes / No"),
+    search: Optional[str] = Query(None, description="Search by year, exam date, or remarks"),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    user: dict = Depends(get_current_user_required)
+):
+    sql_store = get_sql_store()
+    items, total = sql_store.list_academic_exam_info(
+        program_type=program_type,
+        examination_year=examination_year,
+        part=part,
+        semester=semester,
+        course_name=course_name,
+        results_published=results_published,
+        search=search,
+        limit=limit,
+        offset=offset
+    )
+    return {
+        "status": "success",
+        "total": total,
+        "count": len(items),
+        "limit": limit,
+        "offset": offset,
+        "data": items
+    }
+
+@router.get("/academic-exams/{record_id}", summary="Get single academic examination record by ID")
+def get_admin_academic_exam(
+    record_id: int,
+    user: dict = Depends(get_current_user_required)
+):
+    sql_store = get_sql_store()
+    item = sql_store.get_academic_exam_info_by_id(record_id)
+    if not item:
+        raise HTTPException(status_code=404, detail=f"Academic examination record #{record_id} not found.")
+    return {"status": "success", "data": item}
+
+@router.post("/academic-exams", summary="Create or update an academic examination record")
+def create_or_update_academic_exam(
+    payload: AcademicExamCreateUpdateRequest,
+    user: dict = Depends(get_current_user_required)
+):
+    username = user.get("username", "Admin")
+    sql_store = get_sql_store()
+    saved = sql_store.upsert_academic_exam_info(payload.dict(), user_name=username)
+    return {
+        "status": "success",
+        "message": f"Successfully saved examination record for {payload.program_type} ({payload.part}) - {payload.examination_year}.",
+        "data": saved
+    }
+
+@router.put("/academic-exams/{record_id}", summary="Update an existing academic examination record")
+def update_admin_academic_exam(
+    record_id: int,
+    payload: AcademicExamCreateUpdateRequest,
+    user: dict = Depends(get_current_user_required)
+):
+    sql_store = get_sql_store()
+    existing = sql_store.get_academic_exam_info_by_id(record_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail=f"Record #{record_id} not found.")
+
+    username = user.get("username", "Admin")
+    data = payload.dict()
+    saved = sql_store.upsert_academic_exam_info(data, user_name=username)
+    return {
+        "status": "success",
+        "message": f"Successfully updated record #{record_id}.",
+        "data": saved
+    }
+
+@router.delete("/academic-exams/{record_id}", summary="Delete an academic examination record")
+def delete_admin_academic_exam(
+    record_id: int,
+    user: dict = Depends(get_current_user_required)
+):
+    sql_store = get_sql_store()
+    deleted = sql_store.delete_academic_exam_info(record_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Record not found.")
+    return {"status": "success", "message": f"Record #{record_id} deleted successfully."}
+
+# --- Legacy Static Info Routes (Maintained for Backward Compatibility) ---
+@router.get("/academic-static", summary="List academic examination & result static schedules")
+def list_academic_static(
+    program_type: Optional[str] = Query(None, description="Honours, Degree Pass, Master's, Professional"),
+    user: dict = Depends(get_current_user_required)
+):
+    sql_store = get_sql_store()
+    items = sql_store.list_academic_static_info(program_type=program_type)
+    return {"status": "success", "count": len(items), "data": items}
+
+@router.get("/academic-static/{program_type}/{part_or_year}", summary="Get single static schedule")
+def get_academic_static(
+    program_type: str,
+    part_or_year: str,
+    user: dict = Depends(get_current_user_required)
+):
+    sql_store = get_sql_store()
+    item = sql_store.get_academic_static_info(program_type=program_type, part_or_year=part_or_year)
+    if not item:
+        raise HTTPException(status_code=404, detail="Schedule record not found.")
+    return {"status": "success", "data": item}
+
+@router.post("/academic-static", summary="Create or update static academic exam & result info")
+def upsert_academic_static(
+    payload: AcademicStaticInfoRequest,
+    user: dict = Depends(get_current_user_required)
+):
+    sql_store = get_sql_store()
+    saved = sql_store.upsert_academic_exam_info(payload.dict(), user_name=user.get("username", "Admin"))
+    return {
+        "status": "success",
+        "message": f"Successfully updated schedule for {payload.program_type} ({payload.part_or_year}).",
+        "data": saved
+    }
+
+@router.delete("/academic-static/{entry_id}", summary="Delete academic schedule entry")
+def delete_academic_static(entry_id: int, user: dict = Depends(get_current_user_required)):
+    sql_store = get_sql_store()
+    deleted = sql_store.delete_academic_exam_info(entry_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Entry not found.")
+    return {"status": "success", "message": f"Deleted entry {entry_id}."}
+

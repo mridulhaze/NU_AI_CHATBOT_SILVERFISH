@@ -102,6 +102,19 @@ The platform defines 4 strict security roles in `data/nu_tokens.db` -> `users` t
 - `department` (TEXT) — Department (e.g. `Accounts & Sonali Seba Desk`, `ICT Support Team`, `Controller of Examination Section`, `Admission & Registration Cell`, `Certificate & Academic Records Cell`).
 - `email` (TEXT), `phone` (TEXT), `active` (INTEGER DEFAULT 1).
 
+### `academic_exam_information` Table (`data/nu_assistant.db`):
+- `id` (INTEGER PRIMARY KEY AUTOINCREMENT)
+- `program_type` (TEXT NOT NULL) — `Honours`, `Degree Pass`, `Master's`, `Professional`
+- `examination_year` (INTEGER NOT NULL) — e.g. 2024, 2025
+- `part` (TEXT) — `Part 1`, `Part 2`, `Part 3`, `Part 4`, `Final`, `Preliminary`
+- `semester` (TEXT) — `Semester 1` through `Semester 8` (Professional courses)
+- Unique constraint: `UNIQUE(program_type, examination_year, part, semester)`
+- Exam timeline dates: `incourse_date`, `incourse_mark_last_date`, `form_fillup_start_date`, `form_fillup_last_date`, `exam_date`, `exam_routine_date`, `admit_card_date`, `exam_last_date`, `practical_mark_start_date`, `practical_mark_last_date`
+- Result tracking: `probable_result_date`, `actual_result_date`, `is_result_published` (BOOLEAN)
+- Post-result & verification: `rescrutiny_start_date`, `rescrutiny_last_date`, `rescrutiny_result_date`, `document_print_date`, `is_document_printed` (BOOLEAN)
+- Official links & remarks: `revaluation_link`, `college_result_link`, `remarks`
+- Timestamps: `created_at`, `updated_at`
+
 ### `users` Table:
 - `id` (INTEGER PRIMARY KEY), `username` (TEXT UNIQUE), `password_hash` (TEXT), `full_name` (TEXT), `department` (TEXT), `role` (`SUPER_ADMIN`, `ADMIN`, `SOLVER`, `USER`), `active` (INTEGER DEFAULT 1).
 

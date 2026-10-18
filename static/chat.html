@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>জাতীয় বিশ্ববিদ্যালয় এআই কাউন্সেলর | National University AI Counselor</title>
+  <link rel="icon" href="https://www.nu.ac.bd/images/nu_logo.png" type="image/png">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --bg: #F5F5F7;
+      --surface: #FFFFFF;
+      --text: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --hairline: rgba(0, 0, 0, 0.08);
+      --hairline-hover: rgba(0, 0, 0, 0.16);
+      --accent: #006A4E; /* Official National University Green */
+      --accent-hover: #00563F;
+      --accent-light: rgba(0, 106, 78, 0.15);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+      --radius-card: 20px;
+      --radius-pill: 999px;
+      --radius-input: 24px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1C1C1E;
+      --surface: #2C2C2E;
+      --text: #F5F5F7;
+      --text-secondary: #98989D;
+      --hairline: rgba(255, 255, 255, 0.10);
+      --hairline-hover: rgba(255, 255, 255, 0.20);
+      --accent: #008763;
+      --accent-hover: #059669;
+      --accent-light: rgba(0, 135, 99, 0.22);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #1C1C1E;
+        --surface: #2C2C2E;
+        --text: #F5F5F7;
+        --text-secondary: #98989D;
+        --hairline: rgba(255, 255, 255, 0.10);
+        --hairline-hover: rgba(255, 255, 255, 0.20);
+        --accent: #008763;
+        --accent-hover: #059669;
+        --accent-light: rgba(0, 135, 99, 0.22);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+        --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Hind Siliguri", "Noto Sans Bengali", sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    /* Hide scrollbars for chips and smooth scrolling */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Header */
+    .apple-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(245, 245, 247, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--hairline);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      transition: background-color 200ms ease, border-color 200ms ease;
+    }
+    [data-theme="dark"] .apple-header {
+      background: rgba(28, 28, 30, 0.82);
+    }
+
+    /* Apple-style quiet buttons */
+    .apple-quiet-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      border-radius: var(--radius-pill);
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 160ms ease;
+      text-decoration: none;
+    }
+    .apple-quiet-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text);
+    }
+    [data-theme="dark"] .apple-quiet-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    /* Apple 3x3 Menu Cards */
+    .apple-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-card);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), 
+                  box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), 
+                  border-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      min-height: 82px;
+      text-align: left;
+      user-select: none;
+    }
+    .apple-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--hairline-hover);
+    }
+    .apple-card:active {
+      transform: scale(0.985);
+    }
+    .apple-card-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--text);
+      transition: background-color 200ms ease;
+    }
+    .apple-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+    }
+    .apple-card-sub {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+    .apple-card-chevron {
+      color: var(--text-secondary);
+      opacity: 0.35;
+      flex-shrink: 0;
+      transition: transform 180ms ease, opacity 180ms ease;
+    }
+    .apple-card:hover .apple-card-chevron {
+      opacity: 0.75;
+      transform: translateX(2px);
+    }
+
+    /* Category Chips */
+    .apple-chip {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 16px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 160ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      flex-shrink: 0;
+    }
+    .apple-chip:hover {
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--hairline-hover);
+    }
+    .apple-chip.active {
+      background: var(--text) !important;
+      color: var(--bg) !important;
+      border-color: var(--text) !important;
+      font-weight: 600;
+    }
+
+    /* Floating Input Bar */
+    .apple-input-bar {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-input);
+      box-shadow: var(--shadow-sm);
+      padding: 6px 8px 6px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+    .apple-input-bar:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .apple-send-btn {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-radius: var(--radius-pill);
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background-color 160ms ease, transform 120ms ease;
+      border: none;
+      flex-shrink: 0;
+    }
+    .apple-send-btn:hover {
+      background: var(--accent-hover);
+    }
+    .apple-send-btn:active {
+      transform: scale(0.96);
+    }
+    .apple-send-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Chat Messages Bubbles */
+    .user-bubble {
+      background: var(--text);
+      color: #FFFFFF;
+      border-radius: 20px 20px 4px 20px;
+      padding: 10px 18px;
+      max-width: 80%;
+      font-size: 14.5px;
+      line-height: 1.6;
+      animation: messageSlideIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    [data-theme="dark"] .user-bubble {
+      background: #3A3A3C;
+      color: #FFFFFF;
+    }
+
+    .assistant-bubble {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      color: var(--text);
+      border-radius: 20px 20px 20px 4px;
+      padding: 16px 20px;
+      max-width: 90%;
+      font-size: 14.5px;
+      line-height: 1.65;
+      box-shadow: var(--shadow-sm);
+      animation: messageSlideIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes messageSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Styling bot formatting and tables inside assistant bubble */
+    .chat-bubble-bot a {
+      color: var(--accent);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    .chat-bubble-bot a:hover {
+      opacity: 0.85;
+    }
+    .chat-bubble-bot ul {
+      list-style-type: disc;
+      margin-left: 1.25rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .chat-bubble-bot ol {
+      list-style-type: decimal;
+      margin-left: 1.25rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Typing indicator dots */
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--text-secondary);
+      animation: typingPulse 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingPulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Header (Sticky, Translucent, 1px Hairline, 3 Quiet Buttons) -->
+  <header class="apple-header">
+    <div class="max-w-[1040px] w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
+      
+      <!-- Left: Logo Circle + Title + Green Status Dot -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-[var(--surface)] border border-[var(--hairline)] flex items-center justify-center text-[var(--text)] shrink-0 shadow-xs">
+          <!-- Graduation Cap Monoline Icon -->
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-[17px] font-semibold text-[var(--text)] tracking-tight leading-snug">জাতীয় বিশ্ববিদ্যালয় এআই কাউন্সেলর</h1>
+          <p class="text-[12px] text-[var(--text-secondary)] flex items-center gap-1.5 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shrink-0"></span>
+            <span>অফিসিয়াল একাডেমিক হেল্পডেস্ক (nu.ac.bd)</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Right: Three Quiet Buttons + Theme Toggle -->
+      <div class="flex items-center gap-1 sm:gap-1.5">
+        <!-- Button 1: মূল মেনু (Clears screen & starts new chat) -->
+        <button onclick="goToMainMenu()" class="apple-quiet-btn" title="মূল মেনু - নতুন চ্যাট শুরু করুন">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span class="hidden sm:inline">মূল মেনু</span>
+        </button>
+
+        <!-- Button 2: নতুন চ্যাট -->
+        <button onclick="goToMainMenu()" class="apple-quiet-btn" title="নতুন চ্যাট সেশন">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span class="hidden sm:inline">নতুন চ্যাট</span>
+        </button>
+
+        <!-- Button 3: স্টাফ পোর্টাল (পাসওয়ার্ড সুরক্ষিত) -->
+        <button onclick="openStaffPortalAuth()" class="apple-quiet-btn" title="স্টাফ পোর্টাল (পাসওয়ার্ড সুরক্ষিত)">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span class="hidden sm:inline">স্টাফ পোর্টাল</span>
+        </button>
+
+        <!-- Dark/Light Theme Toggle -->
+        <button onclick="toggleTheme()" class="apple-quiet-btn p-2" title="থিম পরিবর্তন">
+          <svg id="theme-icon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- 2. Main Content Area -->
+  <main class="flex-1 max-w-[1040px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-between">
+    
+    <!-- State A: Welcome View (Apple Monochromatic 3x3 Grid) -->
+    <div id="welcome-view" class="space-y-6">
+      
+      <!-- Section Title (Replaces dark-green banner completely) -->
+      <div class="text-left">
+        <h2 class="text-[26px] sm:text-[28px] font-bold text-[var(--text)] tracking-tight leading-snug">
+          মূল একাডেমিক সেবা ও পরীক্ষা মেনু
+        </h2>
+        <p class="text-[14px] sm:text-[15px] text-[var(--text-secondary)] mt-1 font-normal">
+          যেকোনো কার্ডে ক্লিক করে সরাসরি বিস্তারিত তথ্য জেনে নিন:
+        </p>
+      </div>
+
+      <!-- 3x3 Cards Grid (Desktop 3-col, Tablet 2-col, Mobile single-col) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+        
+        <!-- Card 1: Honours -->
+        <div onclick="handleExamCategoryClick('Honours')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">অনার্স পরীক্ষা</div>
+            <div class="apple-card-sub">১ম, ২য়, ৩য়, ৪র্থ বর্ষ</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 2: Degree Pass -->
+        <div onclick="handleExamCategoryClick('Degree Pass')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+              <path d="M6 6h10"/>
+              <path d="M6 10h10"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">ডিগ্রি পরীক্ষা</div>
+            <div class="apple-card-sub">১ম, ২য়, ৩য় বর্ষ</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 3: Master's -->
+        <div onclick="handleExamCategoryClick('Master\'s')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">মাস্টার্স পরীক্ষা</div>
+            <div class="apple-card-sub">শেষ পর্ব ও প্রিলি</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 4: Professional -->
+        <div onclick="handleExamCategoryClick('Professional')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              <path d="M10 12h4"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">প্রফেশনাল পরীক্ষা</div>
+            <div class="apple-card-sub">১৮টি কোর্স ও সেমিস্টার</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 5: Honours Admission -->
+        <div onclick="sendQuickQuestion('অনার্স ১ম বর্ষের ভর্তি বিজ্ঞপ্তি ও নিয়মাবলি')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <path d="M12 11h4"/>
+              <path d="M12 16h4"/>
+              <path d="M8 11h.01"/>
+              <path d="M8 16h.01"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">অনার্স ভর্তি তথ্য</div>
+            <div class="apple-card-sub">মেধা তালিকা ও সার্কুলার</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 6: Routine -->
+        <div onclick="sendQuickQuestion('সর্বশেষ পরীক্ষার রুটিন ও নোটিশ')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+              <line x1="16" x2="16" y1="2" y2="6"/>
+              <line x1="8" x2="8" y1="2" y2="6"/>
+              <line x1="3" x2="21" y1="10" y2="10"/>
+              <path d="M8 14h.01"/>
+              <path d="M12 14h.01"/>
+              <path d="M16 14h.01"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">পরীক্ষার রুটিন</div>
+            <div class="apple-card-sub">সকল শিক্ষাবর্ষ</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 7: Certificate -->
+        <div onclick="sendQuickQuestion('অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/>
+              <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
+              <path d="M15 8h-5"/>
+              <path d="M15 12h-5"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">সার্টিফিকেট উত্তোলন</div>
+            <div class="apple-card-sub">ফি ও উত্তোলনের নিয়ম</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 8: EMS Form Fillup -->
+        <div onclick="sendQuickQuestion('ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m18 5-2.4 2.4"/>
+              <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+              <path d="m15 5 4 4"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">ফরম পূরণ (EMS)</div>
+            <div class="apple-card-sub">সময়সীমা ও ফি জমা</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+        <!-- Card 9: TC Transfer Certificate -->
+        <div onclick="sendQuickQuestion('কলেজ ছাড়পত্র (TC) নেওয়ার উপায় কি?')" class="apple-card">
+          <div class="apple-card-icon-wrap">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+              <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+              <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+              <path d="M10 6h4"/>
+              <path d="M10 10h4"/>
+              <path d="M10 14h4"/>
+              <path d="M10 18h4"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="apple-card-title">কলেজ টিসি (TC)</div>
+            <div class="apple-card-sub">অনলাইন ছাড়পত্র</div>
+          </div>
+          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- State B: Active Conversation Flow (Scrollable messages area) -->
+    <div id="conversation-view" class="hidden flex-1 space-y-4 overflow-y-auto mb-4 pb-2">
+      <div id="messages-container" class="space-y-4">
+        <!-- Message bubbles appended here -->
+      </div>
+    </div>
+
+    <!-- Bottom Controls Wrapper -->
+    <div class="space-y-3 pt-6 sm:pt-8">
+      
+      <!-- Category Chips Row (Monochromatic Pills, horizontally scrollable) -->
+      <div class="relative">
+        <div id="chips-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Floating Input Bar -->
+      <div class="apple-input-bar">
+        <input 
+          id="user-input" 
+          type="text" 
+          placeholder="আপনার প্রশ্নটি এখানে বাংলায় বা ইংরেজিতে লিখুন... (যেমন: অনার্স পরীক্ষার তথ্য)" 
+          class="flex-1 bg-transparent text-[14px] sm:text-[15px] text-[var(--text)] focus:outline-none placeholder:text-[var(--text-secondary)]"
+          onkeydown="if(event.key === 'Enter') handleSend();"
+        />
+        <button 
+          id="send-btn" 
+          onclick="handleSend()" 
+          class="apple-send-btn"
+          title="প্রশ্ন পাঠান">
+          <span>পাঠান</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"/>
+            <polyline points="5 12 12 5 19 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Footer Disclaimer -->
+      <p class="text-[12px] text-center text-[var(--text-secondary)] mt-2">
+        জাতীয় বিশ্ববিদ্যালয় বাংলাদেশ (nu.ac.bd) দ্বারা সংরক্ষিত। কোনো ব্যক্তিগত পাসওয়ার্ড বা সংবেদনশীল তথ্য শেয়ার করবেন না!
+      </p>
+
+    </div>
+
+  </main>
+
+  <script>
+    let sessionId = "student_sess_" + Math.random().toString(36).substring(2, 10);
+    let conversationHistory = [];
+
+    // The 9 Category Chips
+    const MAIN_CHIPS = [
+      { id: "chip-main", label: "মূল মেনু", active: true, action: "menu" },
+      { id: "chip-hons", label: "অনার্স", active: false, action: "category", category: "Honours" },
+      { id: "chip-deg", label: "ডিগ্রি", active: false, action: "category", category: "Degree Pass" },
+      { id: "chip-masters", label: "মাস্টার্স", active: false, action: "category", category: "Master's" },
+      { id: "chip-pro", label: "প্রফেশনাল", active: false, action: "category", category: "Professional" },
+      { id: "chip-routine", label: "রুটিন", active: false, action: "query", query: "সর্বশেষ পরীক্ষার রুটিন ও নোটিশ" },
+      { id: "chip-cert", label: "সার্টিফিকেট", active: false, action: "query", query: "অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?" },
+      { id: "chip-ems", label: "ফরম পূরণ", active: false, action: "query", query: "ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি" },
+      { id: "chip-tc", label: "টিসি (TC)", active: false, action: "query", query: "কলেজ ছাড়পত্র (TC) নেওয়ার উপায় কি?" }
+    ];
+
+    // Theme Management
+    function initTheme() {
+      const saved = localStorage.getItem("nu_theme");
+      if (saved) {
+        document.documentElement.setAttribute("data-theme", saved);
+      } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+      updateThemeIcon();
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") || "light";
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("nu_theme", next);
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const current = document.documentElement.getAttribute("data-theme") || "light";
+      const icon = document.getElementById("theme-icon");
+      if (!icon) return;
+      if (current === "dark") {
+        // Moon icon
+        icon.innerHTML = `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+      } else {
+        // Sun icon
+        icon.innerHTML = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`;
+      }
+    }
+
+    // Goal 1: When press "মূল মেনু", clear screen and start a new chat
+    function goToMainMenu() {
+      // 1. Reset Session & History
+      sessionId = "student_sess_" + Math.random().toString(36).substring(2, 10);
+      conversationHistory = [];
+
+      // 2. Clear input
+      const input = document.getElementById("user-input");
+      if (input) {
+        input.value = "";
+        input.disabled = false;
+      }
+      const btn = document.getElementById("send-btn");
+      if (btn) btn.disabled = false;
+
+      // 3. Clear messages container
+      const container = document.getElementById("messages-container");
+      if (container) container.innerHTML = "";
+
+      // 4. Switch view back to welcome cards view
+      const welcomeView = document.getElementById("welcome-view");
+      const conversationView = document.getElementById("conversation-view");
+      if (welcomeView) welcomeView.classList.remove("hidden");
+      if (conversationView) conversationView.classList.add("hidden");
+
+      // 5. Restore Main Chips with "মূল মেনু" active
+      renderChips(MAIN_CHIPS);
+
+      // 6. Smooth scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Render chips bar
+    function renderChips(chipsList) {
+      const bar = document.getElementById("chips-bar");
+      if (!bar) return;
+
+      bar.innerHTML = chipsList.map((chip, idx) => {
+        const activeClass = chip.active ? "active" : "";
+        let clickHandler = "";
+        if (chip.action === "menu") {
+          clickHandler = "goToMainMenu()";
+        } else if (chip.action === "category") {
+          clickHandler = `handleExamCategoryClick('${chip.category}')`;
+        } else if (chip.action === "query") {
+          clickHandler = `sendQuickQuestion('${chip.query.replace(/'/g, "\\'")}')`;
+        } else {
+          clickHandler = `sendQuickQuestion('${chip.label.replace(/'/g, "\\'")}')`;
+        }
+        return `<button onclick="${clickHandler}" class="apple-chip ${activeClass}">${chip.label}</button>`;
+      }).join("");
+    }
+
+    // Switch to active chat flow
+    function showConversationView() {
+      const welcomeView = document.getElementById("welcome-view");
+      const conversationView = document.getElementById("conversation-view");
+      if (welcomeView) welcomeView.classList.add("hidden");
+      if (conversationView) conversationView.classList.remove("hidden");
+    }
+
+    // Handle Exam Category clicks
+    function handleExamCategoryClick(prog) {
+      let queryText = "";
+      let subChips = [];
+
+      if (prog === "Honours") {
+        queryText = "অনার্স পরীক্ষা বিষয়ক তথ্য";
+        subChips = [
+          { label: "মূল মেনু", active: false, action: "menu" },
+          { label: "১ম বর্ষ", active: false, action: "query", query: "অনার্স ১ম বর্ষ পরীক্ষা বিষয়ক তথ্য" },
+          { label: "২য় বর্ষ", active: false, action: "query", query: "অনার্স ২য় বর্ষ পরীক্ষা বিষয়ক তথ্য" },
+          { label: "৩য় বর্ষ", active: false, action: "query", query: "অনার্স ৩য় বর্ষ পরীক্ষা বিষয়ক তথ্য" },
+          { label: "৪থ বর্ষ", active: false, action: "query", query: "অনার্স ৪থ বর্ষ পরীক্ষা বিষয়ক তথ্য" }
+        ];
+      } else if (prog === "Degree Pass") {
+        queryText = "ডিগ্রি পরীক্ষা বিষয়ক তথ্য";
+        subChips = [
+          { label: "মূল মেনু", active: false, action: "menu" },
+          { label: "১ম বর্ষ", active: false, action: "query", query: "ডিগ্রি ১ম বর্ষ পরীক্ষা বিষয়ক তথ্য" },
+          { label: "২য় বর্ষ", active: false, action: "query", query: "ডিগ্রি ২য় বর্ষ পরীক্ষা বিষয়ক তথ্য" },
+          { label: "৩য় বর্ষ", active: false, action: "query", query: "ডিগ্রি ৩য় বর্ষ পরীক্ষা বিষয়ক তথ্য" }
+        ];
+      } else if (prog === "Master's") {
+        queryText = "মাস্টার্স পরীক্ষা বিষয়ক তথ্য";
+        subChips = [
+          { label: "মূল মেনু", active: false, action: "menu" },
+          { label: "মাস্টার্স শেষ পর্ব", active: false, action: "query", query: "মাস্টার্স শেষ পর্ব পরীক্ষা বিষয়ক তথ্য" },
+          { label: "মাস্টার্স প্রিলিমিনারি", active: false, action: "query", query: "মাস্টার্স প্রিলিমিনারি পরীক্ষা বিষয়ক তথ্য" }
+        ];
+      } else if (prog === "Professional") {
+        queryText = "প্রফেশনাল পরীক্ষা বিষয়ক তথ্য";
+        subChips = [
+          { label: "মূল মেনু", active: false, action: "menu" },
+          { label: "CSE", active: false, action: "query", query: "CSE পরীক্ষা তথ্য" },
+          { label: "BBA", active: false, action: "query", query: "BBA পরীক্ষা তথ্য" },
+          { label: "TST", active: false, action: "query", query: "TST পরীক্ষা তথ্য" },
+          { label: "B.Ed", active: false, action: "query", query: "B.Ed পরীক্ষা তথ্য" },
+          { label: "ECE", active: false, action: "query", query: "ECE পরীক্ষা তথ্য" },
+          { label: "Aero", active: false, action: "query", query: "Aero পরীক্ষা তথ্য" },
+          { label: "THM", active: false, action: "query", query: "THM পরীক্ষা তথ্য" }
+        ];
+      }
+
+      renderChips(subChips);
+      sendQuickQuestion(queryText);
+    }
+
+    function sendQuickQuestion(text) {
+      const norm = (text || "").trim().toLowerCase();
+      if (norm === "মূল মেনু" || norm === "🏠 মূল মেনু" || norm === "main menu" || norm === "মেইন মেনু" || norm === "home" || norm === "মেনু" || norm === "হোম") {
+        goToMainMenu();
+        return;
+      }
+      document.getElementById("user-input").value = text;
+      handleSend();
+    }
+
+    // Markdown Parser
+    function formatMarkdown(text) {
+      if (!text) return "";
+      let html = text;
+
+      // Parse Markdown Tables
+      html = html.replace(/((?:\|[^\n]+\|\r?\n)+)/g, function(tableBlock) {
+        const lines = tableBlock.trim().split(/\r?\n/).filter(l => l.includes("|"));
+        if (lines.length < 2) return tableBlock;
+        
+        let headerHtml = "";
+        let bodyHtml = "";
+        
+        const isSeparator = /^\|(?:\s*:?-+:?\s*\|)+$/.test(lines[1].trim());
+        const startIdx = isSeparator ? 2 : 1;
+        
+        const parseRow = (line) => line.split("|").slice(1, -1).map(c => c.trim());
+        
+        const headers = parseRow(lines[0]);
+        headerHtml = `<tr class="bg-[var(--bg)] text-[var(--text)] font-semibold border-b border-[var(--hairline)]">${headers.map(h => `<th class="p-2.5 text-left">${h}</th>`).join("")}</tr>`;
+        
+        for (let i = startIdx; i < lines.length; i++) {
+          const cells = parseRow(lines[i]);
+          bodyHtml += `<tr class="border-b border-[var(--hairline)] hover:bg-[var(--bg)]">${cells.map(c => `<td class="p-2.5">${c}</td>`).join("")}</tr>`;
+        }
+        
+        return `<div class="overflow-x-auto my-3 rounded-2xl border border-[var(--hairline)] bg-[var(--surface)]"><table class="w-full text-xs text-left border-collapse"><thead>${headerHtml}</thead><tbody>${bodyHtml}</tbody></table></div>`;
+      });
+
+      // Headers, links, bold, code, bullets
+      html = html
+        .replace(/#### (.*?)\n/g, '<h4 class="font-semibold text-xs text-[var(--text)] mt-2 mb-1">$1</h4>')
+        .replace(/### (.*?)\n/g, '<h3 class="font-semibold text-sm text-[var(--text)] mt-2.5 mb-1">$1</h3>')
+        .replace(/## (.*?)\n/g, '<h2 class="font-bold text-base text-[var(--text)] mt-3 mb-1.5">$1</h2>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code class="bg-[var(--bg)] text-[var(--text)] px-1.5 py-0.5 rounded text-[11px] font-mono border border-[var(--hairline)]">$1</code>')
+        .replace(/• (.*?)\n/g, '<li class="my-0.5 ml-2 list-disc">$1</li>')
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[var(--accent)] hover:underline font-semibold">$1</a>');
+
+      // Preserve HTML block tags and prevent unwanted <br> injection inside CSS grids/flex containers
+      html = html.replace(/>\s*\n\s*</g, '><');
+      html = html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+      html = html.replace(/<br>\s*<(div|section|p|h[1-6]|table|tbody|thead|tr|td|th|button|ul|li)/gi, '<$1');
+      html = html.replace(/<\/(div|section|p|h[1-6]|table|tbody|thead|tr|td|th|button|ul|li)>\s*<br>/gi, '</$1>');
+
+      return html;
+    }
+
+    // Send Message Handler
+    async function handleSend() {
+      const input = document.getElementById("user-input");
+      const btn = document.getElementById("send-btn");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const norm = text.toLowerCase();
+      if (norm === "মূল মেনু" || norm === "🏠 মূল মেনু" || norm === "main menu" || norm === "মেইন মেনু" || norm === "home" || norm === "হোম" || norm === "মেনু" || norm === "মূলমেনু") {
+        input.value = "";
+        goToMainMenu();
+        return;
+      }
+
+      // Switch to conversation view
+      showConversationView();
+
+      input.value = "";
+      input.disabled = true;
+      btn.disabled = true;
+
+      const container = document.getElementById("messages-container");
+
+      // Append User Bubble
+      const userBubble = document.createElement("div");
+      userBubble.className = "flex justify-end";
+      userBubble.innerHTML = `
+        <div class="user-bubble">
+          ${escapeHTML(text)}
+        </div>
+      `;
+      container.appendChild(userBubble);
+      userBubble.scrollIntoView({ behavior: "smooth", block: "end" });
+
+      // Append Typing / Loading Indicator
+      const loadingBubble = document.createElement("div");
+      loadingBubble.className = "flex items-start gap-3 loading-indicator";
+      loadingBubble.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--hairline)] flex items-center justify-center shrink-0 text-xs font-semibold text-[var(--text)] shadow-xs">
+          NU
+        </div>
+        <div class="assistant-bubble flex items-center gap-2 py-3 px-4">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <span class="text-xs text-[var(--text-secondary)] ml-1">তথ্য প্রস্তুত করা হচ্ছে...</span>
+        </div>
+      `;
+      container.appendChild(loadingBubble);
+      loadingBubble.scrollIntoView({ behavior: "smooth", block: "end" });
+
+      try {
+        const payload = {
+          message: text,
+          history: conversationHistory,
+          session_id: sessionId
+        };
+
+        const res = await fetch("/api/v1/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        loadingBubble.remove();
+
+        const botReply = data.reply || "দুঃখিত, কোনো উত্তর পাওয়া যায়নি।";
+        conversationHistory.push({ role: "user", content: text });
+        conversationHistory.push({ role: "bot", content: botReply });
+
+        // Append Assistant Bubble
+        const botBubble = document.createElement("div");
+        botBubble.className = "flex items-start gap-3";
+        botBubble.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--hairline)] flex items-center justify-center shrink-0 text-xs font-semibold text-[var(--text)] shadow-xs">
+            NU
+          </div>
+          <div class="assistant-bubble chat-bubble-bot flex-1">
+            ${formatMarkdown(botReply)}
+          </div>
+        `;
+        container.appendChild(botBubble);
+
+        // Update Contextual Suggested Chips if returned
+        if (data.suggested_chips && data.suggested_chips.length > 0) {
+          const chips = [
+            { label: "মূল মেনু", active: false, action: "menu" },
+            ...data.suggested_chips.map(c => ({
+              label: c,
+              active: false,
+              action: "query",
+              query: c
+            }))
+          ];
+          renderChips(chips);
+        }
+
+      } catch (err) {
+        console.error("Chat error:", err);
+        loadingBubble.remove();
+        const errBubble = document.createElement("div");
+        errBubble.className = "flex items-start gap-3";
+        errBubble.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 text-xs font-bold">
+            !
+          </div>
+          <div class="assistant-bubble border-rose-200 text-rose-800 text-xs">
+            সার্ভারে সংযোগ করতে সমস্যা হয়েছে। অনুগ্রহ করে ইন্টারনেট সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।
+          </div>
+        `;
+        container.appendChild(errBubble);
+      } finally {
+        input.disabled = false;
+        btn.disabled = false;
+        input.focus();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      }
+    }
+
+    function escapeHTML(str) {
+      if (!str) return "";
+      return str.replace(/[&<>'"]/g, tag => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;"
+      }[tag] || tag));
+    }
+
+    // --- Staff Portal Password Authentication ---
+    function openStaffPortalAuth() {
+      const token = localStorage.getItem("nu_auth_token");
+      if (token) {
+        window.open("/admin", "_blank");
+      } else {
+        const modal = document.getElementById("staff-auth-modal");
+        if (modal) {
+          modal.classList.remove("hidden");
+          const errBox = document.getElementById("staff-auth-error");
+          if (errBox) errBox.classList.add("hidden");
+          const uInput = document.getElementById("staff-auth-username");
+          if (uInput) setTimeout(() => uInput.focus(), 100);
+        }
+      }
+    }
+
+    function closeStaffPortalAuth() {
+      const modal = document.getElementById("staff-auth-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function fillStaffCreds(u, p) {
+      const uEl = document.getElementById("staff-auth-username");
+      const pEl = document.getElementById("staff-auth-password");
+      if (uEl) uEl.value = u;
+      if (pEl) pEl.value = p;
+      const errBox = document.getElementById("staff-auth-error");
+      if (errBox) errBox.classList.add("hidden");
+    }
+
+    function toggleStaffPasswordVisibility() {
+      const pEl = document.getElementById("staff-auth-password");
+      if (pEl) {
+        pEl.type = pEl.type === "password" ? "text" : "password";
+      }
+    }
+
+    async function handleStaffAuthSubmit(e) {
+      e.preventDefault();
+      const uEl = document.getElementById("staff-auth-username");
+      const pEl = document.getElementById("staff-auth-password");
+      const errBox = document.getElementById("staff-auth-error");
+      const btn = document.getElementById("btn-staff-auth-submit");
+
+      const u = uEl ? uEl.value.trim() : "";
+      const p = pEl ? pEl.value : "";
+
+      if (errBox) errBox.classList.add("hidden");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>পাসওয়ার্ড যাচাই করা হচ্ছে...</span>`;
+      }
+
+      try {
+        const res = await fetch("/api/v1/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || "ইউজারনেম বা পাসওয়ার্ড সঠিক নয়।");
+        }
+
+        const data = await res.json();
+        localStorage.setItem("nu_auth_token", data.access_token);
+        localStorage.setItem("nu_auth_user", JSON.stringify(data.user));
+
+        closeStaffPortalAuth();
+        window.open("/admin", "_blank");
+      } catch (err) {
+        if (errBox) {
+          errBox.innerText = err.message;
+          errBox.classList.remove("hidden");
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span>🔒 লগইন করুন (Staff Portal)</span>`;
+        }
+      }
+    }
+
+    // Initialize UI on load
+    initTheme();
+    renderChips(MAIN_CHIPS);
+  </script>
+
+  <!-- Staff Portal Password Login Modal (Apple Monochromatic Design) -->
+  <div id="staff-auth-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/45 backdrop-blur-md">
+    <div class="bg-[var(--surface)] text-[var(--text)] border border-[var(--hairline)] rounded-[20px] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-[var(--hairline)] flex items-center justify-between bg-[var(--bg)]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--hairline)] flex items-center justify-center text-[var(--text)] shrink-0">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-[15px] font-semibold tracking-tight text-[var(--text)]">স্টাফ পোর্টাল লগইন</h3>
+            <p class="text-[12px] text-[var(--text-secondary)]">পাসওয়ার্ড সুরক্ষিত এডমিন ও সলভার এক্সেস</p>
+          </div>
+        </div>
+        <button onclick="closeStaffPortalAuth()" class="apple-quiet-btn p-1.5 text-lg leading-none" title="বন্ধ করুন">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-4 text-xs">
+        <!-- Quick Fill Credentials -->
+        <div class="bg-[var(--bg)] p-3 rounded-xl border border-[var(--hairline)] space-y-2">
+          <span class="text-[11px] font-medium text-[var(--text-secondary)] block">ডিপার্টমেন্ট ভিত্তিক কুইক লগইন:</span>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="fillStaffCreds('admin', 'nu_admin_2026')" class="apple-chip text-[11px] py-1 px-2.5">👑 Super Admin</button>
+            <button type="button" onclick="fillStaffCreds('solver_ict', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">💻 ICT Desk</button>
+            <button type="button" onclick="fillStaffCreds('solver_exam', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">📝 Exam Desk</button>
+            <button type="button" onclick="fillStaffCreds('solver_cert', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">📜 Certificate</button>
+            <button type="button" onclick="fillStaffCreds('solver_adm', 'nu_solver_2026')" class="apple-chip text-[11px] py-1 px-2.5">🎯 Admission</button>
+          </div>
+        </div>
+
+        <form onsubmit="handleStaffAuthSubmit(event)" class="space-y-3.5">
+          <div>
+            <label class="block font-medium text-[var(--text)] mb-1 text-[13px]">ইউজারনেম (Username):</label>
+            <input id="staff-auth-username" type="text" placeholder="e.g. admin or solver_ict" required 
+              class="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl p-2.5 text-xs text-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--accent)] transition" />
+          </div>
+
+          <div>
+            <label class="block font-medium text-[var(--text)] mb-1 text-[13px]">পাসওয়ার্ড (Password):</label>
+            <div class="relative">
+              <input id="staff-auth-password" type="password" placeholder="••••••••••••" required 
+                class="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl p-2.5 text-xs text-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--accent)] pr-10 transition" />
+              <button type="button" onclick="toggleStaffPasswordVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text)] p-1">
+                👁
+              </button>
+            </div>
+          </div>
+
+          <div id="staff-auth-error" class="hidden p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-medium"></div>
+
+          <button type="submit" id="btn-staff-auth-submit" class="w-full apple-send-btn justify-center py-2.5 text-xs font-semibold rounded-xl mt-2">
+            <span>🔒 লগইন করুন (Staff Portal)</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

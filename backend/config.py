@@ -25,9 +25,17 @@ class Settings:
     STATIC_DIR: Path = BASE_DIR / "static"
     
     CRAWL_INTERVAL_HOURS: int = int(os.getenv("CRAWL_INTERVAL_HOURS", "1"))
-    CRAWL_INTERVAL_MINUTES: int = int(os.getenv("CRAWL_INTERVAL_MINUTES", "60"))
+    CRAWL_INTERVAL_MINUTES: int = int(os.getenv("CRAWL_INTERVAL_MINUTES", "30"))
     ENRICH_INTERVAL_HOURS: int = int(os.getenv("ENRICH_INTERVAL_HOURS", "1"))
     
     RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "45"))
 
+    # Model Hyperparameters & Session Constraints
+    TEMPERATURE: float = float(os.getenv("MODEL_TEMPERATURE", "0.7"))
+    MAX_OUTPUT_TOKENS: int = int(os.getenv("MAX_OUTPUT_TOKENS", "2048"))
+    TOP_P: float = float(os.getenv("MODEL_TOP_P", "0.95"))
+    REQUEST_TIMEOUT_SECONDS: int = int(os.getenv("REQUEST_TIMEOUT_SECONDS", "15"))
+    MEMORY_WINDOW_TURNS: int = int(os.getenv("MEMORY_WINDOW_TURNS", "10"))
+
 settings = Settings()
+

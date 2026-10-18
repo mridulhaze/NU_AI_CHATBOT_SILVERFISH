@@ -25,6 +25,8 @@ from db.vector_store import get_vector_store
 from token_service.db import get_token_db_connection
 
 logger = logging.getLogger("HERMES_LEARNING_BRAIN")
+DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Strict Official Portals
 OFFICIAL_PORTALS = {
@@ -139,16 +141,18 @@ class HermesLearningBrain:
             "reference_url": official_url
         }
 
-    def auto_resolve_gap(self, gap_id: int) -> Dict[str, Any]:
+    def auto_resolve_gap(self, gap_id: Any, query: Optional[str] = None, reason: Optional[str] = None) -> Dict[str, Any]:
         """Auto-researches, synthesizes, and resolves a single knowledge gap."""
-        conn = self.sql_store._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, user_query FROM gap_queue WHERE id = ?", (gap_id,))
-        row = cursor.fetchone()
-        if not row:
-            return {"success": False, "detail": "Knowledge gap not found"}
+        user_query = query
+        if not user_query:
+            conn = self.sql_store._get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, user_query FROM gap_queue WHERE id = ?", (gap_id,))
+            row = cursor.fetchone()
+            if not row:
+                return {"success": False, "detail": "Knowledge gap not found"}
+            user_query = row["user_query"]
 
-        user_query = row["user_query"]
         entry = self._synthesize_knowledge_entry(user_query)
 
         # 1. Insert into faq_entries table
@@ -235,6 +239,42 @@ class HermesLearningBrain:
             "total_learned_cumulative": self.total_learned_count,
             "resolved_items": resolved_items
         }
+
+    def auto_resolve_all_pending_gaps(self, limit_gaps: int = 25) -> int:
+        """
+        Pulls pending gaps from both SQLite gap_queue and data/knowledge_gaps.json,
+        resolves them, enriches ChromaDB and SQLite FAQs, and returns the resolved count.
+        """
+        res = self.run_interactive_learning_cycle(limit_gaps=limit_gaps)
+        resolved_count = res.get("resolved_gaps_count", 0)
+
+        # Also process data/knowledge_gaps.json if present
+        gaps_json_file = DATA_DIR / "knowledge_gaps.json"
+        if gaps_json_file.exists():
+            try:
+                with open(gaps_json_file, "r", encoding="utf-8") as f:
+                    gaps = json.load(f)
+                
+                updated = False
+                for g in gaps:
+                    if g.get("status") == "pending_enrichment":
+                        synth_res = self.auto_resolve_gap(
+                            gap_id=g["id"],
+                            query=g.get("query"),
+                            reason=g.get("reason")
+                        )
+                        if synth_res.get("success"):
+                            g["status"] = "resolved_and_indexed"
+                            resolved_count += 1
+                            updated = True
+                
+                if updated:
+                    with open(gaps_json_file, "w", encoding="utf-8") as f:
+                        json.dump(gaps, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                logger.warning(f"Error resolving gaps from JSON: {e}")
+
+        return resolved_count
 
     def extract_notice_faqs(self, notice_id: int) -> Dict[str, Any]:
         """
@@ -332,3 +372,7 @@ def get_hermes_brain() -> HermesLearningBrain:
     if _hermes_brain_instance is None:
         _hermes_brain_instance = HermesLearningBrain()
     return _hermes_brain_instance
+
+def get_hermes_learning_brain() -> HermesLearningBrain:
+    return get_hermes_brain()
+

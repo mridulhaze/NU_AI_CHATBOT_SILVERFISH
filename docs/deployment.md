@@ -13,8 +13,8 @@ python main.py
 ```
 
 Access:
-- Interactive Chatbot: `http://localhost:8080`
-- API Documentation: `http://localhost:8080/docs`
+- Interactive Chatbot: `http://localhost:8000`
+- API Documentation: `http://localhost:8000/docs`
 
 ## Docker Deployment
 ```bash

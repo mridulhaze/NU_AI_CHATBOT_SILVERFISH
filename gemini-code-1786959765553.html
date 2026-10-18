@@ -161,7 +161,7 @@
           <span><strong>Online:</strong> Running on IP / Local Network (LAN)</span>
         </div>
         <div class="bg-emerald-900/40 px-3 py-1 rounded-lg font-mono text-emerald-200 border border-emerald-700/50">
-          Access from any device on your Wi-Fi at: <span id="lan-address-display" class="underline">http://192.168.0.230:8080</span>
+          Access from any device on your Wi-Fi at: <span id="lan-address-display" class="underline">http://192.168.0.230:8000</span>
         </div>
       </div>
     </div>
@@ -425,7 +425,7 @@
     let conversationHistory = []; // Multi-turn memory
 
     // Dynamically detect server host
-    const API_BASE = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8080";
+    const API_BASE = window.location.origin.startsWith("http") ? window.location.origin : "http://127.0.0.1:8000";
     if (lanDisplay && window.location.origin.startsWith("http")) {
       lanDisplay.textContent = window.location.origin;
     }

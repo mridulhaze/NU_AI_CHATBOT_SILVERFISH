@@ -1,5 +1,7 @@
 import os
 import time
+import json
+import hashlib
 import logging
 from pathlib import Path
 from typing import Optional, List, Tuple
@@ -13,6 +15,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 logger = logging.getLogger("NU_VECTOR_STORE")
 
 DEFAULT_VECTOR_DIR = Path(__file__).resolve().parent.parent / "nu_vector_db"
+HASH_CACHE_FILE = Path(__file__).resolve().parent.parent / "data" / "ingest_hash_cache.json"
 
 class ResilientEmbeddings:
     """Wrapper that uses Google GenAI embeddings with resilient retry."""
@@ -79,6 +82,24 @@ class VectorStore:
         except Exception as e:
             logger.error(f"Failed to initialize Chroma vector store: {e}")
 
+    def _load_hash_cache(self) -> set[str]:
+        if HASH_CACHE_FILE.exists():
+            try:
+                with open(HASH_CACHE_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    return set(data) if isinstance(data, list) else set(data.keys())
+            except Exception:
+                pass
+        return set()
+
+    def _save_hash_cache(self, hashes: set[str]):
+        try:
+            HASH_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+            with open(HASH_CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(list(hashes), f)
+        except Exception as e:
+            logger.warning(f"Could not persist hash cache: {e}")
+
     def split_and_add_documents(self, documents: List[Document], chunk_size: int = 1000, chunk_overlap: int = 150) -> int:
         if not documents:
             return 0
@@ -88,11 +109,30 @@ class VectorStore:
             separators=["\n\n", "\n", "। ", ". ", " ", ""]
         )
         chunks = splitter.split_documents(documents)
-        logger.info(f"Split {len(documents)} docs into {len(chunks)} chunks.")
+        logger.info(f"Split {len(documents)} docs into {len(chunks)} raw chunks.")
+
+        known_hashes = self._load_hash_cache()
+        new_chunks = []
+        new_hashes = set()
+
+        for chunk in chunks:
+            text = chunk.page_content.strip()
+            if not text:
+                continue
+            ch_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            if ch_hash not in known_hashes:
+                new_chunks.append(chunk)
+                new_hashes.add(ch_hash)
+
+        if not new_chunks:
+            logger.info("All document chunks already exist in vector store (hash matched). Skipping redundant embedding.")
+            return 0
+
+        logger.info(f"Embedding {len(new_chunks)} new/changed chunks (skipped {len(chunks) - len(new_chunks)} unchanged).")
 
         batch_size = 40
-        for i in range(0, len(chunks), batch_size):
-            batch = chunks[i : i + batch_size]
+        for i in range(0, len(new_chunks), batch_size):
+            batch = new_chunks[i : i + batch_size]
             for attempt in range(3):
                 try:
                     if self.vector_db is None:
@@ -109,7 +149,10 @@ class VectorStore:
                     time.sleep(1.5 * (attempt + 1))
             time.sleep(0.3)
 
-        return len(chunks)
+        known_hashes.update(new_hashes)
+        self._save_hash_cache(known_hashes)
+
+        return len(new_chunks)
 
     def similarity_search(self, query: str, k: int = 5) -> List[Tuple[Document, float]]:
         if self.vector_db is None:

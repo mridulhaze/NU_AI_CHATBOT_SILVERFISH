@@ -28,13 +28,22 @@ class CoreSettings:
     
     # AI Engine Keys & Models
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    PRIMARY_MODEL: str = os.getenv("PRIMARY_MODEL", "gemini-3.1-flash-lite")
+    PRIMARY_MODEL: str = os.getenv("PRIMARY_MODEL", "gemini-2.5-flash")
     FALLBACK_MODELS: list[str] = [
-        "gemini-3.5-flash-lite",
-        "gemini-3-flash-preview",
+        "gemini-2.5-flash",
+        "gemini-1.5-flash",
         "gemini-flash-latest"
     ]
     EMBEDDING_MODEL: str = "models/gemini-embedding-001"
+    
+    # Cloud AI Providers (OpenRouter, Groq, OpenAI, Gemini)
+    CLOUD_API_PROVIDER: str = os.getenv("CLOUD_API_PROVIDER", "auto")  # auto, openrouter, groq, gemini, openai
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "nousresearch/hermes-3-llama-3.1-8b")
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     
     # Security & Authentication
     JWT_SECRET: str = os.getenv("JWT_SECRET", "nu-ai-assistant-super-secure-token-2026")

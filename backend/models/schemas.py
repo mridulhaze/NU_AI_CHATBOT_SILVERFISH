@@ -158,8 +158,26 @@ class TokenStatusUpdateRequest(BaseModel):
     admin_note: Optional[str] = None
 
 class TokenReturnRequest(BaseModel):
-    reason: str = Field(..., min_length=3, description="Reason for sending back to admin for further instructions")
-    solver_name: Optional[str] = None
+    token_id: str
+    return_reason: str = Field(..., min_length=3, description="Reason for sending back to admin")
+
+# --- Many-to-Many Q&A Knowledge Schemas ---
+class QAKnowledgeCreateRequest(BaseModel):
+    primary_question: str = Field(..., min_length=3, description="Primary canonical question")
+    category: str = Field(default="General", description="Category / Faculty / Department")
+    tags: Optional[str] = Field(default="", description="Comma-separated tags")
+    question_variants: List[str] = Field(default_factory=list, description="Alternative phrasing and synonyms")
+    answer_variants: List[str] = Field(default_factory=list, description="Answer variants and explanations")
+
+class QAKnowledgeResponse(BaseModel):
+    id: int
+    primary_question: str
+    category: str
+    tags: Optional[str] = ""
+    question_variants: List[str] = Field(default_factory=list)
+    answer_variants: List[Dict[str, Any]] = Field(default_factory=list)
+    primary_answer: Optional[str] = ""
+    created_at: Optional[str] = None
 
 class TokenSolveRequest(BaseModel):
     solve_message: str = Field(..., min_length=5, description="Clear solution steps for the student")
@@ -175,3 +193,62 @@ class ManualCrawlRequest(BaseModel):
 class DeepCrawlRequest(BaseModel):
     max_pages: int = Field(default=50, ge=5, le=5000, description="Max recursive pages to crawl")
     delay_seconds: float = Field(default=0.5, ge=0.2, le=5.0, description="Polite delay between requests")
+
+# --- Academic Examination Information Management Schemas ---
+class AcademicExamCreateUpdateRequest(BaseModel):
+    program_type: str = Field(..., description="Honours, Degree Pass, Master's, Professional")
+    program_type_name: Optional[str] = Field(default="", description="Bengali label: অনার্স, ডিগ্রি পাস, মাস্টার্স, প্রফেশনাল")
+    course_name: Optional[str] = Field(default="", description="Course Name / Code: e.g. B.Sc. in Computer Science & Engineering (CSE), BBA, etc.")
+    examination_year: str = Field(..., min_length=2, description="Examination Year: e.g. 2024, 2025")
+    part: Optional[str] = Field(default="N/A", description="Part 1, Part 2, Part 3, Part 4, or N/A")
+    semester: Optional[str] = Field(default="N/A", description="Semester 1 through Semester 8, or N/A")
+    incourse_exam_date: Optional[str] = Field(default="", description="In-course Exam Date")
+    incourse_marks_deadline: Optional[str] = Field(default="", description="Last Date for In-course Marks Entry")
+    form_fillup_start_date: Optional[str] = Field(default="", description="Form Fill-up Start Date")
+    form_fillup_deadline: Optional[str] = Field(default="", description="Form Fill-up Last Date")
+    exam_date: Optional[str] = Field(default="", description="Examination Start Date")
+    routine_publication_date: Optional[str] = Field(default="", description="Routine Publication Date or link")
+    admit_card_date: Optional[str] = Field(default="", description="Admit Card Availability Date")
+    last_exam_date: Optional[str] = Field(default="", description="Last Date of Examination")
+    practical_marks_start_date: Optional[str] = Field(default="", description="Practical Marks Entry Start Date")
+    practical_marks_deadline: Optional[str] = Field(default="", description="Last Date of Practical Marks Entry")
+    probable_result_date: Optional[str] = Field(default="", description="Probable Result Publication Date (সম্ভাব্য ফল প্রকাশ)")
+    actual_result_date: Optional[str] = Field(default="", description="Actual Result Publication Date (প্রকৃত ফল প্রকাশ)")
+    results_published: Optional[str] = Field(default="No", description="Results Published: Yes / No")
+    rescrutiny_start_date: Optional[str] = Field(default="", description="Re-scrutiny Application Start Date")
+    rescrutiny_deadline: Optional[str] = Field(default="", description="Re-scrutiny Application Last Date")
+    rescrutiny_result_date: Optional[str] = Field(default="", description="Re-scrutiny Result Publication Date")
+    document_printing_date: Optional[str] = Field(default="", description="Certificate / Marksheet / Transcript Printing Date")
+    documents_printed: Optional[str] = Field(default="No", description="Certificate / Marksheet Printed: Yes / No")
+    revaluation_result_url: Optional[str] = Field(default="https://results.nu.ac.bd/", description="Revaluation Result Link")
+    college_wise_result_url: Optional[str] = Field(default="http://103.113.200.68/nu-app/search.php", description="College-wise Result Link")
+    remarks: Optional[str] = Field(default="", description="Additional Official Remarks / Guidelines")
+    source_url: Optional[str] = Field(default="", description="Official Notice / Circular Source URL")
+
+class AcademicExamResponse(AcademicExamCreateUpdateRequest):
+    id: int
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+    created_by: Optional[str] = "Admin"
+    updated_by: Optional[str] = "Admin"
+
+# Backwards compatibility schemas
+class AcademicStaticInfoRequest(AcademicExamCreateUpdateRequest):
+    part_or_year: Optional[str] = Field(default="1")
+    exam_year: Optional[str] = Field(default="")
+    incourse_date: Optional[str] = Field(default="")
+    last_date_incourse_marks: Optional[str] = Field(default="")
+    form_fillup_date: Optional[str] = Field(default="")
+    routine_url: Optional[str] = Field(default="")
+    last_date_practical_marks: Optional[str] = Field(default="")
+    rescrutiny_apply_date: Optional[str] = Field(default="")
+    certificate_printing_date: Optional[str] = Field(default="")
+    printed_status: Optional[str] = Field(default="No")
+    revaluation_result_link: Optional[str] = Field(default="https://results.nu.ac.bd/")
+    collegewise_result_link: Optional[str] = Field(default="http://103.113.200.68/nu-app/search.php")
+    notes: Optional[str] = Field(default="")
+
+class AcademicStaticInfoResponse(AcademicStaticInfoRequest):
+    id: int
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None

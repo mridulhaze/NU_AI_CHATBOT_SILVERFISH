@@ -1,13 +1,19 @@
+import os
 import time
 from collections import defaultdict
 from fastapi import Request, HTTPException
 
 class InMemoryRateLimiter:
-    def __init__(self, requests_per_minute: int = 45):
-        self.limit = requests_per_minute
+    def __init__(self, requests_per_minute: int = None):
+        if requests_per_minute is not None:
+            self.limit = requests_per_minute
+        else:
+            self.limit = int(os.getenv("RATE_LIMIT_PER_MINUTE", "120"))
         self.requests = defaultdict(list)
 
     def check_rate_limit(self, client_ip: str):
+        if self.limit <= 0:
+            return
         now = time.time()
         window_start = now - 60.0
         

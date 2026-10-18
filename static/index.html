@@ -1617,6 +1617,16 @@
             <span class="bg-indigo-100 text-indigo-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">6-in-1 Hub</span>
           </button>
 
+          <button id="tab-btn-qa-knowledge" onclick="switchAdminTab('qa_knowledge')" onmouseenter="showGlobalTabTip('প্রশ্ন ও বহুবিধ উত্তর ডাটাবেজ সমৃদ্ধকরণ (Many-to-Many Q&A Hub)')" onmouseleave="resetGlobalTabTip()" title="Many-to-Many Q&A Knowledge Base" class="py-3 px-2.5 sm:px-3.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-bold">
+            <span>📚 Q&A Knowledge Hub</span>
+            <span class="bg-purple-100 text-purple-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Many-to-Many</span>
+          </button>
+
+          <button id="tab-btn-academic-static" onclick="switchAdminTab('academic_static')" onmouseenter="showGlobalTabTip('অনার্স, ডিগ্রি, মাস্টার্স ও প্রফেশনাল পরীক্ষার তথ্য এন্ট্রি ও হালনাগাদ')" onmouseleave="resetGlobalTabTip()" title="Academic Exam Schedules & Results Info" class="py-3 px-2.5 sm:px-3.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-bold">
+            <span>🎓 Academic Exam & Results Hub</span>
+            <span class="bg-blue-100 text-blue-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Static Info</span>
+          </button>
+
           <button id="tab-btn-users" onclick="switchAdminTab('users')" onmouseenter="showGlobalTabTip('ব্যবহারকারী ও বিভাগীয় কর্মকর্তা অ্যাকাউন্ট ব্যবস্থাপনা')" onmouseleave="resetGlobalTabTip()" title="ব্যবহারকারী ও বিভাগীয় কর্মকর্তা অ্যাকাউন্ট ব্যবস্থাপনা (User & Department Accounts)" class="py-3 px-2.5 sm:px-3.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
             <span>👥 User & Department Accounts</span>
           </button>
@@ -2255,6 +2265,107 @@
         </div>
 
         <!-- Tab Content: User & Department Management -->
+        <!-- Tab Content: Many-to-Many Q&A Knowledge Hub -->
+        <div id="tab-content-qa-knowledge" class="space-y-4 hidden">
+          <!-- Header Banner -->
+          <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-2xl p-5 text-white shadow-sm border border-purple-800/40">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xl">📚</span>
+                  <h3 class="text-base font-bold">Many-to-Many Q&A Knowledge Base & Vector Store Enrichment</h3>
+                  <span class="bg-purple-500/20 text-purple-200 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-400/30">Dynamic Knowledge Engine</span>
+                </div>
+                <p class="text-xs text-purple-200/80 leading-relaxed max-w-2xl">
+                  প্রশাসনিক প্রশ্ন ও বহুবিধ উত্তর যোগ করুন। একটি মূল প্রশ্নের বিপরীতে একাধিক সমার্থক প্রশ্ন (Question Variants) এবং একাধিক বিস্তারিত উত্তর (Answer Variations) সংরক্ষণ করা যাবে, যা সাথে সাথে ভেক্টর ডাটাবেজে সিঙ্ক হয়ে চ্যাটবটকে সমৃদ্ধ করবে।
+                </p>
+              </div>
+              <button onclick="loadAdminQAKnowledge()" class="bg-purple-600/80 hover:bg-purple-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-2xs border border-purple-400/40">
+                <span>🔄</span>
+                <span>Refresh Knowledge</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Add Q&A Form Card -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs">
+            <h4 class="text-xs font-bold text-slate-800 mb-3 flex items-center gap-1.5">
+              <span>✍️</span>
+              <span>Add New Many-to-Many Q&A Pair</span>
+            </h4>
+            <form id="admin-qa-form" onsubmit="submitAdminQAKnowledge(event)" class="space-y-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">মূল প্রশ্ন (Primary Canonical Question): *</label>
+                  <input id="qa-primary-q" type="text" required placeholder="e.g. মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-purple-600" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">ক্যাটাগরি / বিভাগ (Category):</label>
+                  <select id="qa-category" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-purple-600">
+                    <option value="Student Services">🎓 Student Services (সার্টিফিকেট, মার্কশিট, সংশোধন, টিসি)</option>
+                    <option value="Examinations">📝 Examinations & Routines (ফরম পূরণ, রুটিন, সিট প্ল্যান)</option>
+                    <option value="Admission">🏛️ Admissions (অনার্স, ডিগ্রি, মাস্টার্স ভর্তি)</option>
+                    <option value="Accounts">💳 Accounts & Fees (সোনালী সেবা ও ফি সংক্রান্ত)</option>
+                    <option value="General">ℹ️ General Information (সাধারণ তথ্য ও যোগাযোগ)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">সমার্থক ও বিকল্প প্রশ্নসমূহ (Alternative Question Variants / Synonyms - প্রতিটি নতুন লাইনে লিখুন):</label>
+                <textarea id="qa-question-variants" rows="2" placeholder="certificate tolar process ki?&#10;how to get original certificate?&#10;সাময়িক ও মূল সনদপত্র তোলার নিয়ম" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-purple-600"></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">প্রধান ও বিস্তারিত উত্তর (Primary Detailed Answer): *</label>
+                  <textarea id="qa-primary-answer" rows="3" required placeholder="সরাসরি উত্তর, পদক্ষেপ, প্রয়োজনীয় ফি ও অফিশিয়াল লিংক লিখুন..." class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-purple-600"></textarea>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">বিকল্প / সংক্ষিপ্ত উত্তর (Alternative / Short Answer Variant - ঐচ্ছিক):</label>
+                  <textarea id="qa-alt-answer" rows="3" placeholder="সংক্ষিপ্ত বা বুলেট পয়েন্ট সংস্করণ (যদি থাকে)..." class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-purple-600"></textarea>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <input id="qa-tags" type="text" placeholder="Tags (e.g. certificate, fees, nu-app)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:bg-white focus:outline-none w-64" />
+                <button type="submit" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5">
+                  <span>➕</span>
+                  <span>Save & Ingest into Knowledge Base</span>
+                </button>
+              </div>
+              <div id="qa-submit-msg" class="text-xs font-semibold hidden"></div>
+            </form>
+          </div>
+
+          <!-- Existing Q&A Table Card -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <span>📋</span>
+                <span>Active Knowledge Base Entries (Many-to-Many Store)</span>
+              </h4>
+              <span id="qa-count-badge" class="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded-full font-bold">0 Records</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/90 text-slate-700 border-b border-slate-200">
+                    <th class="p-2.5 font-bold">Category</th>
+                    <th class="p-2.5 font-bold">Primary Question</th>
+                    <th class="p-2.5 font-bold">Variants (Questions / Answers)</th>
+                    <th class="p-2.5 font-bold">Primary Answer Snippet</th>
+                    <th class="p-2.5 font-bold text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="qa-knowledge-tbody" class="divide-y divide-slate-100">
+                  <tr><td colspan="5" class="p-4 text-center text-slate-400">Loading knowledge base...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div id="tab-content-users" class="space-y-4 hidden">
           <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div>
@@ -2492,9 +2603,392 @@
           </div>
         </div>
 
+        <!-- Tab Content: Academic Exam Static Info Hub -->
+        <div id="tab-content-academic-static" class="space-y-5 hidden">
+          <!-- Header Banner -->
+          <div class="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white shadow-sm border border-blue-800/40">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-2xl">🎓</span>
+                  <h3 class="text-base sm:text-lg font-bold">Academic Exam & Results Information Hub (Static Schedule)</h3>
+                  <span class="bg-blue-500/20 text-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">Admin Central Database</span>
+                </div>
+                <p class="text-xs text-blue-200/80 leading-relaxed max-w-3xl">
+                  অনার্স (পার্ট ১, ২, ৩, ৪), ডিগ্রী পাস (পার্ট ১, ২, ৩), মাস্টার্স এবং প্রফেশনাল কোর্সের পরীক্ষার তারিখ, ইনকোর্স, ফরম পূরণ, রুটিন, প্রবেশপত্র, ব্যবহারিক নম্বর, সম্ভাব্য ও প্রকাশিত ফলাফল এবং সার্টিফিকেট সংক্রান্ত তথ্য এখান থেকে এন্ট্রি ও আপডেট করুন। চ্যাট প্যানেলে শিক্ষার্থীরা সরাসরি এই তথ্য দেখতে পাবে।
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="loadAcademicStaticList()" class="bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs border border-blue-400/40 cursor-pointer">
+                  <span>🔄</span>
+                  <span>Refresh Records</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Academic Program Sub-Navigation Bar matching User's Spec & Screenshot -->
+          <div class="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-2xs flex items-center gap-2 overflow-x-auto text-xs font-bold">
+            <button id="subtab-academic-honours" onclick="switchAcademicSubTab('Honours')" class="py-2 px-4 rounded-xl bg-blue-700 text-white flex items-center gap-2 shadow-xs cursor-pointer transition">
+              <span>🎓</span>
+              <span>Honours (অনার্স)</span>
+            </button>
+            <button id="subtab-academic-degree" onclick="switchAcademicSubTab('Degree Pass')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition">
+              <span>📜</span>
+              <span>Degree Pass (ডিগ্রী পাস)</span>
+            </button>
+            <button id="subtab-academic-masters" onclick="switchAcademicSubTab('Master\'s')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition">
+              <span>📚</span>
+              <span>Master's (মাস্টার্স)</span>
+            </button>
+            <button id="subtab-academic-pro" onclick="switchAcademicSubTab('Professional')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition">
+              <span>💼</span>
+              <span>Professional (প্রফেশনাল)</span>
+            </button>
+            <button id="subtab-academic-links" onclick="switchAcademicSubTab('Portal Links')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition">
+              <span>🔗</span>
+              <span>Result Portals Links</span>
+            </button>
+          </div>
+
+          <!-- Main Input Form Card -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-2xs space-y-5">
+            <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl" id="academic-form-icon">🎓</span>
+                <div>
+                  <h4 id="academic-form-title" class="text-sm font-bold text-slate-900">Configure Honours Examination & Results Schedule</h4>
+                  <p class="text-[11px] text-slate-500">প্রোগ্রাম, বর্ষ/পার্ট ও শিক্ষাবর্ষ নির্বাচন করে তথ্য এন্ট্রি বা আপডেট করুন</p>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
+                <div id="static-course-selector-wrapper" class="hidden flex items-center gap-1.5">
+                  <span class="text-[11px] font-bold text-slate-600">কোর্স (Course):</span>
+                  <select id="static-course-selector" onchange="onAcademicPartChange()" class="bg-teal-50 border border-teal-300 text-slate-900 text-xs rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:border-teal-600 font-bold cursor-pointer max-w-[280px]">
+                    <!-- Dynamically populated with 5 branches & 18 courses -->
+                  </select>
+                </div>
+                <div id="static-part-selector-wrapper" class="flex items-center gap-1.5">
+                  <span class="text-[11px] font-bold text-slate-600">বর্ষ/পর্ব (Part/Year):</span>
+                  <select id="static-part-selector" onchange="onAcademicPartChange()" class="bg-slate-50 border border-slate-300 text-slate-900 text-xs rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:border-blue-600 font-bold cursor-pointer">
+                    <!-- Dynamically populated -->
+                  </select>
+                </div>
+                <div id="static-semester-selector-wrapper" class="hidden flex items-center gap-1.5">
+                  <span class="text-[11px] font-bold text-slate-600">সেমিস্টার (Semester):</span>
+                  <select id="static-semester-selector" onchange="onAcademicSemesterChange()" class="bg-amber-50 border border-amber-300 text-slate-900 text-xs rounded-xl px-3 py-1.5 focus:bg-white focus:outline-none focus:border-amber-600 font-bold cursor-pointer">
+                    <!-- Dynamically populated for Professional -->
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <form id="academic-static-form" onsubmit="submitAcademicStatic(event)" class="space-y-6">
+              
+              <!-- Section A: কোর্স ও শিক্ষাবর্ষ পরিচিতি -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                    <span>📌</span>
+                    <span>সেকশন A: শিক্ষাবর্ষ ও বেসিক পরিচিতি (Program & Examination Year)</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">Core Identity</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📅 পরীক্ষার সাল (Exam Year) <span class="text-rose-500">*</span>:</label>
+                    <input id="static-exam-year" type="text" required placeholder="e.g. 2024 বা 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🏷️ কোর্সের বাংলা নাম (Display Title):</label>
+                    <input id="static-program-name-bn" type="text" placeholder="e.g. অনার্স (সম্মান)" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🌐 সার্কুলার / নোটিশ লিংক (Source Notice URL):</label>
+                    <input id="static-source-url" type="text" placeholder="https://www.nu.ac.bd/uploads/notice.pdf" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section B: ইনকোর্স পরীক্ষা ও নম্বর এন্ট্রি -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                    <span>📝</span>
+                    <span>সেকশন B: ইনকোর্স পরীক্ষা ও নম্বর এন্ট্রি (In-course Exam & Marks Entry)</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">In-course Phase</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📝 ইনকোর্স পরীক্ষার তারিখ / সময়সীমা:</label>
+                    <input id="static-incourse-date" type="text" placeholder="e.g. 15 Jan 2025 হতে 30 Jan 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">⏰ ইনকোর্স নম্বর এন্ট্রির শেষ তারিখ:</label>
+                    <input id="static-last-incourse" type="text" placeholder="e.g. 10 Feb 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section C: ফরম পূরণ ও সময়সীমা -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <span class="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                    <span>📋</span>
+                    <span>সেকশন C: ফরম পূরণ ও সময়সীমা (Form Fill-up Milestones)</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">EMS Portal Phase</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📋 ফরম পূরণ শুরুর তারিখ (Start Date):</label>
+                    <input id="static-form-fillup-start" type="text" placeholder="e.g. 01 March 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">⏳ ফরম পূরণ শেষ তারিখ (Deadline):</label>
+                    <input id="static-form-fillup" type="text" placeholder="e.g. 25 March 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section D: পরীক্ষার সময়সূচী ও প্রবেশপত্র -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                    <span>📅</span>
+                    <span>সেকশন D: তত্ত্বীয় পরীক্ষার সময়সূচী ও প্রবেশপত্র (Exam Routine, Admit Card & Duration)</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">Examination Phase</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📅 পরীক্ষা শুরুর তারিখ (Exam Date):</label>
+                    <input id="static-exam-date" type="text" placeholder="e.g. 15 May 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📜 পরীক্ষার রুটিন প্রকাশের তারিখ / লিংক:</label>
+                    <input id="static-routine-url" type="text" placeholder="e.g. 20 April 2025 বা URL" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🪪 প্রবেশপত্র (Admit Card) পাওয়ার তারিখ:</label>
+                    <input id="static-admit-card" type="text" placeholder="e.g. 05 May 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🏁 তত্ত্বীয় পরীক্ষা শেষের তারিখ (Last Exam):</label>
+                    <input id="static-last-exam" type="text" placeholder="e.g. 30 June 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section E: ব্যবহারিক পরীক্ষা ও নম্বর এন্ট্রি -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <span class="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                    <span>🧪</span>
+                    <span>সেকশন E: ব্যবহারিক পরীক্ষা ও নম্বর এন্ট্রি (Practical Exam & Marks Entry)</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">Practical Marks</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🧪 ব্যবহারিক পরীক্ষা শুরুর তারিখ:</label>
+                    <input id="static-practical-date" type="text" placeholder="e.g. 05 July 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">⏳ ব্যবহারিক নম্বর এন্ট্রির শেষ তারিখ:</label>
+                    <input id="static-last-practical" type="text" placeholder="e.g. 25 July 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section F: ফলাফল ও পুনর্নিরীক্ষণ কার্যক্রম -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <span class="text-xs font-bold text-purple-900 flex items-center gap-1.5">
+                    <span>📊</span>
+                    <span>সেকশন F: ফলাফল ও পুনর্নিরীক্ষণ কার্যক্রম (Result Publication & Re-scrutiny)</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">Results & Re-scrutiny</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📊 সম্ভাব্য ফল প্রকাশের তারিখ (Probable Date):</label>
+                    <input id="static-prob-result" type="text" placeholder="e.g. 15 September 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📢 প্রকৃত ফল প্রকাশের তারিখ (Actual Date):</label>
+                    <input id="static-result-date" type="text" placeholder="e.g. 12 September 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">✅ ফলাফল প্রকাশিত হয়েছে? (Results Published):</label>
+                    <select id="static-results-published" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600 font-bold">
+                      <option value="No">না (No) - প্রকাশিত হয়নি</option>
+                      <option value="Yes">হ্যাঁ (Yes) - প্রকাশিত হয়েছে</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🔍 পুনর্নিরীক্ষণ আবেদন শুরুর তারিখ:</label>
+                    <input id="static-rescrutiny-start" type="text" placeholder="e.g. 15 Sept 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">⏰ পুনর্নিরীক্ষণ আবেদনের শেষ তারিখ:</label>
+                    <input id="static-rescrutiny-apply" type="text" placeholder="e.g. 15 Oct 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📑 পুনর্নিরীক্ষণের ফল প্রকাশের তারিখ:</label>
+                    <input id="static-rescrutiny-result" type="text" placeholder="e.g. 30 November 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section G: সনদ/মার্কশিট প্রিন্টিং ও অফিসিয়াল পোর্টাল লিংক -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                  <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>📜</span>
+                    <span>সেকশন G: সনদ/মার্কশিট প্রিন্টিং ও অফিসিয়াল পোর্টাল লিংক (Official Portals)</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-medium">Documents & Links</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">📜 সনদ/মার্কশিট/ট্রান্সক্রিপ্ট প্রিন্টিং তারিখ:</label>
+                    <input id="static-cert-printing" type="text" placeholder="e.g. 15 Dec 2025" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🖨️ প্রিন্ট স্ট্যাটাস (Printed Status):</label>
+                    <select id="static-printed-status" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600 font-bold">
+                      <option value="No">না (No) - প্রিন্ট হয়নি / অপেক্ষমান</option>
+                      <option value="Yes">হ্যাঁ (Yes) - প্রিন্ট সম্পন্ন / বিতরণ চলছে</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🔗 Revaluation Result Link (পুনর্নিরীক্ষণ লিংক):</label>
+                    <input id="static-reval-link" type="text" value="https://results.nu.ac.bd/" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">🏫 College-wise Result Link (কলেজভিত্তিক রেজাল্ট):</label>
+                    <input id="static-college-link" type="text" value="http://103.113.200.68/nu-app/search.php" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
+                  </div>
+                  <div class="sm:col-span-2 lg:col-span-4">
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">💡 বিশেষ নির্দেশনা / দ্রষ্টব্য (Official Remarks):</label>
+                    <textarea id="static-notes" rows="2" placeholder="e.g. ফরম পূরণের পর প্রিন্ট কপি সহ ফি স্ব স্ব কলেজে নির্ধারিত সময়ের মধ্যে জমা দিতে হবে।" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-600"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Action Buttons -->
+              <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button type="submit" id="btn-save-academic-static" class="bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer">
+                    <span>💾</span>
+                    <span>Submit & Update Schedule</span>
+                  </button>
+                  <button type="button" onclick="previewCurrentFormCard()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                    <span>👁️</span>
+                    <span>Preview Student Card</span>
+                  </button>
+                  <button type="button" onclick="onAcademicPartChange()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl transition cursor-pointer">
+                    <span>🔄 Load Saved Data</span>
+                  </button>
+                  <button type="button" onclick="clearAcademicStaticForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-3.5 py-2.5 rounded-xl transition cursor-pointer">
+                    <span>Clear Form</span>
+                  </button>
+                </div>
+                <span id="academic-static-status-msg" class="text-xs font-semibold text-slate-500"></span>
+              </div>
+            </form>
+          </div>
+
+          <!-- Stored Records Summary Table & Filters -->
+          <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-2xs space-y-4">
+            <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-3">
+              <div class="flex items-center gap-2">
+                <span class="text-base">📋</span>
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800">Stored Academic Examination & Results Records (SQLite Local)</h4>
+                  <p class="text-[10px] text-slate-400">প্রতিটি রেকর্ড স্বতন্ত্র (Program, Exam Year, Part, Semester) হিসাবে সংরক্ষিত</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="academic-static-count-badge" class="bg-blue-100 text-blue-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold">0 Records</span>
+              </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-xs">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Filter by Program:</label>
+                <select id="static-filter-program" onchange="filterAcademicRecords()" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-semibold">
+                  <option value="ALL">All Programs (সকল)</option>
+                  <option value="Honours">Honours (অনার্স)</option>
+                  <option value="Degree Pass">Degree Pass (ডিগ্রি পাস)</option>
+                  <option value="Master's">Master's (মাস্টার্স)</option>
+                  <option value="Professional">Professional (প্রফেশনাল)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Filter by Exam Year:</label>
+                <input id="static-filter-year" oninput="filterAcademicRecords()" type="text" placeholder="e.g. 2024" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Search Records:</label>
+                <input id="static-filter-search" oninput="filterAcademicRecords()" type="text" placeholder="Search by remarks, part, routine..." class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800" />
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider">
+                    <th class="p-3">Program</th>
+                    <th class="p-3">Part / Year</th>
+                    <th class="p-3">Semester</th>
+                    <th class="p-3">Exam Year</th>
+                    <th class="p-3">Exam Date</th>
+                    <th class="p-3">Probable Result</th>
+                    <th class="p-3">Published?</th>
+                    <th class="p-3">Printed?</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-academic-static-tbody" class="divide-y divide-slate-100 text-slate-700">
+                  <tr><td colspan="9" class="p-6 text-center text-slate-400">Loading stored schedules...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
+
+  <!-- Academic Exam Student Card Preview Modal -->
+  <div id="admin-exam-preview-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-[65] hidden flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900 text-white shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">👁️</div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Student Card Preview (শিক্ষার্থী ভিউ প্রিভিউ)</h3>
+            <p class="text-[11px] text-slate-300">চ্যাটবট প্যানেলে শিক্ষার্থীরা ঠিক যেভাবে এই তথ্যটি দেখতে পাবে</p>
+          </div>
+        </div>
+        <button onclick="closeAcademicPreviewModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer">✕</button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-4 bg-slate-50 text-xs">
+        <div id="admin-exam-preview-content" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs leading-relaxed text-slate-800 space-y-3">
+          <!-- Rendered Card Content -->
+        </div>
+      </div>
+      <div class="px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-end gap-2 shrink-0">
+        <button onclick="closeAcademicPreviewModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition cursor-pointer">বন্ধ করুন (Close)</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Admin Manage Single Token Modal (Exact Layout Match with Screenshot) -->
   <div id="admin-manage-token-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-[60] hidden flex items-center justify-center p-3 sm:p-6">
@@ -4362,6 +4856,14 @@
     }
 
     function closeAdminLoginModal() {
+      if (window.location.pathname === "/admin" || window.location.pathname.startsWith("/admin")) {
+        const token = getAdminAuthToken();
+        const user = getAdminUser();
+        if (!token || !user) {
+          window.location.href = "/chat";
+          return;
+        }
+      }
       document.getElementById("admin-login-modal").classList.add("hidden");
     }
 
@@ -4968,6 +5470,8 @@
       const tabTokens = document.getElementById("tab-content-tokens");
       const tabSitemap = document.getElementById("tab-content-sitemap");
       const tabAIEngine = document.getElementById("tab-content-ai-engine");
+      const tabQAKnowledge = document.getElementById("tab-content-qa-knowledge");
+      const tabAcademicStatic = document.getElementById("tab-content-academic-static");
       const tabUsers = document.getElementById("tab-content-users");
       const tabLogs = document.getElementById("tab-content-logs");
       const tabBackups = document.getElementById("tab-content-backups");
@@ -4975,12 +5479,14 @@
       const btnTokens = document.getElementById("tab-btn-tokens");
       const btnSitemap = document.getElementById("tab-btn-sitemap");
       const btnAIEngine = document.getElementById("tab-btn-ai-engine");
+      const btnQAKnowledge = document.getElementById("tab-btn-qa-knowledge");
+      const btnAcademicStatic = document.getElementById("tab-btn-academic-static");
       const btnUsers = document.getElementById("tab-btn-users");
       const btnLogs = document.getElementById("tab-btn-logs");
       const btnBackups = document.getElementById("tab-btn-backups");
 
-      [tabTokens, tabSitemap, tabAIEngine, tabUsers, tabLogs, tabBackups].forEach(el => { if (el) el.classList.add("hidden"); });
-      [btnTokens, btnSitemap, btnAIEngine, btnUsers, btnLogs, btnBackups].forEach(el => {
+      [tabTokens, tabSitemap, tabAIEngine, tabQAKnowledge, tabAcademicStatic, tabUsers, tabLogs, tabBackups].forEach(el => { if (el) el.classList.add("hidden"); });
+      [btnTokens, btnSitemap, btnAIEngine, btnQAKnowledge, btnAcademicStatic, btnUsers, btnLogs, btnBackups].forEach(el => {
         if (el) el.className = "py-3 px-2.5 sm:px-3.5 border-b-2 border-transparent text-slate-600 hover:text-slate-900 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold";
       });
 
@@ -4997,6 +5503,14 @@
         if (tabAIEngine) tabAIEngine.classList.remove("hidden");
         if (btnAIEngine) btnAIEngine.className = "py-3 px-2.5 sm:px-3.5 border-b-2 border-indigo-700 text-indigo-800 shrink-0 flex items-center gap-1.5 font-bold cursor-pointer transition";
         switchAISubTab(currentAISubTab);
+      } else if (tab === "qa_knowledge") {
+        if (tabQAKnowledge) tabQAKnowledge.classList.remove("hidden");
+        if (btnQAKnowledge) btnQAKnowledge.className = "py-3 px-2.5 sm:px-3.5 border-b-2 border-purple-700 text-purple-800 shrink-0 flex items-center gap-1.5 font-bold cursor-pointer transition";
+        loadAdminQAKnowledge();
+      } else if (tab === "academic_static") {
+        if (tabAcademicStatic) tabAcademicStatic.classList.remove("hidden");
+        if (btnAcademicStatic) btnAcademicStatic.className = "py-3 px-2.5 sm:px-3.5 border-b-2 border-blue-700 text-blue-800 shrink-0 flex items-center gap-1.5 font-bold cursor-pointer transition";
+        initAcademicStaticUI();
       } else if (tab === "users") {
         if (tabUsers) tabUsers.classList.remove("hidden");
         if (btnUsers) btnUsers.className = "py-3 px-2.5 sm:px-3.5 border-b-2 border-blue-700 text-blue-800 shrink-0 flex items-center gap-1.5 font-bold cursor-pointer transition";
@@ -6002,6 +6516,17 @@
       } catch (e) {
         console.error("Error parsing URL token params:", e);
       }
+
+      // Check if accessing Staff Portal (/admin)
+      if (window.location.pathname === "/admin" || window.location.pathname.startsWith("/admin")) {
+        const token = getAdminAuthToken();
+        const user = getAdminUser();
+        if (!token || !user) {
+          openAdminLoginModal();
+        } else {
+          openAdminDashboardUI();
+        }
+      }
     });
   
     // --- Hermes Interactive Learning Brain JS Handlers ---
@@ -6134,6 +6659,923 @@
       }
     }
 
+    // --- Many-to-Many Q&A Knowledge Base Operations ---
+    async function loadAdminQAKnowledge() {
+      const tbody = document.getElementById("qa-knowledge-tbody");
+      const badge = document.getElementById("qa-count-badge");
+      if (!tbody) return;
+      
+      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Loading knowledge records...</td></tr>';
+      try {
+        const token = localStorage.getItem("nu_admin_token");
+        const headers = token ? { "Authorization": "Bearer " + token } : {};
+        const res = await fetch("/api/v1/admin/qa-knowledge", { headers });
+        const result = await res.json();
+        
+        if (result.status === "success" && result.data) {
+          if (badge) badge.innerText = `${result.data.length} Records`;
+          if (result.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">No custom Q&A records yet. Add your first record above!</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = result.data.map(item => {
+            const qCount = item.question_variants ? item.question_variants.length : 1;
+            const aCount = item.answer_variants ? item.answer_variants.length : 1;
+            const tagStr = item.tags ? `<span class="inline-block bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded mr-1">${item.tags}</span>` : '';
+            return `
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="p-2.5 font-bold text-slate-800">
+                  <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">${item.category}</span>
+                </td>
+                <td class="p-2.5 font-semibold text-slate-800">
+                  <div>${item.primary_question}</div>
+                  <div class="mt-0.5">${tagStr}</div>
+                </td>
+                <td class="p-2.5 text-slate-600">
+                  <span class="font-bold text-indigo-700">${qCount} Questions</span> / <span class="font-bold text-emerald-700">${aCount} Answers</span>
+                </td>
+                <td class="p-2.5 text-slate-600 max-w-xs truncate" title="${item.primary_answer}">
+                  ${item.primary_answer ? item.primary_answer.substring(0, 75) + '...' : 'No answer'}
+                </td>
+                <td class="p-2.5 text-center">
+                  <button onclick="deleteAdminQAKnowledge(${item.id})" class="text-rose-600 hover:text-rose-800 font-bold text-[11px] px-2 py-1 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200">
+                    🗑️ Delete
+                  </button>
+                </td>
+              </tr>
+            `;
+          }).join("");
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Failed to load Q&A records.</td></tr>';
+        }
+      } catch(e) {
+        console.error("loadAdminQAKnowledge error:", e);
+        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Error connecting to server.</td></tr>';
+      }
+    }
+
+    async function submitAdminQAKnowledge(e) {
+      e.preventDefault();
+      const msgDiv = document.getElementById("qa-submit-msg");
+      if (msgDiv) {
+        msgDiv.className = "text-xs font-semibold text-indigo-600";
+        msgDiv.innerText = "⏳ Saving and indexing Q&A into knowledge base...";
+        msgDiv.classList.remove("hidden");
+      }
+
+      const primaryQ = document.getElementById("qa-primary-q").value.trim();
+      const category = document.getElementById("qa-category").value;
+      const variantsRaw = document.getElementById("qa-question-variants").value.trim();
+      const primaryAns = document.getElementById("qa-primary-answer").value.trim();
+      const altAns = document.getElementById("qa-alt-answer").value.trim();
+      const tags = document.getElementById("qa-tags").value.trim();
+
+      const qVariants = variantsRaw ? variantsRaw.split("\n").map(s => s.trim()).filter(s => s.length > 0) : [];
+      const answers = [primaryAns];
+      if (altAns) answers.push(altAns);
+
+      const payload = {
+        primary_question: primaryQ,
+        category: category,
+        tags: tags,
+        question_variants: qVariants,
+        answer_variants: answers
+      };
+
+      try {
+        const token = localStorage.getItem("nu_admin_token");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+
+        const res = await fetch("/api/v1/admin/qa-knowledge", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (res.ok && result.status === "success") {
+          if (msgDiv) {
+            msgDiv.className = "text-xs font-semibold text-emerald-600";
+            msgDiv.innerText = "✅ " + result.message;
+          }
+          document.getElementById("admin-qa-form").reset();
+          loadAdminQAKnowledge();
+        } else {
+          if (msgDiv) {
+            msgDiv.className = "text-xs font-semibold text-rose-600";
+            msgDiv.innerText = "❌ " + (result.detail || "Failed to save Q&A");
+          }
+        }
+      } catch(err) {
+        console.error("submitAdminQAKnowledge error:", err);
+        if (msgDiv) {
+          msgDiv.className = "text-xs font-semibold text-rose-600";
+          msgDiv.innerText = "❌ Error submitting Q&A record.";
+        }
+      }
+    }
+
+    async function deleteAdminQAKnowledge(qaId) {
+      if (!confirm(`Are you sure you want to delete Q&A record #${qaId}?`)) return;
+      try {
+        const token = localStorage.getItem("nu_admin_token");
+        const headers = token ? { "Authorization": "Bearer " + token } : {};
+        const res = await fetch(`/api/v1/admin/qa-knowledge/${qaId}`, {
+          method: "DELETE",
+          headers: headers
+        });
+        const result = await res.json();
+        if (res.ok) {
+          loadAdminQAKnowledge();
+        } else {
+          alert("Error: " + (result.detail || "Could not delete"));
+        }
+      } catch(err) {
+        console.error("deleteAdminQAKnowledge error:", err);
+      }
+    }
+
+    // --- Academic Exam & Results Information Handlers ---
+    let currentAcademicProgram = "Honours";
+    let academicStaticCachedList = [];
+
+    const PROGRAM_PARTS_CONFIG = {
+      "Honours": [
+        { value: "Part 1", label: "Part 1 (১ম বর্ষ)" },
+        { value: "Part 2", label: "Part 2 (২য় বর্ষ)" },
+        { value: "Part 3", label: "Part 3 (৩য় বর্ষ)" },
+        { value: "Part 4", label: "Part 4 (৪র্থ বর্ষ)" }
+      ],
+      "Degree Pass": [
+        { value: "Part 1", label: "Part 1 (১ম বর্ষ)" },
+        { value: "Part 2", label: "Part 2 (২য় বর্ষ)" },
+        { value: "Part 3", label: "Part 3 (৩য় বর্ষ)" }
+      ],
+      "Master's": [
+        { value: "Final", label: "Final (মাস্টার্স শেষ পর্ব)" },
+        { value: "Preliminary", label: "Preliminary (মাস্টার্স প্রিলিমিনারি)" },
+        { value: "N/A", label: "General Course (কোর্স সার্বিক)" }
+      ],
+      "Portal Links": [
+        { value: "General", label: "General Portals (সকল ফলাফল ও পোর্টাল লিংক)" }
+      ]
+    };
+
+    const PROFESSIONAL_BRANCHES_DATA = [
+      {
+        branch: "1. Technology, Engineering & Physical Sciences (প্রযুক্তি, প্রকৌশল ও বিজ্ঞান শাখা)",
+        courses: [
+          { code: "CSE", name: "B.Sc. in Computer Science & Engineering (CSE) — কম্পিউটার সায়েন্স অ্যান্ড ইঞ্জিনিয়ারিং" },
+          { code: "ECE", name: "B.Sc. in Electronics & Communication Engineering (ECE) — ইলেকট্রনিক্স অ্যান্ড কমিউনিকেশন ইঞ্জিনিয়ারিং" },
+          { code: "Aero", name: "B.Sc. in Aeronautical & Aviation Science — অ্যারোনটিক্যাল অ্যান্ড এভিয়েশন সায়েন্স" }
+        ]
+      },
+      {
+        branch: "2. Textile, Apparel & Fashion Design (টেক্সটাইল, অ্যাপারেল ও ফ্যাশন ডিজাইন শাখা)",
+        courses: [
+          { code: "TST", name: "B.Sc. (Honours) in Textile Science & Technology (TST) — টেক্সটাইল সায়েন্স অ্যান্ড টেকনোলজি" },
+          { code: "AMT", name: "B.Sc. in Apparel Manufacture & Technology (AMT) — অ্যাপারেল ম্যানুফ্যাকচার অ্যান্ড টেকনোলজি" },
+          { code: "FDT", name: "B.Sc. in Fashion Design & Technology (FDT) — ফ্যাশন ডিজাইন অ্যান্ড টেকনোলজি" },
+          { code: "KMT", name: "B.Sc. in Knitwear Manufacture & Technology (KMT) — নিটওয়্যার ম্যানুফ্যাকচার অ্যান্ড টেকনোলজি" }
+        ]
+      },
+      {
+        branch: "3. Business & Management (ব্যবসায় ও ব্যবস্থাপনা শাখা)",
+        courses: [
+          { code: "BBA", name: "BBA (Bachelor of Business Administration) — ব্যাচেলর অব বিজনেস অ্যাডমিনিস্ট্রেশন (বিবিএ)" },
+          { code: "BBA-Av", name: "BBA in Aviation Management — এভিয়েশন ম্যানেজমেন্টে বিবিএ" },
+          { code: "THM", name: "Tourism & Hospitality Management (THM) — ট্যুরিজম অ্যান্ড হসপিটালিটি ম্যানেজমেন্ট" }
+        ]
+      },
+      {
+        branch: "4. Education, Media & Arts (শিক্ষা, মিডিয়া ও চারুকলা শাখা)",
+        courses: [
+          { code: "B.Ed", name: "Bachelor of Education (B.Ed. Honours) — ব্যাচেলর অব এডুকেশন (বিএড)" },
+          { code: "BFA", name: "Bachelor of Fine Arts (BFA Honours) — ব্যাচেলর অব ফাইন আর্টস (চারুকলা)" },
+          { code: "TMS", name: "Theatre & Media Studies (TMS) — থিয়েটার অ্যান্ড মিডিয়া স্টাডিজ" }
+        ]
+      },
+      {
+        branch: "5. Post-Graduate & Professional Diploma Programs (ডিপ্লোমা ও স্নাতকোত্তর কোর্স)",
+        courses: [
+          { code: "M.Ed", name: "Master of Education (M.Ed.) — মাস্টার অব এডুকেশন" },
+          { code: "MSEd", name: "Master of Special Education (MSEd) — মাস্টার অব স্পেশাল এডুকেশন" },
+          { code: "MPEd", name: "Master of Physical Education (MPEd) — মাস্টার অব ফিজিক্যাল এডুকেশন" },
+          { code: "PGD-LIS", name: "Post Graduate Diploma in Library & Information Science — ডিপ্লোমা ইন লাইব্রেরি অ্যান্ড ইনফরমেশন সায়েন্স" },
+          { code: "PGD-Sports", name: "Post Graduate Diploma in Sports Science — স্নাতকোত্তর ডিপ্লোমা ইন স্পোর্টস সায়েন্স" }
+        ]
+      }
+    ];
+
+    const PROFESSIONAL_SEMESTERS_LIST = [
+      { value: "1st Semester", label: "1st Semester (১ম সেমিস্টার)" },
+      { value: "2nd Semester", label: "2nd Semester (২য় সেমিস্টার)" },
+      { value: "3rd Semester", label: "3rd Semester (৩য় সেমিস্টার)" },
+      { value: "4th Semester", label: "4th Semester (৪র্থ সেমিস্টার)" },
+      { value: "5th Semester", label: "5th Semester (৫ম সেমিস্টার)" },
+      { value: "6th Semester", label: "6th Semester (৬ষ্ঠ সেমিস্টার)" },
+      { value: "7th Semester", label: "7th Semester (৭ম সেমিস্টার)" },
+      { value: "8th Semester", label: "8th Semester (৮ম সেমিস্টার)" }
+    ];
+
+    function initAcademicStaticUI() {
+      switchAcademicSubTab(currentAcademicProgram || "Honours");
+      loadAcademicStaticList();
+    }
+
+    function switchAcademicSubTab(prog) {
+      currentAcademicProgram = prog;
+      
+      const subButtons = {
+        "Honours": document.getElementById("subtab-academic-honours"),
+        "Degree Pass": document.getElementById("subtab-academic-degree"),
+        "Master's": document.getElementById("subtab-academic-masters"),
+        "Professional": document.getElementById("subtab-academic-pro"),
+        "Portal Links": document.getElementById("subtab-academic-links")
+      };
+
+      Object.entries(subButtons).forEach(([p, btn]) => {
+        if (!btn) return;
+        if (p === prog) {
+          btn.className = "py-2 px-4 rounded-xl bg-blue-700 text-white flex items-center gap-2 shadow-xs cursor-pointer transition font-bold";
+        } else {
+          btn.className = "py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium";
+        }
+      });
+
+      const icons = {
+        "Honours": "🎓",
+        "Degree Pass": "📜",
+        "Master's": "📚",
+        "Professional": "💼",
+        "Portal Links": "🔗"
+      };
+      const titles = {
+        "Honours": "Configure Honours (অনার্স) Examination & Results Schedule",
+        "Degree Pass": "Configure Degree Pass (ডিগ্রী পাস) Examination & Results Schedule",
+        "Master's": "Configure Master's (মাস্টার্স) Examination & Results Schedule",
+        "Professional": "Configure Professional (প্রফেশনাল কোর্স ও সেমিস্টার) Examination Schedule",
+        "Portal Links": "Configure Central Result & College Revaluation Links"
+      };
+
+      const elIcon = document.getElementById("academic-form-icon");
+      const elTitle = document.getElementById("academic-form-title");
+      if (elIcon) elIcon.innerText = icons[prog] || "🎓";
+      if (elTitle) elTitle.innerText = titles[prog] || "Configure Academic Schedule";
+
+      const partSelect = document.getElementById("static-part-selector");
+      if (partSelect) {
+        const parts = PROGRAM_PARTS_CONFIG[prog] || [];
+        partSelect.innerHTML = parts.map(p => `<option value="${p.value}">${p.label}</option>`).join("");
+      }
+
+      updateSemesterSelectorVisibility();
+      onAcademicPartChange();
+    }
+
+    function updateSemesterSelectorVisibility() {
+      const courseWrapper = document.getElementById("static-course-selector-wrapper");
+      const courseSelect = document.getElementById("static-course-selector");
+      const partWrapper = document.getElementById("static-part-selector-wrapper");
+      const semWrapper = document.getElementById("static-semester-selector-wrapper");
+      const semSelect = document.getElementById("static-semester-selector");
+
+      if (currentAcademicProgram === "Professional") {
+        if (courseWrapper) courseWrapper.classList.remove("hidden");
+        if (partWrapper) partWrapper.classList.add("hidden");
+        if (semWrapper) semWrapper.classList.remove("hidden");
+
+        if (courseSelect && courseSelect.children.length === 0) {
+          courseSelect.innerHTML = PROFESSIONAL_BRANCHES_DATA.map(b => 
+            `<optgroup label="${escapeHTML(b.branch)}">${b.courses.map(c => `<option value="${c.code}">${c.code} — ${escapeHTML(c.name)}</option>`).join("")}</optgroup>`
+          ).join("");
+        }
+
+        if (semSelect) {
+          semSelect.innerHTML = PROFESSIONAL_SEMESTERS_LIST.map(s => 
+            `<option value="${s.value}">${s.label}</option>`
+          ).join("");
+        }
+      } else {
+        if (courseWrapper) courseWrapper.classList.add("hidden");
+        if (partWrapper) partWrapper.classList.remove("hidden");
+        if (semWrapper) semWrapper.classList.add("hidden");
+        if (semSelect) semSelect.innerHTML = '<option value="N/A">N/A</option>';
+      }
+    }
+
+    function onAcademicSemesterChange() {
+      onAcademicPartChange();
+    }
+
+    async function onAcademicPartChange() {
+      updateSemesterSelectorVisibility();
+      const courseSelect = document.getElementById("static-course-selector");
+      const partSelect = document.getElementById("static-part-selector");
+      const semSelect = document.getElementById("static-semester-selector");
+
+      let part = "Part 1";
+      let courseName = "";
+      let sem = "N/A";
+
+      if (currentAcademicProgram === "Professional") {
+        courseName = courseSelect ? courseSelect.value : "CSE";
+        part = courseName;
+        sem = semSelect ? semSelect.value : "1st Semester";
+      } else {
+        part = partSelect ? partSelect.value : "Part 1";
+        sem = "N/A";
+      }
+
+      const year = document.getElementById("static-exam-year").value.trim();
+      const statusMsg = document.getElementById("academic-static-status-msg");
+      if (statusMsg) statusMsg.innerText = "⏳ Loading record...";
+
+      const found = academicStaticCachedList.find(r => 
+        (r.program_type || "").toLowerCase() === currentAcademicProgram.toLowerCase() && 
+        (currentAcademicProgram === "Professional"
+          ? ((r.course_name || r.part || "").toLowerCase() === courseName.toLowerCase() && (r.semester || "").toLowerCase() === sem.toLowerCase())
+          : ((r.part || r.part_or_year || "").toLowerCase() === part.toLowerCase())) &&
+        (!year || (r.examination_year || r.exam_year || "") === year)
+      );
+
+      if (found) {
+        populateAcademicStaticForm(found);
+        if (statusMsg) statusMsg.innerText = `✓ Loaded saved data for ${currentAcademicProgram} (${part} ${sem !== 'N/A' ? sem : ''})`;
+      } else {
+        try {
+          const token = localStorage.getItem("nu_admin_token");
+          let url = `/api/v1/academic-exams/lookup?program_type=${encodeURIComponent(currentAcademicProgram)}`;
+          if (currentAcademicProgram === "Professional") {
+            url += `&part=${encodeURIComponent(courseName)}&course_name=${encodeURIComponent(courseName)}&semester=${encodeURIComponent(sem)}`;
+          } else {
+            url += `&part=${encodeURIComponent(part)}`;
+          }
+          if (year) url += `&examination_year=${encodeURIComponent(year)}`;
+
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.record) {
+              populateAcademicStaticForm(data.record);
+              if (statusMsg) statusMsg.innerText = `✓ Loaded saved data for ${currentAcademicProgram} (${part} ${sem !== 'N/A' ? sem : ''})`;
+              return;
+            }
+          }
+        } catch(e) {
+          console.warn("Fetch exam lookup error:", e);
+        }
+        clearAcademicStaticForm(false);
+        if (statusMsg) statusMsg.innerText = `ℹ️ No existing record found for ${currentAcademicProgram} (${part} ${sem !== 'N/A' ? sem : ''}). Enter information below.`;
+      }
+    }
+
+    function populateAcademicStaticForm(item) {
+      document.getElementById("static-exam-year").value = item.examination_year || item.exam_year || "";
+      document.getElementById("static-program-name-bn").value = item.program_type_name || "";
+      document.getElementById("static-source-url").value = item.source_url || "";
+      document.getElementById("static-incourse-date").value = item.incourse_exam_date || item.incourse_date || "";
+      document.getElementById("static-last-incourse").value = item.incourse_marks_deadline || item.last_date_incourse_marks || "";
+      document.getElementById("static-form-fillup-start").value = item.form_fillup_start_date || "";
+      document.getElementById("static-form-fillup").value = item.form_fillup_deadline || item.form_fillup_date || "";
+      document.getElementById("static-exam-date").value = item.exam_date || "";
+      document.getElementById("static-routine-url").value = item.routine_publication_date || item.routine_url || "";
+      document.getElementById("static-admit-card").value = item.admit_card_date || "";
+      document.getElementById("static-last-exam").value = item.last_exam_date || item.last_date_exam || "";
+      document.getElementById("static-practical-date").value = item.practical_marks_start_date || item.practical_marks_date || "";
+      document.getElementById("static-last-practical").value = item.practical_marks_deadline || item.last_date_practical_marks || "";
+      document.getElementById("static-prob-result").value = item.probable_result_date || "";
+      document.getElementById("static-result-date").value = item.actual_result_date || item.result_publish_date || "";
+      document.getElementById("static-results-published").value = (item.results_published && item.results_published.toLowerCase() === "yes") ? "Yes" : "No";
+      document.getElementById("static-rescrutiny-start").value = item.rescrutiny_start_date || "";
+      document.getElementById("static-rescrutiny-apply").value = item.rescrutiny_deadline || item.rescrutiny_apply_date || "";
+      document.getElementById("static-rescrutiny-result").value = item.rescrutiny_result_date || "";
+      document.getElementById("static-cert-printing").value = item.document_printing_date || item.certificate_printing_date || "";
+      document.getElementById("static-printed-status").value = (item.documents_printed === 'Yes' || item.printed_status === 'Yes') ? "Yes" : "No";
+      document.getElementById("static-reval-link").value = item.revaluation_result_url || item.revaluation_result_link || "https://results.nu.ac.bd/";
+      document.getElementById("static-college-link").value = item.college_wise_result_url || item.collegewise_result_link || "http://103.113.200.68/nu-app/search.php";
+      document.getElementById("static-notes").value = item.remarks || item.notes || "";
+    }
+
+    function clearAcademicStaticForm(resetDefaults = true) {
+      document.getElementById("static-exam-year").value = "";
+      document.getElementById("static-program-name-bn").value = "";
+      document.getElementById("static-source-url").value = "";
+      document.getElementById("static-incourse-date").value = "";
+      document.getElementById("static-last-incourse").value = "";
+      document.getElementById("static-form-fillup-start").value = "";
+      document.getElementById("static-form-fillup").value = "";
+      document.getElementById("static-exam-date").value = "";
+      document.getElementById("static-routine-url").value = "";
+      document.getElementById("static-admit-card").value = "";
+      document.getElementById("static-last-exam").value = "";
+      document.getElementById("static-practical-date").value = "";
+      document.getElementById("static-last-practical").value = "";
+      document.getElementById("static-prob-result").value = "";
+      document.getElementById("static-result-date").value = "";
+      document.getElementById("static-results-published").value = "No";
+      document.getElementById("static-rescrutiny-start").value = "";
+      document.getElementById("static-rescrutiny-apply").value = "";
+      document.getElementById("static-rescrutiny-result").value = "";
+      document.getElementById("static-cert-printing").value = "";
+      document.getElementById("static-printed-status").value = "No";
+      document.getElementById("static-reval-link").value = "https://results.nu.ac.bd/";
+      document.getElementById("static-college-link").value = "http://103.113.200.68/nu-app/search.php";
+      document.getElementById("static-notes").value = "";
+      if (resetDefaults) {
+        const statusMsg = document.getElementById("academic-static-status-msg");
+        if (statusMsg) statusMsg.innerText = "Form cleared.";
+      }
+    }
+
+    async function submitAcademicStatic(e) {
+      e.preventDefault();
+      const statusMsg = document.getElementById("academic-static-status-msg");
+      const courseSelect = document.getElementById("static-course-selector");
+      const partSelect = document.getElementById("static-part-selector");
+      const semSelect = document.getElementById("static-semester-selector");
+      let part = "Part 1";
+      let courseName = "";
+      let sem = "N/A";
+
+      if (currentAcademicProgram === "Professional") {
+        courseName = courseSelect ? courseSelect.value : "CSE";
+        part = courseName;
+        sem = semSelect ? semSelect.value : "1st Semester";
+      } else {
+        part = partSelect ? partSelect.value : "Part 1";
+        sem = "N/A";
+      }
+      const examYear = document.getElementById("static-exam-year").value.trim();
+
+      if (!examYear) {
+        alert("পরীক্ষার সাল (Exam Year) অবশ্যই দিন (e.g. 2024)");
+        return;
+      }
+
+      if (statusMsg) {
+        statusMsg.className = "text-xs font-semibold text-blue-600";
+        statusMsg.innerText = "⏳ Saving schedule to SQLite...";
+      }
+
+      const payload = {
+        program_type: currentAcademicProgram,
+        program_type_name: document.getElementById("static-program-name-bn").value.trim(),
+        examination_year: examYear,
+        part: part,
+        course_name: courseName,
+        semester: sem,
+        incourse_exam_date: document.getElementById("static-incourse-date").value.trim(),
+        incourse_marks_deadline: document.getElementById("static-last-incourse").value.trim(),
+        form_fillup_start_date: document.getElementById("static-form-fillup-start").value.trim(),
+        form_fillup_deadline: document.getElementById("static-form-fillup").value.trim(),
+        exam_date: document.getElementById("static-exam-date").value.trim(),
+        routine_publication_date: document.getElementById("static-routine-url").value.trim(),
+        admit_card_date: document.getElementById("static-admit-card").value.trim(),
+        last_exam_date: document.getElementById("static-last-exam").value.trim(),
+        practical_marks_start_date: document.getElementById("static-practical-date").value.trim(),
+        practical_marks_deadline: document.getElementById("static-last-practical").value.trim(),
+        probable_result_date: document.getElementById("static-prob-result").value.trim(),
+        actual_result_date: document.getElementById("static-result-date").value.trim(),
+        results_published: document.getElementById("static-results-published").value,
+        rescrutiny_start_date: document.getElementById("static-rescrutiny-start").value.trim(),
+        rescrutiny_deadline: document.getElementById("static-rescrutiny-apply").value.trim(),
+        rescrutiny_result_date: document.getElementById("static-rescrutiny-result").value.trim(),
+        document_printing_date: document.getElementById("static-cert-printing").value.trim(),
+        documents_printed: document.getElementById("static-printed-status").value,
+        revaluation_result_url: document.getElementById("static-reval-link").value.trim(),
+        college_wise_result_url: document.getElementById("static-college-link").value.trim(),
+        remarks: document.getElementById("static-notes").value.trim(),
+        source_url: document.getElementById("static-source-url").value.trim()
+      };
+
+      try {
+        const token = localStorage.getItem("nu_admin_token");
+        const res = await fetch("/api/v1/admin/academic-exams", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (res.ok && result.status === "success") {
+          if (statusMsg) {
+            statusMsg.className = "text-xs font-semibold text-emerald-600";
+            statusMsg.innerText = `✅ Successfully saved schedule for ${currentAcademicProgram} (${part}) - ${examYear}`;
+          }
+          showToast(`Saved ${currentAcademicProgram} (${part}) schedule!`, "success");
+          loadAcademicStaticList();
+        } else {
+          if (statusMsg) {
+            statusMsg.className = "text-xs font-semibold text-rose-600";
+            statusMsg.innerText = "❌ " + (result.detail || "Failed to save schedule.");
+          }
+        }
+      } catch(err) {
+        console.error("submitAcademicStatic error:", err);
+        if (statusMsg) {
+          statusMsg.className = "text-xs font-semibold text-rose-600";
+          statusMsg.innerText = "❌ Error submitting schedule.";
+        }
+      }
+    }
+
+    async function loadAcademicStaticList() {
+      const tbody = document.getElementById("admin-academic-static-tbody");
+      const badge = document.getElementById("academic-static-count-badge");
+      if (!tbody) return;
+
+      try {
+        const token = localStorage.getItem("nu_admin_token");
+        const res = await fetch("/api/v1/admin/academic-exams?limit=200", {
+          headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        });
+        const json = await res.json();
+        if (res.ok && json.data) {
+          academicStaticCachedList = json.data;
+          filterAcademicRecords();
+        }
+      } catch(err) {
+        console.error("loadAcademicStaticList error:", err);
+      }
+    }
+
+    function filterAcademicRecords() {
+      const tbody = document.getElementById("admin-academic-static-tbody");
+      const badge = document.getElementById("academic-static-count-badge");
+      if (!tbody) return;
+
+      const progFilter = (document.getElementById("static-filter-program")?.value || "ALL").toLowerCase();
+      const yearFilter = (document.getElementById("static-filter-year")?.value || "").trim().toLowerCase();
+      const searchFilter = (document.getElementById("static-filter-search")?.value || "").trim().toLowerCase();
+
+      let filtered = academicStaticCachedList.filter(item => {
+        const pType = (item.program_type || "").toLowerCase();
+        if (progFilter !== "all" && pType !== progFilter) return false;
+
+        const yr = String(item.examination_year || item.exam_year || "").toLowerCase();
+        if (yearFilter && !yr.includes(yearFilter)) return false;
+
+        if (searchFilter) {
+          const hay = `${item.program_type} ${item.course_name || ''} ${item.part || ''} ${item.semester || ''} ${yr} ${item.exam_date || ''} ${item.remarks || item.notes || ''}`.toLowerCase();
+          if (!hay.includes(searchFilter)) return false;
+        }
+        return true;
+      });
+
+      if (badge) badge.innerText = `${filtered.length} of ${academicStaticCachedList.length} Records`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">No matching schedules found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+          <td class="p-3 font-bold text-slate-900">${escapeHTML(item.program_type)}</td>
+          <td class="p-3 font-semibold text-blue-700">
+            ${item.course_name ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800 mr-1">${escapeHTML(item.course_name)}</span>` : ''}
+            ${escapeHTML(item.part || item.part_or_year || '--')}
+          </td>
+          <td class="p-3 text-slate-600">${escapeHTML(item.semester && item.semester !== 'N/A' ? item.semester : '--')}</td>
+          <td class="p-3 font-mono font-bold text-slate-800">${escapeHTML(item.examination_year || item.exam_year || '--')}</td>
+          <td class="p-3">${escapeHTML(item.exam_date || '--')}</td>
+          <td class="p-3">${escapeHTML(item.probable_result_date || '--')}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.results_published === 'Yes' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+              ${item.results_published === 'Yes' ? 'YES' : 'NO'}
+            </span>
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.documents_printed === 'Yes' || item.printed_status === 'Yes' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+              ${item.documents_printed === 'Yes' || item.printed_status === 'Yes' ? 'YES' : 'NO'}
+            </span>
+          </td>
+          <td class="p-3 text-right whitespace-nowrap">
+            <button onclick="previewAcademicRecord(${item.id})" class="px-2 py-1 text-xs font-bold text-emerald-700 hover:bg-emerald-50 rounded-lg transition mr-1 cursor-pointer" title="Preview Student View">
+              👁️ Preview
+            </button>
+            <button onclick="editAcademicStaticRow(${item.id})" class="px-2 py-1 text-xs font-bold text-blue-700 hover:bg-blue-50 rounded-lg transition mr-1 cursor-pointer">
+              ✏️ Edit
+            </button>
+            <button onclick="deleteAcademicStaticRow(${item.id})" class="px-2 py-1 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer">
+              🗑️ Delete
+            </button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function editAcademicStaticRow(id) {
+      const item = academicStaticCachedList.find(r => r.id === id);
+      if (!item) return;
+
+      switchAcademicSubTab(item.program_type);
+      setTimeout(() => {
+        if (item.program_type === "Professional") {
+          const courseSelect = document.getElementById("static-course-selector");
+          if (courseSelect && (item.course_name || item.part)) courseSelect.value = item.course_name || item.part;
+          const semSelect = document.getElementById("static-semester-selector");
+          if (semSelect && item.semester) semSelect.value = item.semester;
+        } else {
+          const partSelect = document.getElementById("static-part-selector");
+          if (partSelect && item.part) partSelect.value = item.part;
+        }
+
+        populateAcademicStaticForm(item);
+        const card = document.getElementById("academic-static-form");
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+        const statusMsg = document.getElementById("academic-static-status-msg");
+        if (statusMsg) {
+          statusMsg.className = "text-xs font-semibold text-blue-600";
+          statusMsg.innerText = `Editing record #${id} for ${item.program_type} (${item.course_name || item.part || ''} ${item.semester !== 'N/A' ? item.semester : ''}) - ${item.examination_year || ''}. Make changes and click Submit & Update.`;
+        }
+      }, 80);
+    }
+
+    async function deleteAcademicStaticRow(id) {
+      if (!confirm(`Are you sure you want to delete this schedule record (#${id})?`)) return;
+      try {
+        const token = localStorage.getItem("nu_admin_token");
+        const res = await fetch(`/api/v1/admin/academic-exams/${id}`, {
+          method: "DELETE",
+          headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        });
+        const result = await res.json();
+        if (res.ok) {
+          showToast("Schedule deleted successfully.", "success");
+          loadAcademicStaticList();
+        } else {
+          alert("Error: " + (result.detail || "Could not delete"));
+        }
+      } catch(e) {
+        console.error("deleteAcademicStaticRow error:", e);
+      }
+    }
+
+    // --- Student Card Preview Modal Handlers ---
+    function previewCurrentFormCard() {
+      const courseSelect = document.getElementById("static-course-selector");
+      const partSelect = document.getElementById("static-part-selector");
+      const semSelect = document.getElementById("static-semester-selector");
+      let part = "Part 1";
+      let courseName = "";
+      let sem = "N/A";
+
+      if (currentAcademicProgram === "Professional") {
+        courseName = courseSelect ? courseSelect.value : "CSE";
+        part = courseName;
+        sem = semSelect ? semSelect.value : "1st Semester";
+      } else {
+        part = partSelect ? partSelect.value : "Part 1";
+        sem = "N/A";
+      }
+      const year = document.getElementById("static-exam-year").value.trim() || "২০২৪/২০২৫";
+
+      const dummyItem = {
+        program_type: currentAcademicProgram,
+        program_type_name: document.getElementById("static-program-name-bn").value.trim() || currentAcademicProgram,
+        examination_year: year,
+        part: part,
+        course_name: courseName,
+        semester: sem,
+        incourse_exam_date: document.getElementById("static-incourse-date").value.trim(),
+        incourse_marks_deadline: document.getElementById("static-last-incourse").value.trim(),
+        form_fillup_start_date: document.getElementById("static-form-fillup-start").value.trim(),
+        form_fillup_deadline: document.getElementById("static-form-fillup").value.trim(),
+        exam_date: document.getElementById("static-exam-date").value.trim(),
+        routine_publication_date: document.getElementById("static-routine-url").value.trim(),
+        admit_card_date: document.getElementById("static-admit-card").value.trim(),
+        last_exam_date: document.getElementById("static-last-exam").value.trim(),
+        practical_marks_start_date: document.getElementById("static-practical-date").value.trim(),
+        practical_marks_deadline: document.getElementById("static-last-practical").value.trim(),
+        probable_result_date: document.getElementById("static-prob-result").value.trim(),
+        actual_result_date: document.getElementById("static-result-date").value.trim(),
+        results_published: document.getElementById("static-results-published").value,
+        rescrutiny_start_date: document.getElementById("static-rescrutiny-start").value.trim(),
+        rescrutiny_deadline: document.getElementById("static-rescrutiny-apply").value.trim(),
+        rescrutiny_result_date: document.getElementById("static-rescrutiny-result").value.trim(),
+        document_printing_date: document.getElementById("static-cert-printing").value.trim(),
+        documents_printed: document.getElementById("static-printed-status").value,
+        revaluation_result_url: document.getElementById("static-reval-link").value.trim(),
+        college_wise_result_url: document.getElementById("static-college-link").value.trim(),
+        remarks: document.getElementById("static-notes").value.trim()
+      };
+
+      renderAcademicPreviewModal(dummyItem);
+    }
+
+    async function previewAcademicRecord(id) {
+      const item = academicStaticCachedList.find(r => r.id === id);
+      if (item) {
+        renderAcademicPreviewModal(item);
+      }
+    }
+
+    function renderAcademicPreviewModal(item) {
+      const modal = document.getElementById("admin-exam-preview-modal");
+      const content = document.getElementById("admin-exam-preview-content");
+      if (!modal || !content) return;
+
+      const neutral = "তথ্য এখনো প্রকাশ করা হয়নি।";
+      const prog = item.program_type || "Honours";
+      const part = item.part || item.part_or_year || "Part 1";
+      const sem = item.semester && item.semester !== 'N/A' ? item.semester : '';
+      const year = item.examination_year || item.exam_year || 'নির্ধারিত হয়নি';
+
+      const resPublished = (item.results_published || '').toLowerCase() === 'yes';
+      const docPrinted = (item.documents_printed || item.printed_status || '').toLowerCase() === 'yes';
+
+      const pubBadgeText = resPublished ? "✅ ফলাফল প্রকাশিত" : "⏳ ফল এখনও প্রকাশিত হয়নি";
+      const pubBadgeClass = resPublished ? "bg-emerald-500/20 text-emerald-200 border border-emerald-400/30" : "bg-amber-500/20 text-amber-200 border border-amber-400/30";
+
+      const printedBadgeText = docPrinted ? "✅ মুদ্রণ সম্পন্ন ও বিতরণ চলছে" : "⏳ মুদ্রণ অপেক্ষমান";
+      const printedBadgeClass = docPrinted ? "text-emerald-700 bg-emerald-50 border-emerald-200" : "text-slate-600 bg-slate-100 border-slate-200";
+
+      const formFillupDisplay = (item.form_fillup_start_date && item.form_fillup_deadline) ? 
+        `${item.form_fillup_start_date} হতে ${item.form_fillup_deadline}` : (item.form_fillup_deadline || item.form_fillup_date || neutral);
+
+      const practicalDisplay = (item.practical_marks_start_date && item.practical_marks_deadline) ? 
+        `${item.practical_marks_start_date} হতে ${item.practical_marks_deadline}` : (item.practical_marks_deadline || item.practical_marks_date || neutral);
+
+      const rescrutinyApplyDisplay = (item.rescrutiny_start_date && item.rescrutiny_deadline) ? 
+        `${item.rescrutiny_start_date} হতে ${item.rescrutiny_deadline}` : (item.rescrutiny_deadline || item.rescrutiny_apply_date || neutral);
+
+      const routineDisplay = item.routine_publication_date || item.routine_url || neutral;
+
+      const revalLink = item.revaluation_result_url || item.revaluation_result_link || 'https://results.nu.ac.bd/';
+      const collegeLink = item.college_wise_result_url || item.collegewise_result_link || 'http://103.113.200.68/nu-app/search.php';
+
+      content.innerHTML = `
+        <div class="space-y-2.5 text-left font-sans">
+          <!-- Header Card -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white shadow-xs border border-blue-800">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <div class="text-[10px] tracking-wider uppercase text-blue-200 font-semibold flex items-center gap-1.5">
+                  <span>🏛️</span><span>জাতীয় বিশ্ববিদ্যালয় বাংলাদেশ</span>
+                </div>
+                <h3 class="text-base font-bold text-white mt-0.5 flex items-center gap-1.5">
+                  <span>🎓</span><span>${prog} — ${part} ${sem ? '(' + sem + ')' : ''} পরীক্ষা বিষয়ক তথ্য</span>
+                </h3>
+              </div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-xs bg-white/15 text-white font-semibold px-2.5 py-1 rounded-full border border-white/20">
+                  পরীক্ষার সাল: <strong>${year}</strong>
+                </span>
+                <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${pubBadgeClass}">
+                  ${pubBadgeText}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Small Modern Vertical Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+            <!-- Card 1: 📝 ইনকোর্স ও ফরম পূরণ -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center gap-2 pb-1.5 mb-2 border-b border-slate-100 text-indigo-700 font-bold text-xs">
+                <span class="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-sm">📝</span>
+                <span>ইনকোর্স ও ফরম পূরণ</span>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">ইনকোর্স পরীক্ষা:</span>
+                  <span class="font-semibold text-slate-800 text-right">${item.incourse_exam_date || item.incourse_date || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">ইনকোর্স নম্বর শেষ সময়:</span>
+                  <span class="font-semibold text-slate-800 text-right">${item.incourse_marks_deadline || item.last_date_incourse_marks || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">ফরম পূরণ সময়সীমা:</span>
+                  <span class="font-semibold text-slate-800 text-right">${formFillupDisplay}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: 📅 পরীক্ষা ও রুটিনের সময়সূচি -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center gap-2 pb-1.5 mb-2 border-b border-slate-100 text-blue-700 font-bold text-xs">
+                <span class="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center text-sm">📅</span>
+                <span>পরীক্ষা ও রুটিনের সময়সূচি</span>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">পরীক্ষা শুরুর তারিখ:</span>
+                  <span class="font-semibold text-blue-900 text-right">${item.exam_date || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">রুটিন প্রকাশ:</span>
+                  <span class="font-semibold text-blue-700 text-right">${routineDisplay}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">প্রবেশপত্র (Admit Card):</span>
+                  <span class="font-semibold text-slate-800 text-right">${item.admit_card_date || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">তত্ত্বীয় শেষ পরীক্ষা:</span>
+                  <span class="font-semibold text-slate-800 text-right">${item.last_exam_date || item.last_date_exam || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">ব্যবহারিক নম্বর শেষ সময়:</span>
+                  <span class="font-semibold text-slate-800 text-right">${practicalDisplay}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: 📊 ফলাফল ও পুনর্নিরীক্ষণ -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center gap-2 pb-1.5 mb-2 border-b border-slate-100 text-emerald-700 font-bold text-xs">
+                <span class="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-sm">📊</span>
+                <span>ফলাফল ও পুনর্নিরীক্ষণ</span>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">সম্ভাব্য ফল প্রকাশ:</span>
+                  <span class="font-semibold text-slate-800 text-right">${item.probable_result_date || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">প্রকৃত ফল প্রকাশের তারিখ:</span>
+                  <span class="font-semibold text-emerald-800 text-right">${item.actual_result_date || item.result_publish_date || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">ফলাফল প্রকাশিত:</span>
+                  <span class="font-semibold text-right">${pubBadgeText}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">পুনর্নিরীক্ষণ আবেদন:</span>
+                  <span class="font-semibold text-slate-800 text-right">${rescrutinyApplyDisplay}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">পুনর্নিরীক্ষণের ফল:</span>
+                  <span class="font-semibold text-slate-800 text-right">${item.rescrutiny_result_date || neutral}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4: 📜 সনদ ও মার্কশিট -->
+            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center gap-2 pb-1.5 mb-2 border-b border-slate-100 text-purple-700 font-bold text-xs">
+                <span class="w-6 h-6 rounded-lg bg-purple-50 flex items-center justify-center text-sm">📜</span>
+                <span>সনদ ও মার্কশিট বিতরণ</span>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">মুদ্রণের তারিখ:</span>
+                  <span class="font-semibold text-slate-800 text-right">${item.document_printing_date || neutral}</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-slate-500 shrink-0">মুদ্রণ স্ট্যাটাস:</span>
+                  <span class="font-semibold ${printedBadgeClass} px-2 py-0.5 rounded text-[11px] border">${printedBadgeText}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          ${item.remarks ? `
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 shadow-2xs">
+            <div class="flex items-center gap-2 text-amber-800 font-bold text-xs pb-1 mb-1 border-b border-amber-200/60">
+              <span>💡</span><span>বিশেষ নির্দেশনা / দ্রষ্টব্য</span>
+            </div>
+            <p class="text-xs text-amber-900 leading-relaxed">${item.remarks}</p>
+          </div>` : ''}
+
+          <!-- Portals Card -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span class="font-bold text-slate-700 flex items-center gap-1.5">
+              <span>🔗</span><span>অফিসিয়াল পোর্টাল:</span>
+            </span>
+            <div class="flex flex-wrap gap-1.5">
+              <a href="${revalLink}" target="_blank" class="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg font-semibold transition shadow-2xs inline-flex items-center gap-1">
+                <span>ফলাফল পোর্টাল</span><span>↗</span>
+              </a>
+              <a href="${collegeLink}" target="_blank" class="bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-lg font-semibold transition shadow-2xs inline-flex items-center gap-1">
+                <span>কলেজভিত্তিক রেজাল্ট</span><span>↗</span>
+              </a>
+              <a href="https://www.nu.ac.bd/recent-news-notice.php" target="_blank" class="bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-semibold transition shadow-2xs inline-flex items-center gap-1">
+                <span>নোটিশ বোর্ড</span><span>↗</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove("hidden");
+    }
+
+    function closeAcademicPreviewModal() {
+      const modal = document.getElementById("admin-exam-preview-modal");
+      if (modal) modal.classList.add("hidden");
+    }
   </script>
+
 </body>
 </html>
+

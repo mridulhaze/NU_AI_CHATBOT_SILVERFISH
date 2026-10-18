@@ -12,7 +12,17 @@ from .intent import get_intent_classifier
 from .router import get_skill_router
 from .skill_registry import get_skill_registry
 from .mcp_client import get_mcp_client
-from .preloaded_responses import get_preloaded_response
+from .preloaded_responses import (
+    get_preloaded_response,
+    TC_REPLY,
+    CERTIFICATE_REPLY,
+    EMS_REPLY,
+    CITATIONS_ERP_SERVICES,
+    CITATIONS_EMS,
+    CITATIONS_GENERAL
+)
+from backend.services.academic_exam_service import process_academic_exam_query
+from backend.services.academic_static_service import get_academic_static_response
 
 logger = logging.getLogger("NU_AI_ORCHESTRATOR")
 
@@ -47,6 +57,16 @@ class AIOrchestrator:
         if preloaded:
             return preloaded
 
+        # Stage 1b: Check Academic Examination & Results System (SQLite Source of Truth) (< 0.001s)
+        academic_exam_resp = process_academic_exam_query(raw_msg)
+        if academic_exam_resp:
+            return academic_exam_resp
+
+        # Stage 1c: Check Legacy Academic Static Examination Info
+        academic_static_resp = get_academic_static_response(raw_msg)
+        if academic_static_resp:
+            return academic_static_resp
+
         # Stage 2: Check in-memory query cache (< 0.001s)
         msg_clean = raw_msg.lower().strip(" .!?,;")
         cache_key = f"{msg_clean}_{req.service_code or ''}"
@@ -75,6 +95,10 @@ class AIOrchestrator:
         # Step 3: Handle Token Service Workflows
         if skill_name == "token_service":
             return self._handle_token_service_workflow(raw_msg, intent, entities, session)
+
+        # Step 3b: Handle Notice Service Skill (Precise subject filtering + Chrono-sorted notices)
+        if skill_name == "notice_service":
+            return self._handle_notice_service_workflow(raw_msg, intent, entities, session)
 
         # Step 4: Handle Official Knowledge Skills (Examination, Admission, Result, Document, General)
         return self._handle_official_knowledge_skills(raw_msg, skill_name, intent, entities, session)
@@ -245,6 +269,33 @@ class AIOrchestrator:
                 suggested_chips=["Create Token", "Cancel"]
             )
 
+    def _handle_notice_service_workflow(
+        self,
+        raw_msg: str,
+        intent: str,
+        entities: Dict[str, Any],
+        session: SessionState
+    ) -> ChatResponse:
+        """
+        Executes precision notice retrieval with Bengali subject extraction, clean titles/dates, and chrono-sorting.
+        """
+        from backend.services.notice_service import get_notice_filter_service
+        notice_service = get_notice_filter_service()
+        res = notice_service.process_notice_query(raw_msg, limit=6)
+
+        resp = ChatResponse(
+            reply=res.formatted_reply,
+            citations=res.citations,
+            intent=intent,
+            skill_used="notice_service",
+            suggested_chips=["🏠 মূল মেনু", "📄 সকল নোটিশ", "📅 পরীক্ষার রুটিন", "🎓 ভর্তি তথ্য", "🎫 টোকেন সেবা"]
+        )
+
+        # Cache notice results
+        cache_key = f"{raw_msg.lower().strip(' .!?,;')}_{session.selected_service_code or ''}"
+        _CHAT_CACHE[cache_key] = (time.time(), resp)
+        return resp
+
     def _handle_official_knowledge_skills(
         self,
         raw_msg: str,
@@ -256,12 +307,20 @@ class AIOrchestrator:
         """
         High-speed retrieval and generation using parallel MCP search and optimized GenAI parameters.
         """
-        # Parallel MCP Tool Execution (Runs in < 50ms concurrently)
+        # Search knowledge docs
         future_kn = self.executor.submit(self.mcp_client.call_tool, "knowledge_mcp", "search_nu_knowledge", {"query": raw_msg, "limit": 3})
-        future_notices = self.executor.submit(self.mcp_client.call_tool, "knowledge_mcp", "search_notices", {"query": raw_msg, "limit": 3})
+        
+        # Only search notices if the query is asking for notices, circulars, or specific events
+        query_needs_notices = any(w in raw_msg.lower() for w in [
+            "notice", "circular", "routine", "schedule", "নোটিশ", "বিজ্ঞপ্তি", "রুটিন", "সময়সূচি", "আদেশ"
+        ])
+        
+        future_notices = None
+        if query_needs_notices:
+            future_notices = self.executor.submit(self.mcp_client.call_tool, "knowledge_mcp", "search_notices", {"query": raw_msg, "limit": 3})
 
         kn_res = future_kn.result()
-        notice_res = future_notices.result()
+        notice_res = future_notices.result() if future_notices else {"success": True, "data": []}
 
         knowledge_docs = kn_res.get("data", []) if kn_res.get("success") else []
         notices = notice_res.get("data", []) if notice_res.get("success") else []
@@ -315,14 +374,70 @@ class AIOrchestrator:
                         reply_text = res.text.strip()
                         break
                 except Exception as e:
-                    logger.warning(f"Model {model_name} failed: {e}")
+                    err_msg = str(e)
+                    logger.warning(f"Model {model_name} failed: {err_msg}")
+                    if "401" in err_msg or "UNAUTHENTICATED" in err_msg or "API key not valid" in err_msg:
+                        logger.warning("Gemini API key is unauthenticated. Skipping fallback models.")
+                        break
+
+        # Targeted domain answers if LLM is unavailable or unauthenticated
+        if reply_text == "জাতীয় বিশ্ববিদ্যালয়ের সর্বশেষ তথ্য অনুসারে আপনার প্রশ্নের উত্তর অনুসন্ধান করা হয়েছে।":
+            # 1. Check if intent is admission-related
+            if intent == "ADMISSION_QUERY" or any(w in raw_msg.lower() for w in ["admission", "apply", "ভর্তি", "যোগ্যতা"]):
+                reply_text = """### 🎓 জাতীয় বিশ্ববিদ্যালয় ভর্তি তথ্য ও নির্দেশিকা
+
+জাতীয় বিশ্ববিদ্যালয়ের স্নাতক (সম্মান), পাস ও স্নাতকোত্তর কোর্সে মেধা তালিকার ভিত্তিতে ভর্তি প্রক্রিয়া পরিচালিত হয়:
+
+• **ভর্তি পোর্টাল:** অনলাইনে প্রাথমিক আবেদন করতে ভিজিট করুন: [জাতীয় বিশ্ববিদ্যালয় ভর্তি পোর্টাল](http://app11.nu.edu.bd/)
+• **আবেদন পদ্ধতি:** এসএসসি ও এইচএসসি পরীক্ষার রোল ও রেজিস্ট্রেশন নম্বর দিয়ে অনলাইনে আবেদন ফরম পূরণ করতে হয়।
+• **মেধা তালিকা ও মাইগ্রেশন:** ১ম মেধা তালিকা, ২য় মেধা তালিকা, কোটা এবং রিলিজ স্লিপের মাধ্যমে পর্যায়ক্রমে ফলাফল প্রকাশিত হয়।"""
+            # 2. Check if intent is exam/routine-related
+            elif intent == "EXAM_QUERY" or any(w in raw_msg.lower() for w in ["exam", "routine", "পরীক্ষা", "রুটিন"]):
+                reply_text = """### 📝 জাতীয় বিশ্ববিদ্যালয় পরীক্ষা ও রুটিন সংক্রান্ত তথ্য
+
+• **পরীক্ষার রুটিন ও কেন্দ্র তালিকা:** জাতীয় বিশ্ববিদ্যালয়ের সকল পরীক্ষার সংশোধিত সময়সূচি ও কেন্দ্র তালিকা অফিসিয়াল নোটিশ বোর্ডে পিডিএফ আকারে প্রকাশ করা হয়।
+• **অফিসিয়াল রুটিন বোর্ড:** [পরীক্ষা সংক্রান্ত নোটিশ ও রুটিন দেখুন](https://www.nu.ac.bd/examination-notice.php)
+• **এডমিট কার্ড:** পরীক্ষার ৩-৭ দিন পূর্বে কলেজ কর্তৃপক্ষ কর্তৃক সিল ও স্বাক্ষরযুক্ত এডমিট কার্ড বিতরণ করা হয়।"""
+            # 3. Check if intent is result-related
+            elif intent == "RESULT_QUERY" or any(w in raw_msg.lower() for w in ["result", "cgpa", "marksheet", "রেজাল্ট", "ফলাফল"]):
+                reply_text = """### 📊 পরীক্ষার ফলাফল ও নম্বরপত্র সংক্রান্ত তথ্য
+
+• **অনলাইনে রেজাল্ট দেখুন:** রোল এবং রেজিস্ট্রেশন নম্বর দিয়ে ফলাফল জানতে ভিজিট করুন: [জাতীয় বিশ্ববিদ্যালয় ফলাফল আর্কাইভ](https://results.nu.ac.bd/)
+• **এসএমএস (SMS) পদ্ধতি:** মোবাইলের মেসেজ অপশনে গিয়ে লিখুন `NU <Course_Code> <Roll/Reg>` এবং পাঠিয়ে দিন **16222** নম্বরে।
+• **ফলাফল পুনর্নিরীক্ষণ:** ফলাফল প্রকাশের ৩০ দিনের মধ্যে সোনালী সেবার মাধ্যমে ফি প্রদান করে আবেদন করা যায়।"""
+            # 4. Check if TC / College Transfer
+            elif any(w in raw_msg.lower() for w in ["tc", "টিসি", "ছাড়পত্র", "ট্রান্সফার", "কলেজ পরিবর্তন"]):
+                reply_text = TC_REPLY
+                citations = CITATIONS_ERP_SERVICES
+            # 5. Check if Certificate / Transcript / Marksheet / Fee
+            elif any(w in raw_msg.lower() for w in ["certificate", "transcript", "marksheet", "সনদ", "সার্টিফিকেট", "উত্তোলন", "নম্বরপত্র", "ফি"]):
+                reply_text = CERTIFICATE_REPLY
+                citations = CITATIONS_ERP_SERVICES
+            # 6. Check if EMS / Form Fill-up
+            elif any(w in raw_msg.lower() for w in ["ems", "form fillup", "form fill-up", "ফরম পূরণ", "ফর্ম পূরণ", "পরীক্ষার ফরম"]):
+                reply_text = EMS_REPLY
+                citations = CITATIONS_EMS
+            # 7. Check if document query fallback
+            elif intent == "DOCUMENT_QUERY" or any(w in raw_msg.lower() for w in ["সংশোধন", "ডকুমেন্ট"]):
+                reply_text = CERTIFICATE_REPLY
+                citations = CITATIONS_ERP_SERVICES
+            # 8. Targeted Knowledge Docs Match (Only include knowledge docs that actually match the user query)
+            elif knowledge_docs:
+                clean_snippets = [k.get('content', '').strip() for k in knowledge_docs if k.get('content')]
+                if clean_snippets:
+                    reply_text = "### 🏛️ জাতীয় বিশ্ববিদ্যালয় প্রাতিষ্ঠানিক তথ্য\n\n" + clean_snippets[0][:600]
+                else:
+                    reply_text = "জাতীয় বিশ্ববিদ্যালয়ের অফিসিয়াল ওয়েবসাইট (nu.ac.bd) থেকে আপনার জিজ্ঞাসিত তথ্যের উত্তর যাচাই করা হচ্ছে। অনুগ্রহ করে নির্দিষ্ট বিষয় উল্লেখ করে প্রশ্ন করুন।"
+            # 9. Concise General Fallback
+            else:
+                reply_text = f"জাতীয় বিশ্ববিদ্যালয় সম্পর্কিত আপনার প্রশ্নটির সুনির্দিষ্ট তথ্যের জন্য অনুগ্রহ করে বিষয় বা কোর্সের নাম উল্লেখ করুন (যেমন: অনার্স ভর্তি, পরীক্ষার রুটিন, রেজাল্ট অথবা সনদ উত্তোলন)।"
 
         resp = ChatResponse(
             reply=reply_text,
             citations=citations,
             intent=intent,
             skill_used=skill_name,
-            suggested_chips=["🎫 টোকেন সেবা", "🎓 অনার্স ভর্তি", "📝 পরীক্ষার রুটিন", "📄 সকল নোটিশ"]
+            suggested_chips=["🏠 মূল মেনু", "🎓 ভর্তি তথ্য", "📝 পরীক্ষার রুটিন", "📊 ফলাফল চেক", "📄 সকল নোটিশ"]
         )
 
         # Store in high-speed cache
