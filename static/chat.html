@@ -347,7 +347,9 @@
       40% { transform: scale(1.1); opacity: 1; }
     }
 
-    /* Professional FAQ Forum Panel Styles */
+    /* ========================================================= */
+    /* TWITTER / X STYLE FAQ FORUM FEED & TOPIC PILLS            */
+    /* ========================================================= */
     .apple-faq-panel {
       background: var(--surface);
       border: 1px solid var(--hairline);
@@ -356,89 +358,105 @@
       padding: 18px;
       transition: all 350ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .apple-faq-card {
-      background: var(--bg);
+    .x-feed-card {
+      background: var(--surface);
       border: 1px solid var(--hairline);
-      border-radius: 14px;
-      padding: 12px 14px;
-      transition: all 180ms ease;
+      border-radius: 16px;
+      padding: 14px 15px;
+      transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+      cursor: pointer;
+      position: relative;
     }
-    .apple-faq-card:hover {
+    .x-feed-card:hover {
+      background: rgba(0, 0, 0, 0.015);
       border-color: var(--hairline-hover);
-      transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
     }
-    .apple-like-btn {
+    [data-theme="dark"] .x-feed-card:hover {
+      background: rgba(255, 255, 255, 0.025);
+    }
+    .x-topic-pill {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 160ms ease;
-      user-select: none;
-      background: var(--surface);
-      color: var(--text-secondary);
-      border: 1px solid var(--hairline);
-    }
-    .apple-like-btn:hover {
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.4);
-      background: rgba(239, 68, 68, 0.05);
-    }
-    .apple-like-btn.liked {
-      background: rgba(239, 68, 68, 0.12);
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.4);
-    }
-    .apple-like-btn.liked svg {
-      fill: #ef4444;
-      stroke: #ef4444;
-    }
-    .apple-ask-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      gap: 4px;
       padding: 4px 10px;
       border-radius: var(--radius-pill);
       font-size: 11px;
-      font-weight: 600;
-      background: var(--surface);
-      color: var(--accent);
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg);
       border: 1px solid var(--hairline);
       cursor: pointer;
-      transition: all 160ms ease;
-    }
-    .apple-ask-btn:hover {
-      background: var(--accent);
-      color: #FFFFFF;
-      border-color: var(--accent);
-    }
-    .apple-tab-btn {
-      padding: 5px 12px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: var(--radius-pill);
-      color: var(--text-secondary);
-      background: transparent;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 160ms ease;
+      transition: all 140ms ease;
       white-space: nowrap;
+      user-select: none;
     }
-    .apple-tab-btn:hover {
+    .x-topic-pill:hover {
       color: var(--text);
-      background: rgba(0, 0, 0, 0.04);
+      border-color: var(--hairline-hover);
+      background: rgba(0, 0, 0, 0.05);
     }
-    [data-theme="dark"] .apple-tab-btn:hover {
+    [data-theme="dark"] .x-topic-pill:hover {
       background: rgba(255, 255, 255, 0.08);
     }
-    .apple-tab-btn.active {
+    .x-topic-pill.active {
       background: var(--text);
       color: var(--surface);
+      border-color: var(--text);
       font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+    .x-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 140ms ease;
+      user-select: none;
+    }
+    .x-action-btn.reply:hover {
+      color: #0284c7;
+      background: rgba(2, 132, 199, 0.1);
+    }
+    .x-action-btn.like:hover {
+      color: #e11d48;
+      background: rgba(225, 29, 72, 0.1);
+    }
+    .x-action-btn.like.liked {
+      color: #e11d48;
+      font-weight: 600;
+    }
+    .x-action-btn.like.liked svg {
+      fill: #e11d48;
+      stroke: #e11d48;
+    }
+    .x-action-btn.share:hover {
+      color: #059669;
+      background: rgba(5, 150, 105, 0.1);
+    }
+    .x-action-btn.expand:hover {
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+    .x-verified-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #1d9bf0;
+      color: #ffffff;
+      font-size: 9px;
+      font-weight: bold;
+      flex-shrink: 0;
     }
 
     /* ========================================================= */
@@ -513,10 +531,8 @@
         gap: 0.75rem;
         max-height: 620px;
       }
-      .split-layout[data-split="faq"] #top-faqs-list {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.75rem;
+      .split-layout[data-split="faq"] #faq-topic-tags {
+        max-height: 140px;
       }
     }
   </style>
@@ -848,17 +864,18 @@
     <!-- RIGHT COLUMN: Integrated Professional FAQ Forum (30% by default, 70% in FAQ mode) -->
     <aside id="faq-forum-panel" class="w-full flex flex-col apple-faq-panel">
       
-      <!-- Panel Header with Toggle Split Button -->
-      <div class="flex items-center justify-between pb-3.5 border-b border-[var(--hairline)]">
+      <!-- Panel Header with Toggle Split Button (Twitter / X Style) -->
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--hairline)]">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-full bg-[var(--accent-light)] text-[var(--accent)] flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
+          <div class="w-8 h-8 rounded-full bg-[var(--text)] text-[var(--surface)] flex items-center justify-center shrink-0 shadow-xs font-black text-sm">
+            𝕏
           </div>
           <div>
-            <h3 class="text-[15px] font-bold text-[var(--text)] tracking-tight">প্রশ্নোত্তর ফোরাম (FAQ)</h3>
-            <p class="text-[11px] text-[var(--text-secondary)]">৬৭০+ অফিশিয়াল প্রশ্ন ও লাইভ লাইক রেটিং</p>
+            <h3 class="text-[14.5px] font-bold text-[var(--text)] tracking-tight flex items-center gap-1.5">
+              <span>এক্সপ্লোর ফোরাম</span>
+              <span class="x-verified-badge" title="অফিশিয়াল ভেরিফাইড">✓</span>
+            </h3>
+            <p class="text-[11px] text-[var(--text-secondary)]">৬৭০+ অফিশিয়াল প্রশ্ন ও লাইভ ট্রেন্ডিং টপিক</p>
           </div>
         </div>
 
@@ -876,86 +893,65 @@
         </div>
       </div>
 
-      <!-- Search & Filters Container -->
-      <div class="pt-3.5 space-y-2.5">
+      <!-- Search & Trending Topics Container -->
+      <div class="pt-3 space-y-2.5">
         
-        <!-- Search Input -->
+        <!-- Search Input (X-style Search Bar) -->
         <div class="relative">
           <input 
             id="faq-search-input" 
             type="text" 
-            placeholder="প্রশ্ন বা বিষয় খুঁজুন (বাংলা / English)..." 
+            placeholder="এক্সপ্লোর করুন বা প্রশ্ন খুঁজুন..." 
             oninput="handleFaqSearch(this.value)"
-            class="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl py-2 pl-9 pr-8 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)] transition"
+            class="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-full py-2 pl-9 pr-8 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)] transition"
           />
-          <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/>
             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <button id="faq-clear-search" onclick="clearFaqSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text)] text-xs p-1">
+          <button id="faq-clear-search" onclick="clearFaqSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text)] text-xs p-0.5">
             ✕
           </button>
         </div>
 
-        <!-- Category Dropdown Filter -->
-        <div class="relative">
-          <select 
-            id="faq-category-select" 
-            onchange="handleFaqCategoryChange(this.value)"
-            class="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl py-2 px-3 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)] transition cursor-pointer appearance-none pr-8">
-            <option value="all">সকল ক্যাটাগরি (All Categories)</option>
-          </select>
-          <svg class="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+        <!-- Hidden select for programmatic sync if needed -->
+        <select id="faq-category-select" onchange="handleFaqCategoryChange(this.value)" class="hidden">
+          <option value="all">সকল ক্যাটাগরি</option>
+        </select>
+
+        <!-- 🔥 X-Style Trending Category Topics (#টপিকসমূহ) -->
+        <div class="pt-1">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11.5px] font-bold text-[var(--text)] flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>
+              </svg>
+              <span>বিষয়ভিত্তিক টপিক (Trending Topics)</span>
+            </span>
+            <span class="text-[10.5px] text-[var(--text-secondary)] font-medium" id="faq-topic-active-name">সব বিষয়</span>
+          </div>
+
+          <!-- Wrap of category tags like Twitter/X Explore -->
+          <div id="faq-topic-tags" class="flex flex-wrap gap-1.5 max-h-[110px] overflow-y-auto thin-scrollbar p-0.5">
+            <div class="text-[11px] text-[var(--text-secondary)] py-1">টপিক লোড হচ্ছে...</div>
+          </div>
         </div>
 
-        <!-- Sort Filter Pills -->
-        <div class="flex items-center gap-1.5 pt-0.5">
-          <button id="sort-tab-most_liked" onclick="setFaqSort('most_liked')" class="apple-tab-btn active">
-            🏆 জনপ্রিয় (Likes)
-          </button>
-          <button id="sort-tab-latest" onclick="setFaqSort('latest')" class="apple-tab-btn">
-            🕒 সর্বশেষ
-          </button>
-          <button id="sort-tab-all" onclick="setFaqSort('all')" class="apple-tab-btn">
-            📑 সকল
-          </button>
-        </div>
-
-      </div>
-
-      <!-- 🏆 Top 10 Most-Liked Section (Collapsible Banner) -->
-      <div id="top-faqs-wrapper" class="mt-4 pt-3 border-t border-[var(--hairline)]">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[12px] font-bold text-[var(--text)] flex items-center gap-1.5">
-            <span>🏆</span>
-            <span>শীর্ষ ১০টি জনপ্রিয় প্রশ্ন (Top 10)</span>
-          </span>
-          <button onclick="toggleTopFaqsFold()" id="top-faqs-fold-btn" class="text-[11px] text-[var(--accent)] hover:underline font-medium">
-            লুকান ▲
-          </button>
-        </div>
-
-        <div id="top-faqs-list" class="space-y-2 mb-3">
-          <!-- Top FAQs rendered here -->
-          <div class="text-xs text-[var(--text-secondary)] py-2 text-center">শীর্ষ প্রশ্নোত্তর লোড হচ্ছে...</div>
-        </div>
       </div>
 
       <!-- Main FAQ Stream Header -->
       <div class="pt-3 border-t border-[var(--hairline)] flex items-center justify-between mb-2">
-        <span class="text-[12px] font-semibold text-[var(--text-secondary)]" id="faq-list-count-label">
-          প্রশ্নোত্তর তালিকা
+        <span class="text-[11.5px] font-semibold text-[var(--text-secondary)]" id="faq-list-count-label">
+          টাইমলাইন ও প্রশ্নোত্তর
         </span>
-        <span class="text-[11px] text-[var(--text-secondary)]" id="faq-active-filter-badge">
+        <span class="text-[10.5px] text-[var(--accent)] font-medium" id="faq-active-filter-badge">
           সব ক্যাটাগরি
         </span>
       </div>
 
-      <!-- Main FAQ Scrollable List -->
-      <div id="faq-main-list" class="space-y-2.5 overflow-y-auto max-h-[480px] thin-scrollbar pr-1">
-        <!-- FAQ cards rendered here -->
+      <!-- Main FAQ Scrollable List (Twitter / X Tweet Cards) -->
+      <div id="faq-main-list" class="space-y-2.5 overflow-y-auto max-h-[500px] thin-scrollbar pr-1">
+        <!-- Tweet-style FAQ cards rendered here -->
       </div>
 
       <!-- Empty State -->
@@ -1350,7 +1346,7 @@
     }
 
     // =========================================================================
-    // FAQ FORUM LOGIC (SEARCH, CATEGORY, TOP 10, ATOMIC LIKES, CHAT INJECTION)
+    // FAQ FORUM LOGIC (TWITTER / X STYLE EXPLORE, CATEGORY TAGS, ATOMIC LIKES)
     // =========================================================================
     let faqState = {
       category: "all",
@@ -1359,23 +1355,21 @@
       page: 1,
       limit: 20,
       total: 0,
-      items: [],
-      topItems: [],
-      topFolded: false
+      items: []
     };
+    let allFaqCategories = [];
     let faqSearchTimer = null;
 
     async function initFaqForum() {
       await Promise.all([
         loadFaqCategories(),
-        loadTopLikedFaqs(),
         loadFaqList(true)
       ]);
     }
 
     async function refreshFaqData() {
       await Promise.all([
-        loadTopLikedFaqs(),
+        loadFaqCategories(),
         loadFaqList(true)
       ]);
     }
@@ -1385,102 +1379,83 @@
         const res = await fetch("/api/v1/faqs/categories");
         if (!res.ok) return;
         const data = await res.json();
-        const select = document.getElementById("faq-category-select");
-        if (!select) return;
+        allFaqCategories = data.categories || [];
 
-        let optionsHtml = `<option value="all">সকল ক্যাটাগরি (${data.categories.reduce((a, b) => a + b.count, 0)})</option>`;
-        data.categories.forEach(cat => {
-          optionsHtml += `<option value="${escapeHTML(cat.category)}">${escapeHTML(cat.category)} (${cat.count})</option>`;
-        });
-        select.innerHTML = optionsHtml;
+        renderTopicTags();
+
+        const select = document.getElementById("faq-category-select");
+        if (select) {
+          let optionsHtml = `<option value="all">সকল ক্যাটাগরি (${allFaqCategories.reduce((a, b) => a + (b.count || 0), 0)})</option>`;
+          allFaqCategories.forEach(cat => {
+            optionsHtml += `<option value="${escapeHTML(cat.category)}">${escapeHTML(cat.category)} (${cat.count})</option>`;
+          });
+          select.innerHTML = optionsHtml;
+        }
       } catch (e) {
         console.error("Error loading categories:", e);
       }
     }
 
-    async function loadTopLikedFaqs() {
-      try {
-        const res = await fetch(`/api/v1/faqs/top-liked?limit=10&session_id=${sessionId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        faqState.topItems = data.items || [];
-        renderTopFaqs();
-      } catch (e) {
-        console.error("Error loading top FAQs:", e);
-      }
-    }
-
-    function renderTopFaqs() {
-      const container = document.getElementById("top-faqs-list");
+    function renderTopicTags() {
+      const container = document.getElementById("faq-topic-tags");
       if (!container) return;
 
-      if (!faqState.topItems.length) {
-        container.innerHTML = `<div class="text-xs text-[var(--text-secondary)] py-2 text-center">কোনো তথ্য পাওয়া যায়নি।</div>`;
-        return;
-      }
+      const totalCount = allFaqCategories.reduce((a, b) => a + (b.count || 0), 0);
+      const isAllActive = faqState.category === "all";
 
-      const medalMap = ["🥇", "🥈", "🥉", "#4", "#5", "#6", "#7", "#8", "#9", "#10"];
+      let html = `
+        <button 
+          onclick="handleTopicTagClick('all')" 
+          class="x-topic-pill ${isAllActive ? 'active' : ''}" 
+          data-cat="all">
+          <span>#সকল_টপিক</span>
+          <span class="opacity-70 text-[10px]">(${totalCount})</span>
+        </button>
+      `;
 
-      container.innerHTML = faqState.topItems.map((item, idx) => {
-        const medal = medalMap[idx] || `#${idx + 1}`;
-        const isLiked = item.has_liked;
-        const likesCount = item.likes_count || 0;
-
-        return `
-          <div class="apple-faq-card cursor-pointer" id="top-faq-card-${item.id}" onclick="handleFaqQuestionClick('top-${item.id}')">
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex items-start gap-1.5 flex-1 min-w-0">
-                <span class="text-xs font-bold shrink-0 mt-0.5 text-[var(--text-secondary)]">${medal}</span>
-                <div class="flex-1 min-w-0">
-                  <div class="text-[13px] font-semibold text-[var(--text)] leading-snug hover:text-[var(--accent)] transition">
-                    ${escapeHTML(item.question)}
-                  </div>
-                  <div class="text-[11px] text-[var(--accent)] font-medium mt-0.5">
-                    ${escapeHTML(item.category || "General")}
-                  </div>
-                </div>
-              </div>
-              <button 
-                onclick="event.stopPropagation(); handleFaqLikeClick(${item.id})" 
-                class="apple-like-btn ${isLiked ? 'liked' : ''} shrink-0" 
-                id="like-btn-top-${item.id}"
-                title="লাইক বা পছন্দ দিন">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                </svg>
-                <span class="like-counter-${item.id}">${likesCount}</span>
-              </button>
-            </div>
-
-            <!-- Expandable Answer Body -->
-            <div id="faq-ans-top-${item.id}" class="hidden mt-2 pt-2 border-t border-[var(--hairline)] text-xs text-[var(--text)] leading-relaxed" onclick="event.stopPropagation()">
-              <div class="whitespace-pre-line">${escapeHTML(item.answer)}</div>
-              <div class="mt-2.5 flex items-center justify-between">
-                <button onclick="event.stopPropagation(); askAiAboutFaq('${escapeHTML(item.question).replace(/'/g, "\\'")}')" class="apple-ask-btn">
-                  <span>🤖 এআই-কে জিজ্ঞেস করুন</span>
-                </button>
-                <button onclick="event.stopPropagation(); toggleFaqExpand('top-${item.id}')" class="text-[11px] text-[var(--text-secondary)] hover:underline">
-                  সংক্ষেপ করুন ▲
-                </button>
-              </div>
-            </div>
-          </div>
+      allFaqCategories.forEach(cat => {
+        const isActive = faqState.category === cat.category;
+        const tagLabel = "#" + cat.category.trim().replace(/\s+/g, "_");
+        html += `
+          <button 
+            onclick="handleTopicTagClick('${escapeHTML(cat.category).replace(/'/g, "\\'")}')" 
+            class="x-topic-pill ${isActive ? 'active' : ''}" 
+            data-cat="${escapeHTML(cat.category)}">
+            <span>${escapeHTML(tagLabel)}</span>
+            <span class="opacity-70 text-[10px]">(${cat.count})</span>
+          </button>
         `;
-      }).join("");
+      });
+
+      container.innerHTML = html;
     }
 
-    function toggleTopFaqsFold() {
-      const list = document.getElementById("top-faqs-list");
-      const btn = document.getElementById("top-faqs-fold-btn");
-      if (!list || !btn) return;
-      faqState.topFolded = !faqState.topFolded;
-      if (faqState.topFolded) {
-        list.classList.add("hidden");
-        btn.innerText = "দেখান ▼";
-      } else {
-        list.classList.remove("hidden");
-        btn.innerText = "লুকান ▲";
+    function handleTopicTagClick(catName) {
+      faqState.category = catName;
+      const select = document.getElementById("faq-category-select");
+      if (select) select.value = catName;
+
+      const activeName = document.getElementById("faq-topic-active-name");
+      if (activeName) {
+        activeName.innerText = catName === "all" ? "সব বিষয়" : "#" + catName;
       }
+
+      const filterBadge = document.getElementById("faq-active-filter-badge");
+      if (filterBadge) {
+        filterBadge.innerText = catName === "all" ? "সব ক্যাটাগরি" : catName;
+      }
+
+      const pills = document.querySelectorAll(".x-topic-pill");
+      pills.forEach(p => {
+        const cat = p.getAttribute("data-cat");
+        if (cat === catName) {
+          p.classList.add("active");
+        } else {
+          p.classList.remove("active");
+        }
+      });
+
+      loadFaqList(true);
     }
 
     async function loadFaqList(reset = false) {
@@ -1529,7 +1504,7 @@
 
       if (!list) return;
 
-      countLabel.innerText = `প্রশ্নোত্তর তালিকা (${faqState.items.length}/${faqState.total})`;
+      countLabel.innerText = `টাইমলাইন ও প্রশ্নোত্তর (${faqState.items.length}/${faqState.total})`;
       filterBadge.innerText = faqState.category === "all" ? "সব ক্যাটাগরি" : faqState.category;
 
       if (!faqState.items.length) {
@@ -1546,46 +1521,98 @@
         const likesCount = item.likes_count || 0;
 
         return `
-          <div class="apple-faq-card cursor-pointer" id="faq-card-${item.id}" onclick="handleFaqQuestionClick('list-${item.id}')">
-            <div class="flex items-start justify-between gap-2 mb-1.5">
-              <span class="text-[11px] font-semibold text-[var(--accent)] bg-[var(--accent-light)] px-2 py-0.5 rounded-full truncate max-w-[70%]">
-                ${escapeHTML(item.category || "General")}
-              </span>
-              <button 
-                onclick="event.stopPropagation(); handleFaqLikeClick(${item.id})" 
-                class="apple-like-btn ${isLiked ? 'liked' : ''} shrink-0" 
-                id="like-btn-list-${item.id}"
-                title="লাইক বা পছন্দ দিন">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                </svg>
-                <span class="like-counter-${item.id}">${likesCount}</span>
-              </button>
-            </div>
+          <article class="x-feed-card" id="faq-card-${item.id}" onclick="handleFaqQuestionClick('list-${item.id}')">
+            <div class="flex items-start gap-2.5">
+              
+              <!-- Twitter / X Avatar Badge -->
+              <div class="w-8 h-8 rounded-full bg-[var(--text)] text-[var(--surface)] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                NU
+              </div>
 
-            <div class="text-[13px] font-semibold text-[var(--text)] leading-snug hover:text-[var(--accent)] transition">
-              ${escapeHTML(item.question)}
-            </div>
+              <!-- Main Post Content -->
+              <div class="flex-1 min-w-0">
+                
+                <!-- Post Header: Name, Verified Badge, Handle, Category Tag -->
+                <div class="flex items-center justify-between gap-1.5 flex-wrap mb-1">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="font-bold text-[13px] text-[var(--text)] truncate">জাতীয় বিশ্ববিদ্যালয়</span>
+                    <span class="x-verified-badge" title="অফিশিয়াল ভেরিফাইড তথ্য">✓</span>
+                    <span class="text-[11px] text-[var(--text-secondary)]">@nu_official</span>
+                  </div>
+                  
+                  <span class="text-[10px] font-medium text-[var(--accent)] bg-[var(--accent-light)] px-2 py-0.5 rounded-full truncate max-w-[130px]">
+                    #${escapeHTML(item.category || "General")}
+                  </span>
+                </div>
 
-            <!-- Answer Snippet -->
-            <div id="faq-snippet-list-${item.id}" class="text-xs text-[var(--text-secondary)] mt-1.5 leading-relaxed">
-              ${escapeHTML(item.answer.length > 100 ? item.answer.slice(0, 100) + "..." : item.answer)}
-              ${item.answer.length > 100 ? `<span class="text-[var(--accent)] ml-1 font-medium hover:underline">বিস্তারিত পড়ুন ▼</span>` : ''}
-            </div>
+                <!-- Post Body (Question) -->
+                <div class="text-[13.5px] font-semibold text-[var(--text)] leading-snug">
+                  ${escapeHTML(item.question)}
+                </div>
 
-            <!-- Full Expanded Answer -->
-            <div id="faq-ans-list-${item.id}" class="hidden mt-2 pt-2 border-t border-[var(--hairline)] text-xs text-[var(--text)] leading-relaxed" onclick="event.stopPropagation()">
-              <div class="whitespace-pre-line">${escapeHTML(item.answer)}</div>
-              <div class="mt-2.5 flex items-center justify-between">
-                <button onclick="event.stopPropagation(); askAiAboutFaq('${escapeHTML(item.question).replace(/'/g, "\\'")}')" class="apple-ask-btn">
-                  <span>🤖 এআই-কে জিজ্ঞেস করুন</span>
-                </button>
-                <button onclick="event.stopPropagation(); toggleFaqExpand('list-${item.id}')" class="text-[11px] text-[var(--text-secondary)] hover:underline">
-                  সংক্ষেপ করুন ▲
-                </button>
+                <!-- Snippet Preview -->
+                <div id="faq-snippet-list-${item.id}" class="text-xs text-[var(--text-secondary)] mt-1.5 leading-relaxed line-clamp-2">
+                  ${escapeHTML(item.answer)}
+                </div>
+
+                <!-- Full Answer / Unfolded Thread -->
+                <div id="faq-ans-list-${item.id}" class="hidden mt-2.5 pt-2 border-t border-[var(--hairline)]" onclick="event.stopPropagation()">
+                  <div class="p-3 rounded-xl bg-[var(--bg)] border border-[var(--hairline)] text-xs text-[var(--text)] leading-relaxed whitespace-pre-line">
+                    ${escapeHTML(item.answer)}
+                  </div>
+                </div>
+
+                <!-- Twitter / X Action Engagement Bar -->
+                <div class="flex items-center justify-between mt-2.5 pt-1.5 border-t border-[var(--hairline)]/70 text-xs">
+                  
+                  <!-- Reply / Ask AI -->
+                  <button 
+                    onclick="event.stopPropagation(); askAiAboutFaq('${escapeHTML(item.question).replace(/'/g, "\\'")}')" 
+                    class="x-action-btn reply" 
+                    title="এআই-কে এই প্রশ্নটি সরাসরি জিজ্ঞাসা করুন">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>এআই উত্তর</span>
+                  </button>
+
+                  <!-- Live Atomic Like -->
+                  <button 
+                    onclick="event.stopPropagation(); handleFaqLikeClick(${item.id})" 
+                    class="x-action-btn like ${isLiked ? 'liked' : ''}" 
+                    id="like-btn-list-${item.id}" 
+                    title="লাইক দিন">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                    </svg>
+                    <span class="like-counter-${item.id}">${likesCount}</span>
+                  </button>
+
+                  <!-- Share / Copy to Clipboard -->
+                  <button 
+                    onclick="event.stopPropagation(); copyFaqToClipboard('${escapeHTML(item.question).replace(/'/g, "\\'")}', '${escapeHTML(item.answer).replace(/'/g, "\\'")}', this)" 
+                    class="x-action-btn share" 
+                    title="কপি করুন">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                    </svg>
+                    <span class="copy-label">কপি</span>
+                  </button>
+
+                  <!-- Expand / Collapse Toggle -->
+                  <button 
+                    onclick="event.stopPropagation(); toggleFaqExpand('list-${item.id}')" 
+                    class="x-action-btn expand" 
+                    title="বিস্তারিত পড়ুন বা সংক্ষেপ করুন">
+                    <span id="expand-label-list-${item.id}" class="text-[11px] text-[var(--accent)] font-medium">বিস্তারিত ▼</span>
+                  </button>
+
+                </div>
+
               </div>
             </div>
-          </div>
+          </article>
         `;
       }).join("");
 
@@ -1599,16 +1626,55 @@
     function toggleFaqExpand(suffix) {
       const fullAns = document.getElementById(`faq-ans-${suffix}`);
       const snippet = document.getElementById(`faq-snippet-${suffix}`);
+      const label = document.getElementById(`expand-label-${suffix}`);
       if (!fullAns) return;
 
       const isHidden = fullAns.classList.contains("hidden");
       if (isHidden) {
         fullAns.classList.remove("hidden");
         if (snippet) snippet.classList.add("hidden");
+        if (label) label.innerText = "সংক্ষেপ করুন ▲";
       } else {
         fullAns.classList.add("hidden");
         if (snippet) snippet.classList.remove("hidden");
+        if (label) label.innerText = "বিস্তারিত ▼";
       }
+    }
+
+    function copyFaqToClipboard(question, answer, btn) {
+      const text = `প্রশ্ন: ${question}\n\nউত্তর:\n${answer}\n\n(সূত্র: জাতীয় বিশ্ববিদ্যালয় অফিশিয়াল হেল্পডেস্ক)`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showCopySuccess(btn);
+        }).catch(() => {
+          showCopyFallback(text);
+        });
+      } else {
+        showCopyFallback(text);
+      }
+    }
+
+    function showCopySuccess(btn) {
+      const label = btn.querySelector(".copy-label");
+      if (label) {
+        const orig = label.innerText;
+        label.innerText = "✓ কপিড";
+        label.classList.add("text-emerald-500");
+        setTimeout(() => {
+          label.innerText = orig;
+          label.classList.remove("text-emerald-500");
+        }, 1800);
+      }
+    }
+
+    function showCopyFallback(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      alert("তথ্যটি কপি করা হয়েছে!");
     }
 
     async function handleFaqLikeClick(faqId) {
@@ -1627,31 +1693,23 @@
           c.innerText = data.likes_count;
         });
 
-        // Update button active state in Top 10 and Main list
-        const topBtn = document.getElementById(`like-btn-top-${faqId}`);
+        // Update button active state
         const listBtn = document.getElementById(`like-btn-list-${faqId}`);
-
-        [topBtn, listBtn].forEach(b => {
-          if (!b) return;
+        if (listBtn) {
           if (data.has_liked) {
-            b.classList.add("liked");
-            b.querySelector("svg").setAttribute("fill", "currentColor");
+            listBtn.classList.add("liked");
+            listBtn.querySelector("svg").setAttribute("fill", "currentColor");
           } else {
-            b.classList.remove("liked");
-            b.querySelector("svg").setAttribute("fill", "none");
+            listBtn.classList.remove("liked");
+            listBtn.querySelector("svg").setAttribute("fill", "none");
           }
-        });
+        }
 
         // Update local item references
         const localItem = faqState.items.find(i => i.id === faqId);
         if (localItem) {
           localItem.likes_count = data.likes_count;
           localItem.has_liked = data.has_liked;
-        }
-        const topItem = faqState.topItems.find(i => i.id === faqId);
-        if (topItem) {
-          topItem.likes_count = data.likes_count;
-          topItem.has_liked = data.has_liked;
         }
 
       } catch (e) {
@@ -1704,15 +1762,6 @@
 
     function setFaqSort(mode) {
       faqState.sort = mode;
-      ["most_liked", "latest", "all"].forEach(m => {
-        const tab = document.getElementById(`sort-tab-${m}`);
-        if (!tab) return;
-        if (m === mode) {
-          tab.classList.add("active");
-        } else {
-          tab.classList.remove("active");
-        }
-      });
       loadFaqList(true);
     }
 
@@ -1721,6 +1770,14 @@
       faqState.search = "";
       const select = document.getElementById("faq-category-select");
       if (select) select.value = "all";
+      const activeName = document.getElementById("faq-topic-active-name");
+      if (activeName) activeName.innerText = "সব বিষয়";
+      const filterBadge = document.getElementById("faq-active-filter-badge");
+      if (filterBadge) filterBadge.innerText = "সব ক্যাটাগরি";
+      document.querySelectorAll(".x-topic-pill").forEach(p => {
+        if (p.getAttribute("data-cat") === "all") p.classList.add("active");
+        else p.classList.remove("active");
+      });
       clearFaqSearch();
     }
 
