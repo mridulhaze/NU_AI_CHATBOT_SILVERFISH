@@ -6,7 +6,7 @@ from backend.app import app
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="National University AI Assistant Server")
-    parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "8000")), help="Port to run the server on")
+    parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "5005")), help="Port to run the server on")
     parser.add_argument("--host", type=str, default=os.getenv("HOST", "0.0.0.0"), help="Host to bind the server to")
     parser.add_argument("--reload", action="store_true", default=os.getenv("RELOAD", "false").lower() in ("true", "1", "yes"), help="Enable auto-reload")
     

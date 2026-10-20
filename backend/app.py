@@ -21,7 +21,7 @@ from crawler.scheduler import start_scheduler, stop_scheduler, run_full_crawl, g
 from crawler.deep_crawler_bridge import run_deep_crawler, get_deep_crawler_status
 from enrichment.worker import get_enrichment_worker
 from token_service import init_token_database, token_router
-from backend.api import auth_router, chat_v1_router, token_v1_router, admin_v1_router, mcp_router, credential_router, enrichment_router, ai_lab_router, academic_exam_router
+from backend.api import auth_router, chat_v1_router, token_v1_router, admin_v1_router, mcp_router, credential_router, enrichment_router, ai_lab_router, academic_exam_router, faq_router
 from backend.orchestrator.agent import get_ai_orchestrator
 from backend.core.database import init_core_database
 from backend.agents.autonomous_24x7_worker import get_24x7_worker
@@ -61,6 +61,13 @@ async def lifespan(app: FastAPI):
         threading.Thread(target=_initial_crawl_worker, daemon=True, name="NU_Startup_Crawler").start()
     except Exception as e_th:
         logger.warning(f"Could not spawn startup crawler thread: {e_th}")
+
+    # Ensure FAQ database seeded
+    try:
+        from backend.services.faq_service import get_faq_service
+        get_faq_service().ensure_seeded()
+    except Exception as e_faq:
+        logger.warning(f"FAQ seed check: {e_faq}")
 
     # Start 24/7 Autonomous Knowledge Enrichment Agent
     try:
@@ -104,6 +111,7 @@ app.include_router(mcp_router)
 app.include_router(enrichment_router)
 app.include_router(ai_lab_router)
 app.include_router(academic_exam_router)
+app.include_router(faq_router)
 app.include_router(token_router)
 
 STUDENT_CHAT_FILE = settings.STATIC_DIR / "chat.html"

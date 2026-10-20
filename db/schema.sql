@@ -25,16 +25,37 @@ CREATE TABLE IF NOT EXISTS admission_info (
 
 CREATE TABLE IF NOT EXISTS faq_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_key TEXT,
     question TEXT NOT NULL,
     answer TEXT NOT NULL,
+    keywords TEXT DEFAULT '',
     source_url TEXT,
+    source_file TEXT DEFAULT 'FAQ/faq.txt',
+    source_hash TEXT,
     language TEXT DEFAULT 'bn',
     category TEXT DEFAULT 'General',
     confidence REAL DEFAULT 1.0,
+    likes_count INTEGER DEFAULT 0,
+    is_active INTEGER DEFAULT 1,
     verified_by_admin INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS faq_likes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    faq_id INTEGER NOT NULL,
+    session_id TEXT NOT NULL,
+    liked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(faq_id, session_id),
+    FOREIGN KEY (faq_id) REFERENCES faq_entries(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_faq_likes_count ON faq_entries(likes_count DESC);
+CREATE INDEX IF NOT EXISTS idx_faq_category_idx ON faq_entries(category);
+CREATE INDEX IF NOT EXISTS idx_faq_source_hash ON faq_entries(source_hash);
+CREATE INDEX IF NOT EXISTS idx_faq_likes_faq_id ON faq_likes(faq_id);
+CREATE INDEX IF NOT EXISTS idx_faq_likes_session ON faq_likes(session_id);
 
 CREATE TABLE IF NOT EXISTS gap_queue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -24,9 +24,9 @@
       --hairline-hover: rgba(0, 0, 0, 0.16);
       --accent: #006A4E; /* Official National University Green */
       --accent-hover: #00563F;
-      --accent-light: rgba(0, 106, 78, 0.15);
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+      --accent-light: rgba(0, 106, 78, 0.12);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
       --radius-card: 20px;
       --radius-pill: 999px;
       --radius-input: 24px;
@@ -42,8 +42,8 @@
       --accent: #008763;
       --accent-hover: #059669;
       --accent-light: rgba(0, 135, 99, 0.22);
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -57,8 +57,8 @@
         --accent: #008763;
         --accent-hover: #059669;
         --accent-light: rgba(0, 135, 99, 0.22);
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-        --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+        --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
       }
     }
 
@@ -80,13 +80,23 @@
       transition: background-color 200ms ease, color 200ms ease;
     }
 
-    /* Hide scrollbars for chips and smooth scrolling */
+    /* Scrollbars */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;
+    }
+    .thin-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .thin-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .thin-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--hairline-hover);
+      border-radius: 999px;
     }
 
     /* Header */
@@ -137,16 +147,16 @@
       background: var(--surface);
       border: 1px solid var(--hairline);
       border-radius: var(--radius-card);
-      padding: 18px 20px;
+      padding: 16px 18px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       box-shadow: var(--shadow-sm);
       cursor: pointer;
       transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), 
                   box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), 
                   border-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
-      min-height: 82px;
+      min-height: 78px;
       text-align: left;
       user-select: none;
     }
@@ -159,8 +169,8 @@
       transform: scale(0.985);
     }
     .apple-card-icon-wrap {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--bg);
       display: flex;
@@ -171,18 +181,18 @@
       transition: background-color 200ms ease;
     }
     .apple-card-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text);
       letter-spacing: -0.01em;
-      line-height: 1.35;
+      line-height: 1.3;
     }
     .apple-card-sub {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 400;
       color: var(--text-secondary);
       margin-top: 2px;
-      line-height: 1.35;
+      line-height: 1.3;
     }
     .apple-card-chevron {
       color: var(--text-secondary);
@@ -199,29 +209,24 @@
     .apple-chip {
       background: var(--surface);
       border: 1px solid var(--hairline);
-      color: var(--text-secondary);
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
       font-size: 13px;
       font-weight: 500;
-      padding: 7px 16px;
-      border-radius: var(--radius-pill);
+      color: var(--text-secondary);
       cursor: pointer;
       white-space: nowrap;
       transition: all 160ms ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-      flex-shrink: 0;
+      user-select: none;
     }
     .apple-chip:hover {
-      background: var(--bg);
-      color: var(--text);
       border-color: var(--hairline-hover);
+      color: var(--text);
     }
     .apple-chip.active {
-      background: var(--text) !important;
-      color: var(--bg) !important;
-      border-color: var(--text) !important;
+      background: var(--text);
+      color: var(--surface);
+      border-color: var(--text);
       font-weight: 600;
     }
 
@@ -230,69 +235,63 @@
       background: var(--surface);
       border: 1px solid var(--hairline);
       border-radius: var(--radius-input);
-      box-shadow: var(--shadow-sm);
-      padding: 6px 8px 6px 20px;
+      box-shadow: var(--shadow-md);
+      padding: 6px 6px 6px 18px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      transition: border-color 160ms ease, box-shadow 160ms ease;
+      gap: 10px;
+      transition: border-color 200ms ease, box-shadow 200ms ease;
     }
     .apple-input-bar:focus-within {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
+      box-shadow: 0 0 0 3px var(--accent-light), var(--shadow-md);
     }
     .apple-send-btn {
       background: var(--accent);
       color: #FFFFFF;
+      border: none;
       border-radius: var(--radius-pill);
-      padding: 8px 18px;
-      font-size: 14px;
+      padding: 10px 18px;
+      font-size: 13px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       cursor: pointer;
       transition: background-color 160ms ease, transform 120ms ease;
-      border: none;
-      flex-shrink: 0;
     }
     .apple-send-btn:hover {
       background: var(--accent-hover);
     }
     .apple-send-btn:active {
-      transform: scale(0.96);
+      transform: scale(0.97);
     }
     .apple-send-btn:disabled {
-      opacity: 0.45;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
-    /* Chat Messages Bubbles */
+    /* Chat Bubbles */
     .user-bubble {
       background: var(--text);
-      color: #FFFFFF;
+      color: var(--surface);
       border-radius: 20px 20px 4px 20px;
-      padding: 10px 18px;
-      max-width: 80%;
-      font-size: 14.5px;
-      line-height: 1.6;
+      padding: 12px 18px;
+      max-width: 82%;
+      font-size: 14px;
+      line-height: 1.5;
+      box-shadow: var(--shadow-sm);
       animation: messageSlideIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
-    [data-theme="dark"] .user-bubble {
-      background: #3A3A3C;
-      color: #FFFFFF;
-    }
-
     .assistant-bubble {
       background: var(--surface);
-      border: 1px solid var(--hairline);
       color: var(--text);
+      border: 1px solid var(--hairline);
       border-radius: 20px 20px 20px 4px;
       padding: 16px 20px;
       max-width: 90%;
-      font-size: 14.5px;
-      line-height: 1.65;
+      font-size: 14px;
+      line-height: 1.6;
       box-shadow: var(--shadow-sm);
       animation: messageSlideIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -308,7 +307,7 @@
       }
     }
 
-    /* Styling bot formatting and tables inside assistant bubble */
+    /* Assistant content styling */
     .chat-bubble-bot a {
       color: var(--accent);
       text-decoration: underline;
@@ -344,53 +343,155 @@
       0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
       40% { transform: scale(1.1); opacity: 1; }
     }
+
+    /* Professional FAQ Forum Panel Styles */
+    .apple-faq-panel {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 18px;
+      transition: border-color 200ms ease;
+    }
+    .apple-faq-card {
+      background: var(--bg);
+      border: 1px solid var(--hairline);
+      border-radius: 14px;
+      padding: 12px 14px;
+      transition: all 180ms ease;
+    }
+    .apple-faq-card:hover {
+      border-color: var(--hairline-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .apple-like-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 160ms ease;
+      user-select: none;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--hairline);
+    }
+    .apple-like-btn:hover {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.05);
+    }
+    .apple-like-btn.liked {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    .apple-like-btn.liked svg {
+      fill: #ef4444;
+      stroke: #ef4444;
+    }
+    .apple-ask-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--surface);
+      color: var(--accent);
+      border: 1px solid var(--hairline);
+      cursor: pointer;
+      transition: all 160ms ease;
+    }
+    .apple-ask-btn:hover {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+    .apple-tab-btn {
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--radius-pill);
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 160ms ease;
+      white-space: nowrap;
+    }
+    .apple-tab-btn:hover {
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.04);
+    }
+    [data-theme="dark"] .apple-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .apple-tab-btn.active {
+      background: var(--text);
+      color: var(--surface);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 1. Header (Sticky, Translucent, 1px Hairline, 3 Quiet Buttons) -->
+  <!-- 1. Header (Sticky, Translucent, 1px Hairline, Quiet Controls) -->
   <header class="apple-header">
-    <div class="max-w-[1040px] w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
+    <div class="max-w-[1440px] w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
       
       <!-- Left: Logo Circle + Title + Green Status Dot -->
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-full bg-[var(--surface)] border border-[var(--hairline)] flex items-center justify-center text-[var(--text)] shrink-0 shadow-xs">
-          <!-- Graduation Cap Monoline Icon -->
+          <!-- Monoline Graduation Cap Icon -->
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
             <path d="M6 12v5c3 3 9 3 12 0v-5"/>
           </svg>
         </div>
         <div>
-          <h1 class="text-[17px] font-semibold text-[var(--text)] tracking-tight leading-snug">জাতীয় বিশ্ববিদ্যালয় এআই কাউন্সেলর</h1>
-          <p class="text-[12px] text-[var(--text-secondary)] flex items-center gap-1.5 mt-0.5">
+          <h1 class="text-[16px] sm:text-[17px] font-semibold text-[var(--text)] tracking-tight leading-snug">জাতীয় বিশ্ববিদ্যালয় এআই কাউন্সেলর</h1>
+          <p class="text-[11px] sm:text-[12px] text-[var(--text-secondary)] flex items-center gap-1.5 mt-0.5">
             <span class="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shrink-0"></span>
             <span>অফিসিয়াল একাডেমিক হেল্পডেস্ক (nu.ac.bd)</span>
           </p>
         </div>
       </div>
 
-      <!-- Right: Three Quiet Buttons + Theme Toggle -->
+      <!-- Right: Actions + Theme Toggle -->
       <div class="flex items-center gap-1 sm:gap-1.5">
-        <!-- Button 1: মূল মেনু (Clears screen & starts new chat) -->
+        <!-- Button: মূল মেনু -->
         <button onclick="goToMainMenu()" class="apple-quiet-btn" title="মূল মেনু - নতুন চ্যাট শুরু করুন">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
             <polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
-          <span class="hidden sm:inline">মূল মেনু</span>
+          <span class="hidden md:inline">মূল মেনু</span>
         </button>
 
-        <!-- Button 2: নতুন চ্যাট -->
+        <!-- Button: নতুন চ্যাট -->
         <button onclick="goToMainMenu()" class="apple-quiet-btn" title="নতুন চ্যাট সেশন">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          <span class="hidden sm:inline">নতুন চ্যাট</span>
+          <span class="hidden md:inline">নতুন চ্যাট</span>
         </button>
 
-        <!-- Button 3: স্টাফ পোর্টাল (পাসওয়ার্ড সুরক্ষিত) -->
+        <!-- Mobile FAQ Scroll Toggle -->
+        <button onclick="scrollToFaqForum()" class="apple-quiet-btn lg:hidden" title="প্রশ্নোত্তর ফোরামে যান">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>ফোরাম</span>
+        </button>
+
+        <!-- Button: স্টাফ পোর্টাল (পাসওয়ার্ড সুরক্ষিত) -->
         <button onclick="openStaffPortalAuth()" class="apple-quiet-btn" title="স্টাফ পোর্টাল (পাসওয়ার্ড সুরক্ষিত)">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
@@ -411,251 +512,383 @@
     </div>
   </header>
 
-  <!-- 2. Main Content Area -->
-  <main class="flex-1 max-w-[1040px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-between">
+  <!-- 2. Main Dual-Column Content Layout (Desktop Grid 65% Chat : 35% FAQ Forum) -->
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-3 sm:px-6 py-5 sm:py-7 flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
     
-    <!-- State A: Welcome View (Apple Monochromatic 3x3 Grid) -->
-    <div id="welcome-view" class="space-y-6">
+    <!-- LEFT COLUMN: AI Chat Counselor & Interactive Menus (~65%) -->
+    <section class="w-full lg:w-[63%] xl:w-[65%] flex flex-col justify-between min-h-[calc(100vh-130px)]">
       
-      <!-- Section Title (Replaces dark-green banner completely) -->
-      <div class="text-left">
-        <h2 class="text-[26px] sm:text-[28px] font-bold text-[var(--text)] tracking-tight leading-snug">
-          মূল একাডেমিক সেবা ও পরীক্ষা মেনু
-        </h2>
-        <p class="text-[14px] sm:text-[15px] text-[var(--text-secondary)] mt-1 font-normal">
-          যেকোনো কার্ডে ক্লিক করে সরাসরি বিস্তারিত তথ্য জেনে নিন:
-        </p>
-      </div>
-
-      <!-- 3x3 Cards Grid (Desktop 3-col, Tablet 2-col, Mobile single-col) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+      <!-- State A: Welcome View (Apple Monochromatic 3x3 Grid) -->
+      <div id="welcome-view" class="space-y-5">
         
-        <!-- Card 1: Honours -->
-        <div onclick="handleExamCategoryClick('Honours')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-            </svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">অনার্স পরীক্ষা</div>
-            <div class="apple-card-sub">১ম, ২য়, ৩য়, ৪র্থ বর্ষ</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
+        <!-- Section Title -->
+        <div class="text-left">
+          <h2 class="text-[24px] sm:text-[27px] font-bold text-[var(--text)] tracking-tight leading-snug">
+            মূল একাডেমিক সেবা ও পরীক্ষা মেনু
+          </h2>
+          <p class="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5 font-normal">
+            যেকোনো কার্ডে ক্লিক করে সরাসরি বিস্তারিত তথ্য জেনে নিন:
+          </p>
         </div>
 
-        <!-- Card 2: Degree Pass -->
-        <div onclick="handleExamCategoryClick('Degree Pass')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-              <path d="M6 6h10"/>
-              <path d="M6 10h10"/>
+        <!-- 3x3 Cards Grid (Desktop 3-col, Tablet 2-col, Mobile single-col) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+          
+          <!-- Card 1: Honours -->
+          <div onclick="handleExamCategoryClick('Honours')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">অনার্স পরীক্ষা</div>
+              <div class="apple-card-sub">১ম, ২য়, ৩য়, ৪র্থ বর্ষ</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">ডিগ্রি পরীক্ষা</div>
-            <div class="apple-card-sub">১ম, ২য়, ৩য় বর্ষ</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
 
-        <!-- Card 3: Master's -->
-        <div onclick="handleExamCategoryClick('Master\'s')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          <!-- Card 2: Degree Pass -->
+          <div onclick="handleExamCategoryClick('Degree Pass')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                <path d="M6 6h10"/>
+                <path d="M6 10h10"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">ডিগ্রি পরীক্ষা</div>
+              <div class="apple-card-sub">১ম, ২য়, ৩য় বর্ষ</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">মাস্টার্স পরীক্ষা</div>
-            <div class="apple-card-sub">শেষ পর্ব ও প্রিলি</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
 
-        <!-- Card 4: Professional -->
-        <div onclick="handleExamCategoryClick('Professional')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
-              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              <path d="M10 12h4"/>
+          <!-- Card 3: Master's -->
+          <div onclick="handleExamCategoryClick('Master\'s')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">মাস্টার্স পরীক্ষা</div>
+              <div class="apple-card-sub">শেষ পর্ব ও প্রিলি</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">প্রফেশনাল পরীক্ষা</div>
-            <div class="apple-card-sub">১৮টি কোর্স ও সেমিস্টার</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
 
-        <!-- Card 5: Honours Admission -->
-        <div onclick="sendQuickQuestion('অনার্স ১ম বর্ষের ভর্তি বিজ্ঞপ্তি ও নিয়মাবলি')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-              <path d="M12 11h4"/>
-              <path d="M12 16h4"/>
-              <path d="M8 11h.01"/>
-              <path d="M8 16h.01"/>
+          <!-- Card 4: Professional -->
+          <div onclick="handleExamCategoryClick('Professional')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                <path d="M10 12h4"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">প্রফেশনাল পরীক্ষা</div>
+              <div class="apple-card-sub">১৮টি কোর্স ও সেমিস্টার</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">অনার্স ভর্তি তথ্য</div>
-            <div class="apple-card-sub">মেধা তালিকা ও সার্কুলার</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
 
-        <!-- Card 6: Routine -->
-        <div onclick="sendQuickQuestion('সর্বশেষ পরীক্ষার রুটিন ও নোটিশ')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-              <line x1="16" x2="16" y1="2" y2="6"/>
-              <line x1="8" x2="8" y1="2" y2="6"/>
-              <line x1="3" x2="21" y1="10" y2="10"/>
-              <path d="M8 14h.01"/>
-              <path d="M12 14h.01"/>
-              <path d="M16 14h.01"/>
+          <!-- Card 5: Honours Admission -->
+          <div onclick="sendQuickQuestion('অনার্স ১ম বর্ষের ভর্তি বিজ্ঞপ্তি ও নিয়মাবলি')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <path d="M12 11h4"/>
+                <path d="M12 16h4"/>
+                <path d="M8 11h.01"/>
+                <path d="M8 16h.01"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">অনার্স ভর্তি তথ্য</div>
+              <div class="apple-card-sub">মেধা তালিকা ও সার্কুলার</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">পরীক্ষার রুটিন</div>
-            <div class="apple-card-sub">সকল শিক্ষাবর্ষ</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
 
-        <!-- Card 7: Certificate -->
-        <div onclick="sendQuickQuestion('অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/>
-              <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
-              <path d="M15 8h-5"/>
-              <path d="M15 12h-5"/>
+          <!-- Card 6: Routine -->
+          <div onclick="sendQuickQuestion('সর্বশেষ পরীক্ষার রুটিন ও নোটিশ')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/>
+                <path d="M8 14h.01"/>
+                <path d="M12 14h.01"/>
+                <path d="M16 14h.01"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">পরীক্ষার রুটিন</div>
+              <div class="apple-card-sub">সকল শিক্ষাবর্ষ</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">সার্টিফিকেট উত্তোলন</div>
-            <div class="apple-card-sub">ফি ও উত্তোলনের নিয়ম</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
 
-        <!-- Card 8: EMS Form Fillup -->
-        <div onclick="sendQuickQuestion('ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m18 5-2.4 2.4"/>
-              <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-              <path d="m15 5 4 4"/>
+          <!-- Card 7: Certificate -->
+          <div onclick="sendQuickQuestion('অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/>
+                <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
+                <path d="M15 8h-5"/>
+                <path d="M15 12h-5"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">সার্টিফিকেট উত্তোলন</div>
+              <div class="apple-card-sub">ফি ও উত্তোলনের নিয়ম</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">ফরম পূরণ (EMS)</div>
-            <div class="apple-card-sub">সময়সীমা ও ফি জমা</div>
-          </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
 
-        <!-- Card 9: TC Transfer Certificate -->
-        <div onclick="sendQuickQuestion('কলেজ ছাড়পত্র (TC) নেওয়ার উপায় কি?')" class="apple-card">
-          <div class="apple-card-icon-wrap">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
-              <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
-              <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
-              <path d="M10 6h4"/>
-              <path d="M10 10h4"/>
-              <path d="M10 14h4"/>
-              <path d="M10 18h4"/>
+          <!-- Card 8: EMS Form Fillup -->
+          <div onclick="sendQuickQuestion('ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m18 5-2.4 2.4"/>
+                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                <path d="m15 5 4 4"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">ফরম পূরণ (EMS)</div>
+              <div class="apple-card-sub">সময়সীমা ও ফি জমা</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="apple-card-title">কলেজ টিসি (TC)</div>
-            <div class="apple-card-sub">অনলাইন ছাড়পত্র</div>
+
+          <!-- Card 9: TC Transfer Certificate -->
+          <div onclick="sendQuickQuestion('কলেজ ছাড়পত্র (TC) নেওয়ার উপায় কি?')" class="apple-card">
+            <div class="apple-card-icon-wrap">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+                <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+                <path d="M10 6h4"/>
+                <path d="M10 10h4"/>
+                <path d="M10 14h4"/>
+                <path d="M10 18h4"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="apple-card-title">কলেজ টিসি (TC)</div>
+              <div class="apple-card-sub">অনলাইন ছাড়পত্র</div>
+            </div>
+            <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
           </div>
-          <svg class="apple-card-chevron w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
+
         </div>
 
       </div>
 
-    </div>
-
-    <!-- State B: Active Conversation Flow (Scrollable messages area) -->
-    <div id="conversation-view" class="hidden flex-1 space-y-4 overflow-y-auto mb-4 pb-2">
-      <div id="messages-container" class="space-y-4">
-        <!-- Message bubbles appended here -->
+      <!-- State B: Active Conversation Flow (Scrollable messages area) -->
+      <div id="conversation-view" class="hidden flex-1 space-y-4 overflow-y-auto mb-4 pb-2 max-h-[580px] thin-scrollbar">
+        <div id="messages-container" class="space-y-4">
+          <!-- Message bubbles appended here -->
+        </div>
       </div>
-    </div>
 
-    <!-- Bottom Controls Wrapper -->
-    <div class="space-y-3 pt-6 sm:pt-8">
+      <!-- Bottom Controls Wrapper -->
+      <div class="space-y-3 pt-5 sm:pt-6">
+        
+        <!-- Category Chips Row (Monochromatic Pills, horizontally scrollable) -->
+        <div class="relative">
+          <div id="chips-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Floating Input Bar -->
+        <div class="apple-input-bar">
+          <input 
+            id="user-input" 
+            type="text" 
+            placeholder="আপনার প্রশ্নটি এখানে বাংলায় বা ইংরেজিতে লিখুন... (যেমন: অনার্স পরীক্ষার তথ্য)" 
+            class="flex-1 bg-transparent text-[14px] sm:text-[15px] text-[var(--text)] focus:outline-none placeholder:text-[var(--text-secondary)]"
+            onkeydown="if(event.key === 'Enter') handleSend();"
+          />
+          <button 
+            id="send-btn" 
+            onclick="handleSend()" 
+            class="apple-send-btn"
+            title="প্রশ্ন পাঠান">
+            <span>পাঠান</span>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"/>
+              <polyline points="5 12 12 5 19 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Footer Disclaimer -->
+        <p class="text-[12px] text-center text-[var(--text-secondary)] mt-2">
+          জাতীয় বিশ্ববিদ্যালয় বাংলাদেশ (nu.ac.bd) দ্বারা সংরক্ষিত। কোনো ব্যক্তিগত পাসওয়ার্ড বা সংবেদনশীল তথ্য শেয়ার করবেন না!
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: Integrated Professional FAQ Forum (~35%) -->
+    <aside id="faq-forum-panel" class="w-full lg:w-[37%] xl:w-[35%] flex flex-col apple-faq-panel">
       
-      <!-- Category Chips Row (Monochromatic Pills, horizontally scrollable) -->
-      <div class="relative">
-        <div id="chips-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-          <!-- Populated by JS -->
+      <!-- Panel Header -->
+      <div class="flex items-center justify-between pb-3.5 border-b border-[var(--hairline)]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[var(--accent-light)] text-[var(--accent)] flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-[15px] font-bold text-[var(--text)] tracking-tight">প্রশ্নোত্তর ফোরাম (FAQ)</h3>
+            <p class="text-[11px] text-[var(--text-secondary)]">৬৭০+ অফিশিয়াল প্রশ্ন ও লাইভ লাইক রেটিং</p>
+          </div>
         </div>
-      </div>
 
-      <!-- Floating Input Bar -->
-      <div class="apple-input-bar">
-        <input 
-          id="user-input" 
-          type="text" 
-          placeholder="আপনার প্রশ্নটি এখানে বাংলায় বা ইংরেজিতে লিখুন... (যেমন: অনার্স পরীক্ষার তথ্য)" 
-          class="flex-1 bg-transparent text-[14px] sm:text-[15px] text-[var(--text)] focus:outline-none placeholder:text-[var(--text-secondary)]"
-          onkeydown="if(event.key === 'Enter') handleSend();"
-        />
-        <button 
-          id="send-btn" 
-          onclick="handleSend()" 
-          class="apple-send-btn"
-          title="প্রশ্ন পাঠান">
-          <span>পাঠান</span>
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="19" x2="12" y2="5"/>
-            <polyline points="5 12 12 5 19 12"/>
+        <button onclick="refreshFaqData()" class="apple-quiet-btn p-1.5 text-xs" title="তথ্য রিফ্রেশ করুন">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
           </svg>
         </button>
       </div>
 
-      <!-- Footer Disclaimer -->
-      <p class="text-[12px] text-center text-[var(--text-secondary)] mt-2">
-        জাতীয় বিশ্ববিদ্যালয় বাংলাদেশ (nu.ac.bd) দ্বারা সংরক্ষিত। কোনো ব্যক্তিগত পাসওয়ার্ড বা সংবেদনশীল তথ্য শেয়ার করবেন না!
-      </p>
+      <!-- Search & Filters Container -->
+      <div class="pt-3.5 space-y-2.5">
+        
+        <!-- Search Input -->
+        <div class="relative">
+          <input 
+            id="faq-search-input" 
+            type="text" 
+            placeholder="প্রশ্ন বা বিষয় খুঁজুন (বাংলা / English)..." 
+            oninput="handleFaqSearch(this.value)"
+            class="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl py-2 pl-9 pr-8 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)] transition"
+          />
+          <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <button id="faq-clear-search" onclick="clearFaqSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text)] text-xs p-1">
+            ✕
+          </button>
+        </div>
 
-    </div>
+        <!-- Category Dropdown Filter -->
+        <div class="relative">
+          <select 
+            id="faq-category-select" 
+            onchange="handleFaqCategoryChange(this.value)"
+            class="w-full bg-[var(--bg)] border border-[var(--hairline)] rounded-xl py-2 px-3 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)] transition cursor-pointer appearance-none pr-8">
+            <option value="all">সকল ক্যাটাগরি (All Categories)</option>
+          </select>
+          <svg class="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+
+        <!-- Sort Filter Pills -->
+        <div class="flex items-center gap-1.5 pt-0.5">
+          <button id="sort-tab-most_liked" onclick="setFaqSort('most_liked')" class="apple-tab-btn active">
+            🏆 জনপ্রিয় (Likes)
+          </button>
+          <button id="sort-tab-latest" onclick="setFaqSort('latest')" class="apple-tab-btn">
+            🕒 সর্বশেষ
+          </button>
+          <button id="sort-tab-all" onclick="setFaqSort('all')" class="apple-tab-btn">
+            📑 সকল
+          </button>
+        </div>
+
+      </div>
+
+      <!-- 🏆 Top 10 Most-Liked Section (Collapsible Banner) -->
+      <div id="top-faqs-wrapper" class="mt-4 pt-3 border-t border-[var(--hairline)]">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[12px] font-bold text-[var(--text)] flex items-center gap-1.5">
+            <span>🏆</span>
+            <span>শীর্ষ ১০টি জনপ্রিয় প্রশ্ন (Top 10)</span>
+          </span>
+          <button onclick="toggleTopFaqsFold()" id="top-faqs-fold-btn" class="text-[11px] text-[var(--accent)] hover:underline font-medium">
+            লুকান ▲
+          </button>
+        </div>
+
+        <div id="top-faqs-list" class="space-y-2 mb-3">
+          <!-- Top FAQs rendered here -->
+          <div class="text-xs text-[var(--text-secondary)] py-2 text-center">শীর্ষ প্রশ্নোত্তর লোড হচ্ছে...</div>
+        </div>
+      </div>
+
+      <!-- Main FAQ Stream Header -->
+      <div class="pt-3 border-t border-[var(--hairline)] flex items-center justify-between mb-2">
+        <span class="text-[12px] font-semibold text-[var(--text-secondary)]" id="faq-list-count-label">
+          প্রশ্নোত্তর তালিকা
+        </span>
+        <span class="text-[11px] text-[var(--text-secondary)]" id="faq-active-filter-badge">
+          সব ক্যাটাগরি
+        </span>
+      </div>
+
+      <!-- Main FAQ Scrollable List -->
+      <div id="faq-main-list" class="space-y-2.5 overflow-y-auto max-h-[480px] thin-scrollbar pr-1">
+        <!-- FAQ cards rendered here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="faq-empty-state" class="hidden py-8 text-center text-[var(--text-secondary)] text-xs space-y-2">
+        <div class="text-2xl">🔍</div>
+        <div class="font-medium">কোনো প্রশ্নোত্তর পাওয়া যায়নি।</div>
+        <button onclick="clearFaqFilters()" class="apple-quiet-btn mx-auto text-xs">ফিল্টার ক্লিয়ার করুন</button>
+      </div>
+
+      <!-- Pagination / Load More Button -->
+      <div id="faq-load-more-wrap" class="hidden pt-3 text-center border-t border-[var(--hairline)] mt-3">
+        <button onclick="loadMoreFaqs()" id="faq-load-more-btn" class="apple-quiet-btn text-xs font-semibold px-4 py-1.5">
+          আরো দেখুন (Load More)
+        </button>
+      </div>
+
+    </aside>
 
   </main>
 
   <script>
-    let sessionId = "student_sess_" + Math.random().toString(36).substring(2, 10);
+    // 1. Session & History Management
+    let sessionId = localStorage.getItem("nu_chat_session_id");
+    if (!sessionId) {
+      sessionId = "student_sess_" + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem("nu_chat_session_id", sessionId);
+    }
     let conversationHistory = [];
 
     // The 9 Category Chips
@@ -695,21 +928,26 @@
       const icon = document.getElementById("theme-icon");
       if (!icon) return;
       if (current === "dark") {
-        // Moon icon
         icon.innerHTML = `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
       } else {
-        // Sun icon
         icon.innerHTML = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`;
+      }
+    }
+
+    // Scroll smoothly to FAQ Forum on mobile devices
+    function scrollToFaqForum() {
+      const el = document.getElementById("faq-forum-panel");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
 
     // Goal 1: When press "মূল মেনু", clear screen and start a new chat
     function goToMainMenu() {
-      // 1. Reset Session & History
-      sessionId = "student_sess_" + Math.random().toString(36).substring(2, 10);
       conversationHistory = [];
+      sessionId = "student_sess_" + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem("nu_chat_session_id", sessionId);
 
-      // 2. Clear input
       const input = document.getElementById("user-input");
       if (input) {
         input.value = "";
@@ -718,20 +956,15 @@
       const btn = document.getElementById("send-btn");
       if (btn) btn.disabled = false;
 
-      // 3. Clear messages container
       const container = document.getElementById("messages-container");
       if (container) container.innerHTML = "";
 
-      // 4. Switch view back to welcome cards view
       const welcomeView = document.getElementById("welcome-view");
       const conversationView = document.getElementById("conversation-view");
       if (welcomeView) welcomeView.classList.remove("hidden");
       if (conversationView) conversationView.classList.add("hidden");
 
-      // 5. Restore Main Chips with "মূল মেনু" active
       renderChips(MAIN_CHIPS);
-
-      // 6. Smooth scroll to top
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -740,7 +973,7 @@
       const bar = document.getElementById("chips-bar");
       if (!bar) return;
 
-      bar.innerHTML = chipsList.map((chip, idx) => {
+      bar.innerHTML = chipsList.map((chip) => {
         const activeClass = chip.active ? "active" : "";
         let clickHandler = "";
         if (chip.action === "menu") {
@@ -826,7 +1059,7 @@
       if (!text) return "";
       let html = text;
 
-      // Parse Markdown Tables
+      // Tables
       html = html.replace(/((?:\|[^\n]+\|\r?\n)+)/g, function(tableBlock) {
         const lines = tableBlock.trim().split(/\r?\n/).filter(l => l.includes("|"));
         if (lines.length < 2) return tableBlock;
@@ -836,7 +1069,6 @@
         
         const isSeparator = /^\|(?:\s*:?-+:?\s*\|)+$/.test(lines[1].trim());
         const startIdx = isSeparator ? 2 : 1;
-        
         const parseRow = (line) => line.split("|").slice(1, -1).map(c => c.trim());
         
         const headers = parseRow(lines[0]);
@@ -860,7 +1092,6 @@
         .replace(/• (.*?)\n/g, '<li class="my-0.5 ml-2 list-disc">$1</li>')
         .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[var(--accent)] hover:underline font-semibold">$1</a>');
 
-      // Preserve HTML block tags and prevent unwanted <br> injection inside CSS grids/flex containers
       html = html.replace(/>\s*\n\s*</g, '><');
       html = html.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
       html = html.replace(/<br>\s*<(div|section|p|h[1-6]|table|tbody|thead|tr|td|th|button|ul|li)/gi, '<$1');
@@ -883,7 +1114,6 @@
         return;
       }
 
-      // Switch to conversation view
       showConversationView();
 
       input.value = "";
@@ -903,7 +1133,7 @@
       container.appendChild(userBubble);
       userBubble.scrollIntoView({ behavior: "smooth", block: "end" });
 
-      // Append Typing / Loading Indicator
+      // Append Typing Indicator
       const loadingBubble = document.createElement("div");
       loadingBubble.className = "flex items-start gap-3 loading-indicator";
       loadingBubble.innerHTML = `
@@ -952,32 +1182,18 @@
           </div>
         `;
         container.appendChild(botBubble);
-
-        // Update Contextual Suggested Chips if returned
-        if (data.suggested_chips && data.suggested_chips.length > 0) {
-          const chips = [
-            { label: "মূল মেনু", active: false, action: "menu" },
-            ...data.suggested_chips.map(c => ({
-              label: c,
-              active: false,
-              action: "query",
-              query: c
-            }))
-          ];
-          renderChips(chips);
-        }
+        botBubble.scrollIntoView({ behavior: "smooth", block: "end" });
 
       } catch (err) {
-        console.error("Chat error:", err);
         loadingBubble.remove();
         const errBubble = document.createElement("div");
         errBubble.className = "flex items-start gap-3";
         errBubble.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 text-xs font-bold">
+          <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 text-xs font-semibold">
             !
           </div>
-          <div class="assistant-bubble border-rose-200 text-rose-800 text-xs">
-            সার্ভারে সংযোগ করতে সমস্যা হয়েছে। অনুগ্রহ করে ইন্টারনেট সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।
+          <div class="assistant-bubble bg-rose-50 border-rose-200 text-rose-700 flex-1">
+            সার্ভারে সংযোগ করতে সমস্যা হয়েছে। অনুগ্রহ করে ইন্টারনেট ও সার্ভার চালু আছে কি না পরীক্ষা করুন।
           </div>
         `;
         container.appendChild(errBubble);
@@ -985,64 +1201,439 @@
         input.disabled = false;
         btn.disabled = false;
         input.focus();
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
       }
     }
 
     function escapeHTML(str) {
-      if (!str) return "";
-      return str.replace(/[&<>'"]/g, tag => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "'": "&#39;",
-        '"': "&quot;"
-      }[tag] || tag));
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
     }
 
-    // --- Staff Portal Password Authentication ---
-    function openStaffPortalAuth() {
-      const token = localStorage.getItem("nu_auth_token");
-      if (token) {
-        window.open("/admin", "_blank");
+    // =========================================================================
+    // FAQ FORUM LOGIC (SEARCH, CATEGORY, TOP 10, ATOMIC LIKES, CHAT INJECTION)
+    // =========================================================================
+    let faqState = {
+      category: "all",
+      search: "",
+      sort: "most_liked",
+      page: 1,
+      limit: 20,
+      total: 0,
+      items: [],
+      topItems: [],
+      topFolded: false
+    };
+    let faqSearchTimer = null;
+
+    async function initFaqForum() {
+      await Promise.all([
+        loadFaqCategories(),
+        loadTopLikedFaqs(),
+        loadFaqList(true)
+      ]);
+    }
+
+    async function refreshFaqData() {
+      await Promise.all([
+        loadTopLikedFaqs(),
+        loadFaqList(true)
+      ]);
+    }
+
+    async function loadFaqCategories() {
+      try {
+        const res = await fetch("/api/v1/faqs/categories");
+        if (!res.ok) return;
+        const data = await res.json();
+        const select = document.getElementById("faq-category-select");
+        if (!select) return;
+
+        let optionsHtml = `<option value="all">সকল ক্যাটাগরি (${data.categories.reduce((a, b) => a + b.count, 0)})</option>`;
+        data.categories.forEach(cat => {
+          optionsHtml += `<option value="${escapeHTML(cat.category)}">${escapeHTML(cat.category)} (${cat.count})</option>`;
+        });
+        select.innerHTML = optionsHtml;
+      } catch (e) {
+        console.error("Error loading categories:", e);
+      }
+    }
+
+    async function loadTopLikedFaqs() {
+      try {
+        const res = await fetch(`/api/v1/faqs/top-liked?limit=10&session_id=${sessionId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        faqState.topItems = data.items || [];
+        renderTopFaqs();
+      } catch (e) {
+        console.error("Error loading top FAQs:", e);
+      }
+    }
+
+    function renderTopFaqs() {
+      const container = document.getElementById("top-faqs-list");
+      if (!container) return;
+
+      if (!faqState.topItems.length) {
+        container.innerHTML = `<div class="text-xs text-[var(--text-secondary)] py-2 text-center">কোনো তথ্য পাওয়া যায়নি।</div>`;
+        return;
+      }
+
+      const medalMap = ["🥇", "🥈", "🥉", "#4", "#5", "#6", "#7", "#8", "#9", "#10"];
+
+      container.innerHTML = faqState.topItems.map((item, idx) => {
+        const medal = medalMap[idx] || `#${idx + 1}`;
+        const isLiked = item.has_liked;
+        const likesCount = item.likes_count || 0;
+
+        return `
+          <div class="apple-faq-card" id="top-faq-card-${item.id}">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-start gap-1.5 flex-1 min-w-0">
+                <span class="text-xs font-bold shrink-0 mt-0.5 text-[var(--text-secondary)]">${medal}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13px] font-semibold text-[var(--text)] leading-snug cursor-pointer hover:text-[var(--accent)]" onclick="toggleFaqExpand('top-${item.id}')">
+                    ${escapeHTML(item.question)}
+                  </div>
+                  <div class="text-[11px] text-[var(--accent)] font-medium mt-0.5">
+                    ${escapeHTML(item.category || "General")}
+                  </div>
+                </div>
+              </div>
+              <button 
+                onclick="handleFaqLikeClick(${item.id})" 
+                class="apple-like-btn ${isLiked ? 'liked' : ''} shrink-0" 
+                id="like-btn-top-${item.id}"
+                title="লাইক বা পছন্দ দিন">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+                <span class="like-counter-${item.id}">${likesCount}</span>
+              </button>
+            </div>
+
+            <!-- Expandable Answer Body -->
+            <div id="faq-ans-top-${item.id}" class="hidden mt-2 pt-2 border-t border-[var(--hairline)] text-xs text-[var(--text)] leading-relaxed">
+              <div class="whitespace-pre-line">${escapeHTML(item.answer)}</div>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button onclick="askAiAboutFaq('${escapeHTML(item.question).replace(/'/g, "\\'")}')" class="apple-ask-btn">
+                  <span>🤖 এআই-কে জিজ্ঞেস করুন</span>
+                </button>
+                <button onclick="toggleFaqExpand('top-${item.id}')" class="text-[11px] text-[var(--text-secondary)] hover:underline">
+                  সংক্ষেপ করুন ▲
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleTopFaqsFold() {
+      const list = document.getElementById("top-faqs-list");
+      const btn = document.getElementById("top-faqs-fold-btn");
+      if (!list || !btn) return;
+      faqState.topFolded = !faqState.topFolded;
+      if (faqState.topFolded) {
+        list.classList.add("hidden");
+        btn.innerText = "দেখান ▼";
       } else {
-        const modal = document.getElementById("staff-auth-modal");
-        if (modal) {
-          modal.classList.remove("hidden");
-          const errBox = document.getElementById("staff-auth-error");
-          if (errBox) errBox.classList.add("hidden");
-          const uInput = document.getElementById("staff-auth-username");
-          if (uInput) setTimeout(() => uInput.focus(), 100);
+        list.classList.remove("hidden");
+        btn.innerText = "লুকান ▲";
+      }
+    }
+
+    async function loadFaqList(reset = false) {
+      if (reset) {
+        faqState.page = 1;
+        faqState.items = [];
+      }
+
+      const params = new URLSearchParams({
+        page: faqState.page.toString(),
+        limit: faqState.limit.toString(),
+        sort: faqState.sort,
+        session_id: sessionId
+      });
+      if (faqState.category && faqState.category !== "all") {
+        params.set("category", faqState.category);
+      }
+      if (faqState.search && faqState.search.trim()) {
+        params.set("search", faqState.search.trim());
+      }
+
+      try {
+        const res = await fetch(`/api/v1/faqs?${params.toString()}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        faqState.total = data.total || 0;
+        if (reset) {
+          faqState.items = data.items || [];
+        } else {
+          faqState.items = faqState.items.concat(data.items || []);
         }
+
+        renderFaqList();
+      } catch (e) {
+        console.error("Error loading FAQs:", e);
+      }
+    }
+
+    function renderFaqList() {
+      const list = document.getElementById("faq-main-list");
+      const empty = document.getElementById("faq-empty-state");
+      const loadMoreWrap = document.getElementById("faq-load-more-wrap");
+      const countLabel = document.getElementById("faq-list-count-label");
+      const filterBadge = document.getElementById("faq-active-filter-badge");
+
+      if (!list) return;
+
+      countLabel.innerText = `প্রশ্নোত্তর তালিকা (${faqState.items.length}/${faqState.total})`;
+      filterBadge.innerText = faqState.category === "all" ? "সব ক্যাটাগরি" : faqState.category;
+
+      if (!faqState.items.length) {
+        list.innerHTML = "";
+        empty.classList.remove("hidden");
+        loadMoreWrap.classList.add("hidden");
+        return;
+      }
+
+      empty.classList.add("hidden");
+
+      list.innerHTML = faqState.items.map(item => {
+        const isLiked = item.has_liked;
+        const likesCount = item.likes_count || 0;
+
+        return `
+          <div class="apple-faq-card" id="faq-card-${item.id}">
+            <div class="flex items-start justify-between gap-2 mb-1.5">
+              <span class="text-[11px] font-semibold text-[var(--accent)] bg-[var(--accent-light)] px-2 py-0.5 rounded-full truncate max-w-[70%]">
+                ${escapeHTML(item.category || "General")}
+              </span>
+              <button 
+                onclick="handleFaqLikeClick(${item.id})" 
+                class="apple-like-btn ${isLiked ? 'liked' : ''} shrink-0" 
+                id="like-btn-list-${item.id}"
+                title="লাইক বা পছন্দ দিন">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+                <span class="like-counter-${item.id}">${likesCount}</span>
+              </button>
+            </div>
+
+            <div class="text-[13px] font-semibold text-[var(--text)] leading-snug cursor-pointer hover:text-[var(--accent)]" onclick="toggleFaqExpand('list-${item.id}')">
+              ${escapeHTML(item.question)}
+            </div>
+
+            <!-- Answer Snippet -->
+            <div id="faq-snippet-list-${item.id}" class="text-xs text-[var(--text-secondary)] mt-1.5 leading-relaxed">
+              ${escapeHTML(item.answer.length > 100 ? item.answer.slice(0, 100) + "..." : item.answer)}
+              ${item.answer.length > 100 ? `<button onclick="toggleFaqExpand('list-${item.id}')" class="text-[var(--accent)] ml-1 font-medium hover:underline">বিস্তারিত পড়ুন ▼</button>` : ''}
+            </div>
+
+            <!-- Full Expanded Answer -->
+            <div id="faq-ans-list-${item.id}" class="hidden mt-2 pt-2 border-t border-[var(--hairline)] text-xs text-[var(--text)] leading-relaxed">
+              <div class="whitespace-pre-line">${escapeHTML(item.answer)}</div>
+              <div class="mt-2.5 flex items-center justify-between">
+                <button onclick="askAiAboutFaq('${escapeHTML(item.question).replace(/'/g, "\\'")}')" class="apple-ask-btn">
+                  <span>🤖 এআই-কে জিজ্ঞেস করুন</span>
+                </button>
+                <button onclick="toggleFaqExpand('list-${item.id}')" class="text-[11px] text-[var(--text-secondary)] hover:underline">
+                  সংক্ষেপ করুন ▲
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      if (faqState.items.length < faqState.total) {
+        loadMoreWrap.classList.remove("hidden");
+      } else {
+        loadMoreWrap.classList.add("hidden");
+      }
+    }
+
+    function toggleFaqExpand(suffix) {
+      const fullAns = document.getElementById(`faq-ans-${suffix}`);
+      const snippet = document.getElementById(`faq-snippet-${suffix}`);
+      if (!fullAns) return;
+
+      const isHidden = fullAns.classList.contains("hidden");
+      if (isHidden) {
+        fullAns.classList.remove("hidden");
+        if (snippet) snippet.classList.add("hidden");
+      } else {
+        fullAns.classList.add("hidden");
+        if (snippet) snippet.classList.remove("hidden");
+      }
+    }
+
+    async function handleFaqLikeClick(faqId) {
+      try {
+        const res = await fetch(`/api/v1/faqs/${faqId}/like`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Update all counters in DOM with this faqId
+        const counters = document.querySelectorAll(`.like-counter-${faqId}`);
+        counters.forEach(c => {
+          c.innerText = data.likes_count;
+        });
+
+        // Update button active state in Top 10 and Main list
+        const topBtn = document.getElementById(`like-btn-top-${faqId}`);
+        const listBtn = document.getElementById(`like-btn-list-${faqId}`);
+
+        [topBtn, listBtn].forEach(b => {
+          if (!b) return;
+          if (data.has_liked) {
+            b.classList.add("liked");
+            b.querySelector("svg").setAttribute("fill", "currentColor");
+          } else {
+            b.classList.remove("liked");
+            b.querySelector("svg").setAttribute("fill", "none");
+          }
+        });
+
+        // Update local item references
+        const localItem = faqState.items.find(i => i.id === faqId);
+        if (localItem) {
+          localItem.likes_count = data.likes_count;
+          localItem.has_liked = data.has_liked;
+        }
+        const topItem = faqState.topItems.find(i => i.id === faqId);
+        if (topItem) {
+          topItem.likes_count = data.likes_count;
+          topItem.has_liked = data.has_liked;
+        }
+
+      } catch (e) {
+        console.error("Error toggling like:", e);
+      }
+    }
+
+    function askAiAboutFaq(questionText) {
+      // 1. Fill chat input and send
+      const input = document.getElementById("user-input");
+      if (input) {
+        input.value = questionText;
+      }
+      handleSend();
+
+      // 2. On mobile, scroll up to conversation
+      if (window.innerWidth < 1024) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function handleFaqSearch(val) {
+      clearTimeout(faqSearchTimer);
+      faqState.search = val;
+      const clearBtn = document.getElementById("faq-clear-search");
+      if (clearBtn) {
+        if (val.trim()) {
+          clearBtn.classList.remove("hidden");
+        } else {
+          clearBtn.classList.add("hidden");
+        }
+      }
+
+      faqSearchTimer = setTimeout(() => {
+        loadFaqList(true);
+      }, 250);
+    }
+
+    function clearFaqSearch() {
+      const input = document.getElementById("faq-search-input");
+      if (input) input.value = "";
+      faqState.search = "";
+      document.getElementById("faq-clear-search").classList.add("hidden");
+      loadFaqList(true);
+    }
+
+    function handleFaqCategoryChange(cat) {
+      faqState.category = cat;
+      loadFaqList(true);
+    }
+
+    function setFaqSort(mode) {
+      faqState.sort = mode;
+      ["most_liked", "latest", "all"].forEach(m => {
+        const tab = document.getElementById(`sort-tab-${m}`);
+        if (!tab) return;
+        if (m === mode) {
+          tab.classList.add("active");
+        } else {
+          tab.classList.remove("active");
+        }
+      });
+      loadFaqList(true);
+    }
+
+    function clearFaqFilters() {
+      faqState.category = "all";
+      faqState.search = "";
+      const select = document.getElementById("faq-category-select");
+      if (select) select.value = "all";
+      clearFaqSearch();
+    }
+
+    function loadMoreFaqs() {
+      faqState.page += 1;
+      loadFaqList(false);
+    }
+
+    // =========================================================================
+    // STAFF PORTAL AUTH LOGIC
+    // =========================================================================
+    function openStaffPortalAuth() {
+      const modal = document.getElementById("staff-auth-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        const uInput = document.getElementById("staff-auth-username");
+        if (uInput) uInput.focus();
       }
     }
 
     function closeStaffPortalAuth() {
       const modal = document.getElementById("staff-auth-modal");
       if (modal) modal.classList.add("hidden");
+      const errBox = document.getElementById("staff-auth-error");
+      if (errBox) errBox.classList.add("hidden");
     }
 
     function toggleStaffPasswordVisibility() {
-      const pEl = document.getElementById("staff-auth-password");
-      if (pEl) {
-        pEl.type = pEl.type === "password" ? "text" : "password";
+      const p = document.getElementById("staff-auth-password");
+      if (p) {
+        p.type = p.type === "password" ? "text" : "password";
       }
     }
 
     async function handleStaffAuthSubmit(e) {
       e.preventDefault();
-      const uEl = document.getElementById("staff-auth-username");
-      const pEl = document.getElementById("staff-auth-password");
+      const u = document.getElementById("staff-auth-username").value.trim();
+      const p = document.getElementById("staff-auth-password").value.trim();
       const errBox = document.getElementById("staff-auth-error");
       const btn = document.getElementById("btn-staff-auth-submit");
-
-      const u = uEl ? uEl.value.trim() : "";
-      const p = pEl ? pEl.value : "";
 
       if (errBox) errBox.classList.add("hidden");
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = `<span>পাসওয়ার্ড যাচাই করা হচ্ছে...</span>`;
+        btn.innerHTML = `<span>যাচাই করা হচ্ছে...</span>`;
       }
 
       try {
@@ -1079,6 +1670,7 @@
     // Initialize UI on load
     initTheme();
     renderChips(MAIN_CHIPS);
+    initFaqForum();
   </script>
 
   <!-- Staff Portal Password Login Modal (Apple Monochromatic Design) -->

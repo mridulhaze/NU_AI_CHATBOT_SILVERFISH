@@ -2,17 +2,27 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "manifest_version": "2.0.0",
   "standard": "Antigravity/MCP AI Knowledge Exchange Standard",
-  "last_updated_iso": "2026-10-18T17:48:14.630271+00:00",
+  "last_updated_iso": "2026-10-20T17:25:53.561729+00:00",
   "knowledge_base_name": "National University Bangladesh Official Knowledge Base",
   "root_domain": "https://www.nu.ac.bd/",
   "statistics": {
     "total_crawled_pages": 16,
     "total_enriched_pages": 16,
-    "total_enrichment_cycles": 26,
-    "total_synthesized_qa": 42
+    "total_enrichment_cycles": 27,
+    "total_synthesized_qa": 43
   },
   "inter_agent_instructions": "Any secondary AI agent (Claude, Codex, Antigravity, or external RAG) should load knowledge_updates.jsonl or query the enrichment_mcp server tool 'get_recent_knowledge_updates' to synchronize new academic circulars, exam routines, and admission notices.",
   "recent_enrichments": [
+    {
+      "id": 27,
+      "url": "https://www.nu.ac.bd/notice-test.php",
+      "title": "Test Circular for 24/7 Enrichment",
+      "section": "ADMISSION",
+      "summary_bn": "ভর্তি পরীক্ষার টেস্ট সার্কুলার।",
+      "qa_count": 1,
+      "agent_name": "TestEnrichmentRunner",
+      "created_at": "2026-10-20 17:25:53"
+    },
     {
       "id": 26,
       "url": "https://www.nu.ac.bd/notice-test.php",
@@ -252,16 +262,6 @@
       "qa_count": 2,
       "agent_name": "GeminiAnalyzer (gemini-3.1-flash-lite)",
       "created_at": "2026-08-23 03:07:24"
-    },
-    {
-      "id": 2,
-      "url": "https://www.nu.ac.bd/notice-test.php",
-      "title": "Test Circular for 24/7 Enrichment",
-      "section": "ADMISSION",
-      "summary_bn": "ভর্তি পরীক্ষার টেস্ট সার্কুলার।",
-      "qa_count": 1,
-      "agent_name": "TestEnrichmentRunner",
-      "created_at": "2026-08-20 10:24:36"
     }
   ]
 }

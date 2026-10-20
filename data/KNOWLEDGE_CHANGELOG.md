@@ -1,10 +1,16 @@
 # 📜 National University AI Knowledge Changelog
-> **Last Synchronized (UTC):** `2026-10-18T17:48:14.630271+00:00`  
-> **Total Enriched Pages:** `16` | **Total QA Pairs:** `42`  
+> **Last Synchronized (UTC):** `2026-10-20T17:25:53.561729+00:00`  
+> **Total Enriched Pages:** `16` | **Total QA Pairs:** `43`  
 
 ---
 
 ## 🕒 Recent Autonomous Knowledge Updates
+
+### 📌 #27 - Test Circular for 24/7 Enrichment
+- **Section:** `ADMISSION` | **Date:** `2026-10-20 17:25:53`
+- **Source:** [https://www.nu.ac.bd/notice-test.php](https://www.nu.ac.bd/notice-test.php)
+- **Summary:** ভর্তি পরীক্ষার টেস্ট সার্কুলার।
+- **Synthesized QA:** `1` pairs | **Agent:** `TestEnrichmentRunner`
 
 ### 📌 #26 - Test Circular for 24/7 Enrichment
 - **Section:** `ADMISSION` | **Date:** `2026-10-18 17:48:14`
@@ -149,9 +155,3 @@
 - **Source:** [https://www.nu.ac.bd/uploads/2018/notice_2158_pub_date_20022020.zip](https://www.nu.ac.bd/uploads/2018/notice_2158_pub_date_20022020.zip)
 - **Summary:** জাতীয় বিশ্ববিদ্যালয়ের এই বিজ্ঞপ্তিতে ঢাকা মেট্রোপলিটন এলাকায় আয়োজিত একটি র‍্যালি বা শোভাযাত্রা সম্পর্কিত তথ্য প্রদান করা হয়েছে। এটি মূলত কলেজ সংশ্লিষ্ট একটি বিশেষ ইভেন্টের নোটিশ যা ১৭ মার্চ ২০২০ তারিখে প্রকাশিত হয়েছিল।
 - **Synthesized QA:** `2` pairs | **Agent:** `GeminiAnalyzer (gemini-3.1-flash-lite)`
-
-### 📌 #2 - Test Circular for 24/7 Enrichment
-- **Section:** `ADMISSION` | **Date:** `2026-08-20 10:24:36`
-- **Source:** [https://www.nu.ac.bd/notice-test.php](https://www.nu.ac.bd/notice-test.php)
-- **Summary:** ভর্তি পরীক্ষার টেস্ট সার্কুলার।
-- **Synthesized QA:** `1` pairs | **Agent:** `TestEnrichmentRunner`

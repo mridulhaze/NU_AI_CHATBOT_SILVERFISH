@@ -1,6 +1,6 @@
 """
 National University Bangladesh AI Assistant
-Simple Controller GUI (START / STOP / BROWSER)
+Intelligent Network Launcher & Port Controller
 """
 
 import os
@@ -14,7 +14,7 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 
-# Base directory
+# Base directory detection
 if getattr(sys, "frozen", False):
     BASE_DIR = Path(sys.executable).resolve().parent
 else:
@@ -23,12 +23,37 @@ else:
 if not (BASE_DIR / "main.py").exists():
     BASE_DIR = Path(os.getcwd())
 
-PORT = 8000
-HOST = "127.0.0.1"
+DEFAULT_PORT = 5005
+DEFAULT_HOST = "0.0.0.0"
+
+
+def detect_lan_ip() -> str:
+    """Detects primary local area network (LAN) IPv4 address."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # Does not send actual traffic; simply determines routing interface
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        if ip and not ip.startswith("127.") and ip != "0.0.0.0":
+            return ip
+    except Exception:
+        pass
+    finally:
+        s.close()
+
+    try:
+        hostname = socket.gethostname()
+        for addr in socket.gethostbyname_ex(hostname)[2]:
+            if not addr.startswith("127.") and not addr.startswith("169.254"):
+                return addr
+    except Exception:
+        pass
+
+    return "127.0.0.1"
 
 
 def get_python_exe():
-    """Finds the virtual environment Python interpreter."""
+    """Finds the Python interpreter in virtual environment or fallback."""
     candidates = [
         BASE_DIR / ".venv" / "Scripts" / "python.exe",
         BASE_DIR / "venv" / "Scripts" / "python.exe",
@@ -45,13 +70,23 @@ def get_python_exe():
     return "python"
 
 
-def is_port_in_use(port=PORT):
+def is_port_in_use(port: int, host: str = "127.0.0.1") -> bool:
+    """Checks whether a TCP port is currently open and bound."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(0.4)
-        return s.connect_ex((HOST, port)) == 0
+        s.settimeout(0.3)
+        return s.connect_ex((host, int(port))) == 0
 
 
-def kill_port(port=PORT):
+def find_first_free_port(start_port: int = DEFAULT_PORT, max_tries: int = 50) -> int:
+    """Finds the next available port starting from start_port."""
+    for p in range(start_port, start_port + max_tries):
+        if not is_port_in_use(p):
+            return p
+    return start_port
+
+
+def kill_process_on_port(port: int):
+    """Terminates processes listening on the given port on Windows."""
     if sys.platform == "win32":
         try:
             output = subprocess.check_output(f"netstat -ano | findstr :{port}", shell=True, text=True)
@@ -67,17 +102,21 @@ def kill_port(port=PORT):
             pass
 
 
-class SimpleServiceUI:
-    def __init__(self, root):
+class NetworkLauncherApp:
+    def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("NU AI Assistant — Simple Controller")
-        self.root.geometry("680x520")
-        self.root.minsize(580, 440)
-        self.root.configure(bg="#0f172a")
+        self.root.title("NU AI Assistant — Intelligent Network Launcher")
+        self.root.geometry("740x650")
+        self.root.minsize(660, 520)
+        self.root.configure(bg="#0b1120")
 
+        self.lan_ip = detect_lan_ip()
+        self.current_port = DEFAULT_PORT
         self.server_proc = None
         self.is_running = False
         self.python_exe = get_python_exe()
+
+        self.auto_fallback_var = tk.BooleanVar(value=True)
 
         self.setup_ui()
         self.check_initial_state()
@@ -85,145 +124,331 @@ class SimpleServiceUI:
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def setup_ui(self):
-        # 1. Header Frame
-        hdr = tk.Frame(self.root, bg="#1e293b", padx=16, pady=12)
+        # 1. Header Frame (Aristocratic Navy & Emerald accent)
+        hdr = tk.Frame(self.root, bg="#1e293b", padx=16, pady=12, bd=1, relief="solid")
         hdr.pack(fill="x", padx=12, pady=(12, 6))
 
+        title_row = tk.Frame(hdr, bg="#1e293b")
+        title_row.pack(fill="x")
+
         title = tk.Label(
-            hdr,
-            text="🎓 National University AI Chatbot",
-            font=("Segoe UI", 14, "bold"),
+            title_row,
+            text="🎓 National University AI Assistant",
+            font=("Segoe UI", 15, "bold"),
             bg="#1e293b",
             fg="#10b981",
         )
-        title.pack(anchor="w")
+        title.pack(side="left")
+
+        version_badge = tk.Label(
+            title_row,
+            text="PRO v2.5",
+            font=("Segoe UI", 8, "bold"),
+            bg="#059669",
+            fg="white",
+            padx=6,
+            pady=2,
+        )
+        version_badge.pack(side="right")
 
         subtitle = tk.Label(
             hdr,
-            text="One-Click Service Controller (Start, Stop & Launch Browser)",
+            text="Intelligent Network Launcher • Multi-Device LAN Distribution • Live Port Manager",
             font=("Segoe UI", 9),
             bg="#1e293b",
             fg="#94a3b8",
         )
-        subtitle.pack(anchor="w", pady=(2, 0))
+        subtitle.pack(anchor="w", pady=(3, 0))
 
-        # 2. Status Banner
+        # 2. Network & Port Configuration Frame
+        cfg_frame = tk.LabelFrame(
+            self.root,
+            text="  🌐 Network & Port Management  ",
+            font=("Segoe UI", 9, "bold"),
+            bg="#0f172a",
+            fg="#38bdf8",
+            bd=1,
+            relief="solid",
+            padx=12,
+            pady=8,
+        )
+        cfg_frame.pack(fill="x", padx=12, pady=4)
+
+        # Row 1: LAN IP info & Port Input
+        row1 = tk.Frame(cfg_frame, bg="#0f172a")
+        row1.pack(fill="x", pady=2)
+
+        tk.Label(
+            row1,
+            text="Host IP:",
+            font=("Segoe UI", 9, "bold"),
+            bg="#0f172a",
+            fg="#cbd5e1",
+        ).pack(side="left")
+
+        self.lbl_detected_ip = tk.Label(
+            row1,
+            text=f"{self.lan_ip} (LAN) / 127.0.0.1 (Local)",
+            font=("Consolas", 10, "bold"),
+            bg="#1e293b",
+            fg="#38bdf8",
+            padx=8,
+            pady=2,
+            bd=1,
+            relief="groove",
+        )
+        self.lbl_detected_ip.pack(side="left", padx=(6, 16))
+
+        tk.Label(
+            row1,
+            text="Port:",
+            font=("Segoe UI", 9, "bold"),
+            bg="#0f172a",
+            fg="#cbd5e1",
+        ).pack(side="left")
+
+        self.port_entry = tk.Entry(
+            row1,
+            font=("Consolas", 10, "bold"),
+            width=8,
+            justify="center",
+            bg="#1e293b",
+            fg="#f8fafc",
+            insertbackground="white",
+            bd=1,
+            relief="solid",
+        )
+        self.port_entry.insert(0, str(self.current_port))
+        self.port_entry.pack(side="left", padx=6)
+
+        # Port control buttons
+        btn_apply_port = tk.Button(
+            row1,
+            text="Apply Port",
+            command=self.apply_port,
+            font=("Segoe UI", 8, "bold"),
+            bg="#2563eb",
+            fg="white",
+            relief="flat",
+            cursor="hand2",
+            padx=8,
+            pady=2,
+        )
+        btn_apply_port.pack(side="left", padx=4)
+
+        btn_free_port = tk.Button(
+            row1,
+            text="Find Free Port",
+            command=self.find_and_set_free_port,
+            font=("Segoe UI", 8),
+            bg="#334155",
+            fg="#cbd5e1",
+            relief="flat",
+            cursor="hand2",
+            padx=8,
+            pady=2,
+        )
+        btn_free_port.pack(side="left", padx=4)
+
+        btn_reset_port = tk.Button(
+            row1,
+            text="Reset (5005)",
+            command=self.reset_default_port,
+            font=("Segoe UI", 8),
+            bg="#1e293b",
+            fg="#94a3b8",
+            relief="flat",
+            cursor="hand2",
+            padx=6,
+            pady=2,
+        )
+        btn_reset_port.pack(side="left", padx=4)
+
+        # Row 2: Auto-fallback toggle & Live URLs
+        row2 = tk.Frame(cfg_frame, bg="#0f172a")
+        row2.pack(fill="x", pady=(6, 2))
+
+        cb_fallback = tk.Checkbutton(
+            row2,
+            text="Auto-Fallback to next free port if occupied",
+            variable=self.auto_fallback_var,
+            font=("Segoe UI", 8),
+            bg="#0f172a",
+            fg="#94a3b8",
+            selectcolor="#1e293b",
+            activebackground="#0f172a",
+            activeforeground="#f8fafc",
+        )
+        cb_fallback.pack(side="left")
+
+        # 3. Status Banner
         self.status_frame = tk.Frame(self.root, bg="#1e293b", bd=1, relief="solid")
         self.status_frame.pack(fill="x", padx=12, pady=6)
 
-        status_inner = tk.Frame(self.status_frame, bg="#1e293b", padx=14, pady=10)
+        status_inner = tk.Frame(self.status_frame, bg="#1e293b", padx=12, pady=8)
         status_inner.pack(fill="x")
 
         self.lbl_status = tk.Label(
             status_inner,
             text="🔴 STATUS: STOPPED (OFFLINE)",
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 11, "bold"),
             bg="#1e293b",
             fg="#ef4444",
         )
         self.lbl_status.pack(side="left")
 
-        self.lbl_url = tk.Label(
+        self.lbl_urls = tk.Label(
             status_inner,
-            text=f"http://{HOST}:{PORT}",
-            font=("Segoe UI", 10, "bold"),
+            text=f"Local: http://127.0.0.1:{self.current_port}  |  LAN: http://{self.lan_ip}:{self.current_port}",
+            font=("Consolas", 9),
             bg="#1e293b",
-            fg="#60a5fa",
+            fg="#38bdf8",
         )
-        self.lbl_url.pack(side="right")
+        self.lbl_urls.pack(side="right")
 
-        # 3. Main Action Buttons (START / STOP / BROWSER)
-        btn_bar = tk.Frame(self.root, bg="#0f172a")
-        btn_bar.pack(fill="x", padx=12, pady=8)
+        # 4. Main Action Command Bar
+        action_bar = tk.Frame(self.root, bg="#0b1120")
+        action_bar.pack(fill="x", padx=12, pady=6)
 
         # Big START Button
         self.btn_start = tk.Button(
-            btn_bar,
-            text="▶  START",
+            action_bar,
+            text="▶  START SERVER",
             command=self.start_program,
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 11, "bold"),
             bg="#059669",
             fg="white",
             activebackground="#047857",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
-            padx=20,
-            pady=8,
+            padx=16,
+            pady=7,
             bd=0,
         )
-        self.btn_start.pack(side="left", padx=(0, 10))
+        self.btn_start.pack(side="left", padx=(0, 8))
 
         # Big STOP Button
         self.btn_stop = tk.Button(
-            btn_bar,
+            action_bar,
             text="⏹  STOP",
             command=self.stop_program,
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 11, "bold"),
             bg="#dc2626",
             fg="white",
             activebackground="#b91c1c",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
-            padx=20,
-            pady=8,
+            padx=16,
+            pady=7,
             bd=0,
             state="disabled",
         )
-        self.btn_stop.pack(side="left", padx=(0, 10))
+        self.btn_stop.pack(side="left", padx=(0, 8))
 
-        # Open Web App Button
-        self.btn_open = tk.Button(
-            btn_bar,
-            text="🌐 Open Web App",
-            command=self.open_browser,
-            font=("Segoe UI", 10, "bold"),
-            bg="#2563eb",
-            fg="white",
-            activebackground="#1d4ed8",
-            activeforeground="white",
-            relief="flat",
-            cursor="hand2",
-            padx=14,
-            pady=8,
-            bd=0,
-        )
-        self.btn_open.pack(side="left", padx=(0, 8))
-
-        # Open Staff Portal Button
-        self.btn_admin = tk.Button(
-            btn_bar,
-            text="🔒 Staff Portal",
-            command=self.open_admin,
-            font=("Segoe UI", 10, "bold"),
+        # RESTART Button
+        self.btn_restart = tk.Button(
+            action_bar,
+            text="🔄 RESTART",
+            command=self.restart_program,
+            font=("Segoe UI", 9, "bold"),
             bg="#475569",
             fg="white",
             activebackground="#334155",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
-            padx=14,
-            pady=8,
+            padx=12,
+            pady=7,
             bd=0,
         )
-        self.btn_admin.pack(side="left")
+        self.btn_restart.pack(side="left", padx=(0, 8))
 
-        # 4. Terminal Log Output
-        log_header = tk.Frame(self.root, bg="#0f172a")
+        # Open Local Chat
+        self.btn_open_local = tk.Button(
+            action_bar,
+            text="🌐 Local Chat",
+            command=self.open_local_browser,
+            font=("Segoe UI", 9, "bold"),
+            bg="#2563eb",
+            fg="white",
+            activebackground="#1d4ed8",
+            activeforeground="white",
+            relief="flat",
+            cursor="hand2",
+            padx=12,
+            pady=7,
+            bd=0,
+        )
+        self.btn_open_local.pack(side="left", padx=(0, 6))
+
+        # Open LAN Chat
+        self.btn_open_lan = tk.Button(
+            action_bar,
+            text="📱 LAN Chat",
+            command=self.open_lan_browser,
+            font=("Segoe UI", 9, "bold"),
+            bg="#0891b2",
+            fg="white",
+            activebackground="#0e7490",
+            activeforeground="white",
+            relief="flat",
+            cursor="hand2",
+            padx=12,
+            pady=7,
+            bd=0,
+        )
+        self.btn_open_lan.pack(side="left", padx=(0, 6))
+
+        # Staff Portal
+        self.btn_admin = tk.Button(
+            action_bar,
+            text="🔒 Staff Portal",
+            command=self.open_admin,
+            font=("Segoe UI", 9, "bold"),
+            bg="#334155",
+            fg="white",
+            activebackground="#1e293b",
+            activeforeground="white",
+            relief="flat",
+            cursor="hand2",
+            padx=12,
+            pady=7,
+            bd=0,
+        )
+        self.btn_admin.pack(side="left", padx=(0, 6))
+
+        # Copy URLs button
+        btn_copy = tk.Button(
+            action_bar,
+            text="📋 Copy Link",
+            command=self.copy_lan_url,
+            font=("Segoe UI", 8),
+            bg="#1e293b",
+            fg="#94a3b8",
+            relief="flat",
+            cursor="hand2",
+            padx=8,
+            pady=7,
+        )
+        btn_copy.pack(side="left")
+
+        # 5. Terminal Logs Header & Body
+        log_header = tk.Frame(self.root, bg="#0b1120")
         log_header.pack(fill="x", padx=12, pady=(8, 4))
 
         tk.Label(
             log_header,
-            text="Terminal & Server Logs:",
+            text="Live Service & Terminal Logs:",
             font=("Segoe UI", 9, "bold"),
-            bg="#0f172a",
+            bg="#0b1120",
             fg="#94a3b8",
         ).pack(side="left")
 
         tk.Button(
             log_header,
-            text="Clear Logs",
+            text="Clear",
             command=self.clear_logs,
             font=("Segoe UI", 8),
             bg="#1e293b",
@@ -246,11 +471,13 @@ class SimpleServiceUI:
         )
         self.log_text.pack(fill="both", expand=True, padx=12, pady=(0, 12))
 
-        self.log("Controller UI initialized.")
+        self.log("Intelligent Network Launcher initialized.")
         self.log(f"Project Base: {BASE_DIR}")
-        self.log(f"Python: {self.python_exe}")
+        self.log(f"Detected LAN IPv4: {self.lan_ip}")
+        self.log(f"Default Server Port: {self.current_port}")
+        self.log(f"Python Runtime: {self.python_exe}")
 
-    def log(self, msg):
+    def log(self, msg: str):
         ts = time.strftime("%H:%M:%S")
         self.log_text.insert("end", f"[{ts}] {msg}\n")
         self.log_text.see("end")
@@ -258,33 +485,98 @@ class SimpleServiceUI:
     def clear_logs(self):
         self.log_text.delete("1.0", "end")
 
+    def update_url_labels(self):
+        self.lbl_urls.config(
+            text=f"Local: http://127.0.0.1:{self.current_port}  |  LAN: http://{self.lan_ip}:{self.current_port}"
+        )
+
+    def apply_port(self):
+        if self.is_running:
+            messagebox.showwarning("Server Running", "Please stop the server before switching ports.")
+            return
+
+        raw = self.port_entry.get().strip()
+        try:
+            val = int(raw)
+            if not (1024 <= val <= 65535):
+                raise ValueError("Port must be between 1024 and 65535.")
+        except Exception as e:
+            messagebox.showerror("Invalid Port", f"Invalid port number: {e}")
+            return
+
+        self.current_port = val
+        self.update_url_labels()
+        self.log(f"Configured port set to {self.current_port}")
+        if is_port_in_use(self.current_port):
+            self.log(f"⚠️ Warning: Port {self.current_port} is currently IN USE by another process.")
+        else:
+            self.log(f"✓ Port {self.current_port} is verified free.")
+
+    def find_and_set_free_port(self):
+        free_p = find_first_free_port(start_port=self.current_port)
+        self.current_port = free_p
+        self.port_entry.delete(0, "end")
+        self.port_entry.insert(0, str(free_p))
+        self.update_url_labels()
+        self.log(f"✓ Found free port: {free_p}")
+
+    def reset_default_port(self):
+        self.current_port = DEFAULT_PORT
+        self.port_entry.delete(0, "end")
+        self.port_entry.insert(0, str(DEFAULT_PORT))
+        self.update_url_labels()
+        self.log(f"Reset port to default: {DEFAULT_PORT}")
+
     def check_initial_state(self):
-        if is_port_in_use(PORT):
+        if is_port_in_use(self.current_port):
             self.set_running_state(True)
-            self.log(f"Detected service already active on port {PORT}.")
+            self.log(f"Detected service already active on port {self.current_port}.")
         else:
             self.set_running_state(False)
 
-    def set_running_state(self, running):
+    def set_running_state(self, running: bool):
         self.is_running = running
         if running:
-            self.lbl_status.config(text="🟢 STATUS: RUNNING (ONLINE)", fg="#10b981")
+            self.lbl_status.config(text=f"🟢 STATUS: ONLINE (Port {self.current_port})", fg="#10b981")
             self.btn_start.config(state="disabled")
             self.btn_stop.config(state="normal")
+            self.btn_restart.config(state="normal")
+            self.port_entry.config(state="disabled")
         else:
             self.lbl_status.config(text="🔴 STATUS: STOPPED (OFFLINE)", fg="#ef4444")
             self.btn_start.config(state="normal")
             self.btn_stop.config(state="disabled")
+            self.btn_restart.config(state="disabled")
+            self.port_entry.config(state="normal")
 
     def start_program(self):
-        if is_port_in_use(PORT):
-            if messagebox.askyesno("Port Busy", f"Port {PORT} is already in use.\nTerminate existing process and restart?"):
-                kill_port(PORT)
-                time.sleep(1)
-            else:
-                return
+        target_port = self.current_port
+        try:
+            target_port = int(self.port_entry.get().strip())
+            self.current_port = target_port
+        except Exception:
+            pass
 
-        self.log(f"Starting National University AI Program on port {PORT}...")
+        if is_port_in_use(target_port):
+            if self.auto_fallback_var.get():
+                free_port = find_first_free_port(target_port + 1)
+                self.log(f"⚠️ Port {target_port} is busy. Auto-falling back to port {free_port}...")
+                self.current_port = free_port
+                self.port_entry.delete(0, "end")
+                self.port_entry.insert(0, str(free_port))
+                self.update_url_labels()
+                target_port = free_port
+            else:
+                if messagebox.askyesno(
+                    "Port Busy",
+                    f"Port {target_port} is already in use.\nTerminate the occupying process and restart?",
+                ):
+                    kill_process_on_port(target_port)
+                    time.sleep(1)
+                else:
+                    return
+
+        self.log(f"Starting NU AI Assistant on 0.0.0.0:{target_port}...")
         self.lbl_status.config(text="🟡 STATUS: STARTING...", fg="#facc15")
 
         main_py = BASE_DIR / "main.py"
@@ -293,15 +585,15 @@ class SimpleServiceUI:
             self.set_running_state(False)
             return
 
-        cmd = [self.python_exe, str(main_py), "--port", str(PORT)]
+        cmd = [self.python_exe, str(main_py), "--host", DEFAULT_HOST, "--port", str(target_port)]
         try:
             creation_flags = 0
             if sys.platform == "win32":
                 creation_flags = subprocess.CREATE_NO_WINDOW
 
             env = os.environ.copy()
-            env["PORT"] = str(PORT)
-            env["HOST"] = HOST
+            env["PORT"] = str(target_port)
+            env["HOST"] = DEFAULT_HOST
 
             self.server_proc = subprocess.Popen(
                 cmd,
@@ -314,11 +606,8 @@ class SimpleServiceUI:
                 env=env,
             )
 
-            # Log reader thread
             threading.Thread(target=self._stream_logs, daemon=True).start()
-
-            # Startup monitor thread
-            threading.Thread(target=self._monitor_startup, daemon=True).start()
+            threading.Thread(target=self._monitor_startup, args=(target_port,), daemon=True).start()
 
         except Exception as e:
             self.log(f"Error starting process: {e}")
@@ -336,17 +625,19 @@ class SimpleServiceUI:
         except Exception:
             pass
 
-    def _monitor_startup(self):
-        for _ in range(25):
+    def _monitor_startup(self, port: int):
+        for _ in range(30):
             time.sleep(0.5)
-            if is_port_in_use(PORT):
+            if is_port_in_use(port):
                 self.root.after(0, lambda: self.set_running_state(True))
-                self.root.after(0, lambda: self.log("✓ Server is online and ready!"))
+                self.root.after(0, lambda: self.log("✓ Server is ONLINE and accepting connections!"))
+                self.root.after(0, lambda: self.log(f"  • Local: http://127.0.0.1:{port}"))
+                self.root.after(0, lambda: self.log(f"  • LAN (Mobile/Devices): http://{self.lan_ip}:{port}"))
                 return
-        self.root.after(0, lambda: self.log("⚠️ Startup timeout. Check logs above."))
+        self.root.after(0, lambda: self.log("⚠️ Startup timeout. Please inspect logs above."))
 
     def stop_program(self):
-        self.log("Stopping server program...")
+        self.log(f"Stopping server on port {self.current_port}...")
         if self.server_proc:
             try:
                 self.server_proc.terminate()
@@ -358,30 +649,48 @@ class SimpleServiceUI:
                     pass
             self.server_proc = None
 
-        kill_port(PORT)
+        kill_process_on_port(self.current_port)
         self.set_running_state(False)
-        self.log("✓ Program stopped and port 8000 released.")
+        self.log(f"✓ Server stopped. Port {self.current_port} released.")
 
-    def open_browser(self):
-        url = f"http://{HOST}:{PORT}"
-        self.log(f"Opening browser at: {url}")
+    def restart_program(self):
+        self.log("Restarting server...")
+        self.stop_program()
+        time.sleep(1)
+        self.start_program()
+
+    def open_local_browser(self):
+        url = f"http://127.0.0.1:{self.current_port}"
+        self.log(f"Opening browser (Local): {url}")
+        webbrowser.open(url)
+
+    def open_lan_browser(self):
+        url = f"http://{self.lan_ip}:{self.current_port}"
+        self.log(f"Opening browser (LAN): {url}")
         webbrowser.open(url)
 
     def open_admin(self):
-        url = f"http://{HOST}:{PORT}/admin"
-        self.log(f"Opening staff portal at: {url}")
+        url = f"http://127.0.0.1:{self.current_port}/admin"
+        self.log(f"Opening Staff Portal: {url}")
         webbrowser.open(url)
+
+    def copy_lan_url(self):
+        url = f"http://{self.lan_ip}:{self.current_port}"
+        self.root.clipboard_clear()
+        self.root.clipboard_append(url)
+        self.log(f"✓ Copied LAN URL to clipboard: {url}")
+        messagebox.showinfo("Copied", f"LAN URL copied to clipboard:\n{url}")
 
     def on_close(self):
         if self.is_running:
-            if messagebox.askyesno("Exit", "The program is running. Stop server before closing?"):
+            if messagebox.askyesno("Exit Confirmation", "The server is running. Stop server before closing?"):
                 self.stop_program()
         self.root.destroy()
 
 
 def main():
     root = tk.Tk()
-    app = SimpleServiceUI(root)
+    app = NetworkLauncherApp(root)
     root.mainloop()
 
 
