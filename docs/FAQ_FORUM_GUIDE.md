@@ -8,10 +8,19 @@ The Integrated Professional FAQ Forum is embedded directly into the right-side p
 
 ## 2. Layout & Design Language
 
-### 2.1 Two-Column Desktop Architecture
-- **Left Column (~65% width):** AI Counselor conversational assistant, 3x3 academic examination cards, category filter chips, and floating natural language input.
-- **Right Column (~35% width):** High-density, forum-style FAQ panel (`apple-faq-panel`).
-- **Responsive Mobile View:** Collapses into a stacked column with quick navigation buttons in the sticky header (`[ফোরাম]`) and smooth scrolling to the FAQ forum section.
+### 2.1 Dynamic Split Layout (70% : 30% Toggle)
+- **Mode A (Chat Focused — Default):**
+  - **AI Chat Section:** 70% width
+  - **FAQ Forum Panel:** 30% width
+  - Activated by clicking anywhere on the chat container, typing into the input bar, selecting menu cards, or clicking "🤖 এআই-কে জিজ্ঞেস করুন".
+- **Mode B (FAQ Focused — Expanded):**
+  - **FAQ Forum Panel:** 70% width
+  - **AI Chat Section:** 30% width
+  - Activated whenever a student clicks on **any FAQ question** (in either the Top 10 list or the main FAQ stream) or clicks the `[⤢ ৭০% ফোরাম]` button.
+  - In 70% mode, the FAQ cards automatically format into an expanded, readable 2-column grid.
+  - The Chat section gently adjusts to 30% width with a compact card layout and a quick `[💬 চ্যাট ফোকাস (৭০%)]` pill.
+- **Fluid Animation:** Controlled via GPU-accelerated cubic-bezier transitions (`transition: flex 380ms cubic-bezier(0.16, 1, 0.3, 1), width 380ms...`).
+- **Responsive Mobile View:** On viewports under `1024px`, the system smoothly stacks both panels and provides quick header jumping.
 
 ### 2.2 Design System & Monochromatic Tokens
 Following Apple's monochromatic design philosophy:
