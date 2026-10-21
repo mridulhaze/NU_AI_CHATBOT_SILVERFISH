@@ -1835,6 +1835,33 @@
       return html;
     }
 
+    // Toggle Exam Timeline On-Demand (Milestone 2)
+    function toggleExamTimeline(containerId, btn) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const isHidden = container.classList.contains("hidden");
+      if (isHidden) {
+        container.classList.remove("hidden");
+        if (btn) {
+          btn.setAttribute("aria-expanded", "true");
+          const label = btn.querySelector(".timeline-toggle-label");
+          const icon = btn.querySelector(".timeline-toggle-icon");
+          if (label) label.textContent = "📊 পরীক্ষার টাইমলাইন ও ধাপসমূহ লুকান";
+          if (icon) icon.textContent = "↑";
+        }
+      } else {
+        container.classList.add("hidden");
+        if (btn) {
+          btn.setAttribute("aria-expanded", "false");
+          const label = btn.querySelector(".timeline-toggle-label");
+          const icon = btn.querySelector(".timeline-toggle-icon");
+          if (label) label.textContent = "📊 পরীক্ষার টাইমলাইন ও ধাপসমূহ দেখুন";
+          if (icon) icon.textContent = "↓";
+        }
+      }
+    }
+    window.toggleExamTimeline = toggleExamTimeline;
+
     // Send Message Handler
     async function handleSend() {
       setSplitMode("chat");

@@ -1109,11 +1109,26 @@ def render_program_selection_cards(program_type: str) -> str:
     return wrapper.strip()
 
 
+def get_milestone_badge_class(status_type: str) -> str:
+    """Returns subtle muted Apple-style badge classes matching monochromatic theme."""
+    if status_type == "completed":
+        return "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/60"
+    if status_type == "published":
+        return "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60"
+    if status_type == "today":
+        return "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/60"
+    if status_type == "passed_unconfirmed":
+        return "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/60"
+    if status_type == "upcoming":
+        return "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200/60 dark:border-slate-700/60"
+    return "bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 border-slate-200/40 dark:border-slate-700/40"
+
+
 def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
     """
-    Renders an interactive, responsive horizontal milestone timeline with a central progress bar
-    matching the user-provided timeline template (media_1792588891660_fe7a1e9f.png).
-    Alternates milestones above and below the central progress track.
+    Renders an Apple-inspired horizontal milestone timeline with a slim progress bar track,
+    neat circular nodes (১ to ৬ or ✓), bold typography, minimalist dates, and subtle status badges.
+    Contains no boxy step cards or alternating connector sticks.
     """
     today_bd = get_bd_now().date()
 
@@ -1166,10 +1181,7 @@ def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
             "status": status_1,
             "type": type_1,
             "comp": comp_1,
-            "color": "#0284c7",
-            "border_color": "border-sky-300",
-            "badge_class": "bg-sky-50 text-sky-800 border-sky-200",
-            "pos": "top"
+            "badge_class": get_milestone_badge_class(type_1)
         },
         {
             "id": "2",
@@ -1179,10 +1191,7 @@ def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
             "status": status_2,
             "type": type_2,
             "comp": comp_2,
-            "color": "#6366f1",
-            "border_color": "border-indigo-300",
-            "badge_class": "bg-indigo-50 text-indigo-800 border-indigo-200",
-            "pos": "bottom"
+            "badge_class": get_milestone_badge_class(type_2)
         },
         {
             "id": "3",
@@ -1192,10 +1201,7 @@ def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
             "status": status_3,
             "type": type_3,
             "comp": comp_3,
-            "color": "#2563eb",
-            "border_color": "border-blue-300",
-            "badge_class": "bg-blue-50 text-blue-800 border-blue-200",
-            "pos": "top"
+            "badge_class": get_milestone_badge_class(type_3)
         },
         {
             "id": "4",
@@ -1205,10 +1211,7 @@ def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
             "status": status_4,
             "type": type_4,
             "comp": comp_4,
-            "color": "#0d9488",
-            "border_color": "border-teal-300",
-            "badge_class": "bg-teal-50 text-teal-800 border-teal-200",
-            "pos": "bottom"
+            "badge_class": get_milestone_badge_class(type_4)
         },
         {
             "id": "5",
@@ -1218,10 +1221,7 @@ def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
             "status": status_5,
             "type": type_5,
             "comp": comp_5,
-            "color": "#d97706",
-            "border_color": "border-amber-300",
-            "badge_class": "bg-amber-50 text-amber-800 border-amber-200",
-            "pos": "top"
+            "badge_class": get_milestone_badge_class(type_5)
         },
         {
             "id": "6",
@@ -1231,10 +1231,7 @@ def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
             "status": status_6,
             "type": type_6,
             "comp": comp_6,
-            "color": "#e11d48",
-            "border_color": "border-rose-300",
-            "badge_class": "bg-rose-50 text-rose-800 border-rose-200",
-            "pos": "bottom"
+            "badge_class": get_milestone_badge_class(type_6)
         }
     ]
 
@@ -1261,110 +1258,77 @@ def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
         progress_pct = 10
         track_fill_pct = 10
 
-    # Top Row Cards
-    top_cols = []
-    for m in milestones:
-        if m["pos"] == "top":
-            top_cols.append(f'''<div class="flex flex-col items-center text-center px-1">
-  <div class="w-full bg-white rounded-xl p-2 shadow-2xs border {m["border_color"]} hover:shadow-xs transition">
-    <div class="text-[12px] font-bold" style="color: {m["color"]};">{m["title"]}</div>
-    <div class="text-[11px] font-semibold text-slate-800 mt-0.5 truncate">{m["date"]}</div>
-    <div class="mt-1 flex items-center justify-center">
-      <span class="text-[9.5px] px-2 py-0.5 rounded-full font-semibold border {m["badge_class"]}">{m["status"]}</span>
-    </div>
-    <div class="text-[9.5px] text-slate-400 mt-1 truncate">{m["sub"]}</div>
-  </div>
-  <div class="w-0.5 h-3.5 bg-slate-300 mt-1"></div>
-</div>''')
-        else:
-            top_cols.append('''<div class="h-full flex items-end justify-center pb-2 opacity-30 text-xs text-slate-400">
-  <span>•</span>
-</div>''')
-    top_row_html = "".join(top_cols)
+    # In a 6-node grid, the first node center is at 8.33% and the last is at 91.67%.
+    # The total span between node 1 and node 6 is 83.34%.
+    effective_track_pct = round((track_fill_pct / 100.0) * 83.34, 1)
 
-    # Central Nodes
+    bn_numerals = ["১", "২", "৩", "৪", "৫", "৬"]
     node_cols = []
+    detail_cols = []
     for idx, m in enumerate(milestones):
-        is_active_pulse = (m["type"] == "today")
-        pulse_style = "animate-pulse ring-4 ring-sky-300" if is_active_pulse else ""
-        icon = "✓" if m["comp"] else str(idx + 1)
-        node_cols.append(f'''<div class="flex items-center justify-center">
-  <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-xs transition hover:scale-110 cursor-default {pulse_style}" 
-       style="background: {m["color"]}; border: 3px solid #ffffff;" 
-       title="{m["title"]}: {m["date"]} ({m["status"]})">
-    {icon}
-  </div>
-</div>''')
-    node_row_html = "".join(node_cols)
+        bn_num = bn_numerals[idx]
+        is_comp = m["comp"]
+        is_today = (m["type"] == "today")
+        icon = "✓" if is_comp else bn_num
 
-    # Bottom Row Cards
-    bottom_cols = []
-    for m in milestones:
-        if m["pos"] == "bottom":
-            bottom_cols.append(f'''<div class="flex flex-col items-center text-center px-1">
-  <div class="w-0.5 h-3.5 bg-slate-300 mb-1"></div>
-  <div class="w-full bg-white rounded-xl p-2 shadow-2xs border {m["border_color"]} hover:shadow-xs transition">
-    <div class="text-[12px] font-bold" style="color: {m["color"]};">{m["title"]}</div>
-    <div class="text-[11px] font-semibold text-slate-800 mt-0.5 truncate">{m["date"]}</div>
-    <div class="mt-1 flex items-center justify-center">
-      <span class="text-[9.5px] px-2 py-0.5 rounded-full font-semibold border {m["badge_class"]}">{m["status"]}</span>
-    </div>
-    <div class="text-[9.5px] text-slate-400 mt-1 truncate">{m["sub"]}</div>
-  </div>
-</div>''')
+        if is_comp:
+            node_style = "bg-emerald-600 text-white border-2 border-white dark:border-slate-800 shadow-2xs"
+        elif is_today:
+            node_style = "bg-amber-500 text-white ring-4 ring-amber-200 dark:ring-amber-900/60 animate-pulse border-2 border-white dark:border-slate-800 shadow-2xs"
+        elif m["type"] == "published":
+            node_style = "bg-blue-600 text-white border-2 border-white dark:border-slate-800 shadow-2xs"
+        elif m["type"] == "passed_unconfirmed":
+            node_style = "bg-rose-500 text-white border-2 border-white dark:border-slate-800 shadow-2xs"
+        elif m["type"] == "upcoming":
+            node_style = "bg-slate-700 dark:bg-slate-300 text-white dark:text-slate-900 border-2 border-white dark:border-slate-800 shadow-2xs"
         else:
-            bottom_cols.append('''<div class="h-full flex items-start justify-center pt-2 opacity-30 text-xs text-slate-400">
-  <span>•</span>
-</div>''')
-    bottom_row_html = "".join(bottom_cols)
+            node_style = "bg-slate-300 dark:bg-slate-600 text-slate-600 dark:text-slate-300 border-2 border-white dark:border-slate-800 shadow-2xs"
 
-    timeline_html = f'''<!-- Timeline Template with Progress Bar (At Top of Cards) -->
-<div class="bg-gradient-to-b from-slate-50 to-white border border-slate-200 rounded-2xl p-3.5 shadow-2xs">
-  <div class="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-200/70 flex-wrap gap-2">
-    <div class="flex items-center gap-2">
-      <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-xs font-bold">📈</span>
-      <div>
-        <h4 class="text-xs sm:text-sm font-bold text-slate-800 tracking-tight">পরীক্ষা মাইলস্টোন টাইমলাইন ও অগ্রগতি</h4>
-        <p class="text-[10px] text-slate-500">Timeline Template with Progress Bar</p>
-      </div>
-    </div>
-    <div class="flex items-center gap-1.5 text-xs font-semibold">
-      <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-        অগ্রগতি: {progress_pct}%
-      </span>
-      <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px]">
-        {to_bn_digits(completed_count)} / ৬ ধাপ সম্পন্ন
-      </span>
-    </div>
-  </div>
+        node_cols.append(
+            f'<div class="flex items-center justify-center">'
+            f'<div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition hover:scale-110 cursor-default {node_style}" title="{m["title"]}: {m["date"]} ({m["status"]})">{icon}</div>'
+            f'</div>'
+        )
 
-  <!-- Horizontal Scroll Container -->
-  <div class="overflow-x-auto thin-scrollbar pb-1 pt-1">
-    <div class="min-w-[680px] px-2 py-2">
-      <!-- TOP ROW CARDS (Odd Milestones) -->
-      <div class="grid grid-cols-6 gap-2 items-end min-h-[96px] mb-1">
-        {top_row_html}
-      </div>
+        detail_cols.append(
+            f'<div class="flex flex-col items-center text-center px-1">'
+            f'<div class="text-[12px] sm:text-[13px] font-bold text-slate-900 dark:text-white tracking-tight leading-snug">{m["title"]}</div>'
+            f'<div class="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1 truncate max-w-full">{m["date"]}</div>'
+            f'<div class="mt-1.5"><span class="inline-block text-[9.5px] px-2 py-0.5 rounded-full font-medium border {m["badge_class"]}">{m["status"]}</span></div>'
+            f'<div class="text-[9.5px] text-slate-400 dark:text-slate-500 mt-1 truncate max-w-full">{m["sub"]}</div>'
+            f'</div>'
+        )
 
-      <!-- CENTRAL PROGRESS TRACK -->
-      <div class="relative py-2 flex items-center">
-        <!-- Background track -->
-        <div class="absolute left-6 right-6 h-2 bg-slate-200 rounded-full"></div>
-        <!-- Filled progress track -->
-        <div class="absolute left-6 h-2 bg-gradient-to-r from-sky-400 via-indigo-500 to-teal-500 rounded-full transition-all duration-500" style="width: {track_fill_pct}%;"></div>
-        <!-- 6 Nodes Grid -->
-        <div class="relative w-full grid grid-cols-6 z-10">
-          {node_row_html}
-        </div>
-      </div>
+    node_row_html = "".join(node_cols)
+    detail_cols_html = "".join(detail_cols)
 
-      <!-- BOTTOM ROW CARDS (Even Milestones) -->
-      <div class="grid grid-cols-6 gap-2 items-start min-h-[96px] mt-1">
-        {bottom_row_html}
-      </div>
-    </div>
-  </div>
-</div>'''
+    timeline_html = (
+        f'<div class="bg-[var(--surface)] dark:bg-[#2C2C2E] border border-slate-200/80 dark:border-white/10 rounded-2xl p-4 shadow-2xs">'
+        f'<div class="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-200/60 dark:border-white/10 flex-wrap gap-2">'
+        f'<div class="flex items-center gap-2">'
+        f'<span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold">📈</span>'
+        f'<div>'
+        f'<h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight">পরীক্ষা মাইলস্টোন টাইমলাইন ও অগ্রগতি</h4>'
+        f'<p class="text-[10px] text-slate-500 dark:text-slate-400">একাডেমিক ক্যালেন্ডার ও ধাপভিত্তিক বিবরণ</p>'
+        f'</div>'
+        f'</div>'
+        f'<div class="flex items-center gap-1.5 text-xs font-semibold">'
+        f'<span class="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60">অগ্রগতি: {progress_pct}%</span>'
+        f'<span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700/60 text-[11px]">{to_bn_digits(completed_count)} / ৬ ধাপ সম্পন্ন</span>'
+        f'</div>'
+        f'</div>'
+        f'<div class="overflow-x-auto thin-scrollbar pb-1 pt-1">'
+        f'<div class="min-w-[620px] px-1 py-1">'
+        f'<div class="relative flex items-center mb-3">'
+        f'<div class="absolute left-[8.33%] right-[8.33%] h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full"></div>'
+        f'<div class="absolute left-[8.33%] h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 rounded-full transition-all duration-500" style="width: {effective_track_pct}%;"></div>'
+        f'<div class="relative w-full grid grid-cols-6 z-10">{node_row_html}</div>'
+        f'</div>'
+        f'<div class="grid grid-cols-6 gap-2 text-center">{detail_cols_html}</div>'
+        f'</div>'
+        f'</div>'
+        f'</div>'
+    )
     return timeline_html
 
 def format_exam_card_markdown(item: Dict[str, Any]) -> str:
@@ -1449,6 +1413,36 @@ def format_exam_card_markdown(item: Dict[str, Any]) -> str:
   <p class="text-xs text-amber-900 leading-relaxed">{remarks}</p>
 </div>'''
 
+    # Deterministic timeline ID for collapsible container
+    rec_id = str(item.get("id") or "")
+    prog_id = str(item.get("program_type") or "")
+    year_id = str(item.get("examination_year") or "")
+    part_id = str(item.get("part") or "")
+    hash_seed = f"{rec_id}_{prog_id}_{year_id}_{part_id}"
+    raw_hash = abs(hash(hash_seed)) % 1000000
+    clean_prog = re.sub(r'[^a-zA-Z0-9]', '', prog_id) or "exam"
+    timeline_id = f"timeline-collapse-{clean_prog}-{raw_hash}"
+
+    toggle_timeline_btn_html = (
+        f'<div class="pt-1 pb-0.5">'
+        f'<button type="button" '
+        f'onclick="if(window.toggleExamTimeline){{window.toggleExamTimeline(\'{timeline_id}\', this);}}else{{var el=document.getElementById(\'{timeline_id}\');if(el){{var isH=el.classList.toggle(\'hidden\');var lbl=this.querySelector(\'.timeline-toggle-label\');var ic=this.querySelector(\'.timeline-toggle-icon\');if(lbl)lbl.textContent=isH?\'📊 পরীক্ষার টাইমলাইন ও ধাপসমূহ দেখুন\':\'📊 পরীক্ষার টাইমলাইন ও ধাপসমূহ লুকান\';if(ic)ic.textContent=isH?\'↓\':\'↑\';this.setAttribute(\'aria-expanded\', !isH);}}}}" '
+        f'class="w-full py-2.5 px-4 rounded-xl border border-slate-200/80 dark:border-white/10 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold shadow-2xs hover:shadow-xs transition-all flex items-center justify-between cursor-pointer group" '
+        f'aria-expanded="false">'
+        f'<span class="flex items-center gap-2">'
+        f'<span class="timeline-toggle-label font-bold text-slate-800 dark:text-slate-200">📊 পরীক্ষার টাইমলাইন ও ধাপসমূহ দেখুন</span>'
+        f'</span>'
+        f'<span class="timeline-toggle-icon text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 font-bold transition-transform">↓</span>'
+        f'</button>'
+        f'</div>'
+    )
+
+    timeline_container_html = (
+        f'<div id="{timeline_id}" class="hidden transition-all duration-300">'
+        f'{render_exam_card_timeline_bar(item)}'
+        f'</div>'
+    )
+
     html_cards = f'''<div class="my-2 space-y-2.5 text-left font-sans">
   <!-- Header Card -->
   <div class="p-3.5 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white shadow-xs border border-blue-800">
@@ -1474,7 +1468,9 @@ def format_exam_card_markdown(item: Dict[str, Any]) -> str:
     </div>
   </div>
 
-  {render_exam_card_timeline_bar(item)}
+  <!-- On-Demand Collapsible Timeline -->
+  {toggle_timeline_btn_html}
+  {timeline_container_html}
 
   <!-- Small Modern Vertical Cards Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
