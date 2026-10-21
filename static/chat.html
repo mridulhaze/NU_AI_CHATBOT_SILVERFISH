@@ -633,6 +633,59 @@
       100% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
     }
 
+    /* ========================================================= */
+    /* ACADEMIC EXAMINATION MILESTONE TIMELINE & TRACKER        */
+    /* ========================================================= */
+    .timeline-stepper-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--hairline);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+    .timeline-stepper-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(0, 113, 227, 0.04);
+    }
+    .timeline-stepper-btn.active {
+      background: var(--text) !important;
+      color: var(--surface) !important;
+      border-color: var(--text) !important;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+    .milestone-node-card {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      position: relative;
+    }
+    .milestone-node-card:hover {
+      border-color: var(--hairline-hover);
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-1.5px);
+    }
+    .badge-today-pulse {
+      animation: pulseToday 2s infinite ease-in-out;
+    }
+    @keyframes pulseToday {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.03); }
+    }
+
     #chat-section {
       background: var(--surface);
       border: 1px solid var(--hairline);
@@ -749,7 +802,7 @@
         <div id="cards-3x3-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
           
           <!-- Card 1: Honours -->
-          <div onclick="handleExamCategoryClick('Honours')" class="apple-card card-tint-emerald">
+          <div onclick="openExamCategoryPicker('Honours')" class="apple-card card-tint-emerald">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -766,7 +819,7 @@
           </div>
 
           <!-- Card 2: Degree Pass -->
-          <div onclick="handleExamCategoryClick('Degree Pass')" class="apple-card card-tint-teal">
+          <div onclick="openExamCategoryPicker('Degree Pass')" class="apple-card card-tint-teal">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
@@ -784,7 +837,7 @@
           </div>
 
           <!-- Card 3: Master's -->
-          <div onclick="handleExamCategoryClick('Master\'s')" class="apple-card card-tint-indigo">
+          <div onclick="openExamCategoryPicker('Master\'s')" class="apple-card card-tint-indigo">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -801,7 +854,7 @@
           </div>
 
           <!-- Card 4: Professional -->
-          <div onclick="handleExamCategoryClick('Professional')" class="apple-card card-tint-amber">
+          <div onclick="openExamCategoryPicker('Professional')" class="apple-card card-tint-amber">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
@@ -922,6 +975,11 @@
 
         </div>
 
+      </div>
+
+      <!-- State C: Interactive Academic Examination Milestone Timeline & Progress Tracker -->
+      <div id="timeline-view" class="hidden flex-1 space-y-4 overflow-y-auto mb-4 pb-2 max-h-[660px] thin-scrollbar pr-1">
+        <!-- Dynamically rendered by renderTimelineView() -->
       </div>
 
       <!-- State B: Active Conversation Flow (Scrollable messages area) -->
@@ -1196,8 +1254,13 @@
 
       const welcomeView = document.getElementById("welcome-view");
       const conversationView = document.getElementById("conversation-view");
+      const timelineView = document.getElementById("timeline-view");
       if (welcomeView) welcomeView.classList.remove("hidden");
       if (conversationView) conversationView.classList.add("hidden");
+      if (timelineView) timelineView.classList.add("hidden");
+
+      closeExamPartModal();
+      closeMilestoneDetailModal();
 
       renderChips(MAIN_CHIPS);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1228,8 +1291,515 @@
     function showConversationView() {
       const welcomeView = document.getElementById("welcome-view");
       const conversationView = document.getElementById("conversation-view");
+      const timelineView = document.getElementById("timeline-view");
       if (welcomeView) welcomeView.classList.add("hidden");
+      if (timelineView) timelineView.classList.add("hidden");
       if (conversationView) conversationView.classList.remove("hidden");
+    }
+
+    // Switch to timeline flow
+    function showTimelineView() {
+      const welcomeView = document.getElementById("welcome-view");
+      const conversationView = document.getElementById("conversation-view");
+      const timelineView = document.getElementById("timeline-view");
+      if (welcomeView) welcomeView.classList.add("hidden");
+      if (conversationView) conversationView.classList.add("hidden");
+      if (timelineView) timelineView.classList.remove("hidden");
+    }
+
+    // State for academic timeline
+    let currentTimelineData = null;
+    let currentTimelineContext = null;
+    let activeTimelinePhaseFilter = 0; // 0 = all phases
+
+    function toBnDigits(num) {
+      if (num === null || num === undefined) return "";
+      const bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+      return String(num).replace(/[0-9]/g, d => bnDigits[d]);
+    }
+
+    function roundPct(count, total) {
+      if (!total || total <= 0) return 0;
+      return Math.round((count / total) * 100);
+    }
+
+    // Opens selection modal for a specific program type
+    function openExamCategoryPicker(prog) {
+      const modal = document.getElementById("exam-part-modal");
+      const titleEl = document.getElementById("exam-part-modal-title");
+      const subEl = document.getElementById("exam-part-modal-sub");
+      const contentEl = document.getElementById("exam-part-modal-options");
+      if (!modal || !contentEl) return;
+
+      let progBn = "পরীক্ষা বিষয়ক অগ্রগতি";
+      let optionsHtml = "";
+
+      if (prog === "Honours") {
+        progBn = "অনার্স পরীক্ষা";
+        if (subEl) subEl.innerText = "বর্ষ নির্বাচন করে সরাসরি ইন্টারঅ্যাক্টিভ মাইলস্টোন টাইমলাইন দেখুন:";
+        const parts = [
+          { part: "Part 1", label: "১ম বর্ষ", desc: "অনার্স ১ম বর্ষের ইনকোর্স, ফরম পূরণ, রুটিন ও পরীক্ষার অগ্রগতি", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" },
+          { part: "Part 2", label: "২য় বর্ষ", desc: "অনার্স ২য় বর্ষের ইনকোর্স, ফরম পূরণ ও পরীক্ষার সময়সূচি", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" },
+          { part: "Part 3", label: "৩য় বর্ষ", desc: "অনার্স ৩য় বর্ষের পরীক্ষার তারিখ, রুটিন ও ফলাফল", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" },
+          { part: "Part 4", label: "৪র্থ বর্ষ", desc: "অনার্স ৪র্থ বর্ষের চূড়ান্ত পরীক্ষা, ফলাফল ও সনদ বিতরণ", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" }
+        ];
+        optionsHtml = parts.map(p => `
+          <button onclick="closeExamPartModal(); openTimelineView('Honours', '${p.part}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] ${p.tint} transition flex items-center justify-between group cursor-pointer shadow-2xs">
+            <div>
+              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-emerald-700">অনার্স ${p.label}</div>
+              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">${p.desc}</div>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 shrink-0">টাইমলাইন →</span>
+          </button>
+        `).join("");
+      } else if (prog === "Degree Pass") {
+        progBn = "ডিগ্রি পাস ও সার্টিফিকেট কোর্স পরীক্ষা";
+        if (subEl) subEl.innerText = "ডিগ্রি বর্ষ নির্বাচন করে পরীক্ষার অগ্রগতি ও মাইলস্টোন দেখুন:";
+        const parts = [
+          { part: "Part 1", label: "১ম বর্ষ", desc: "ডিগ্রি ১ম বর্ষ পরীক্ষা, ফরম পূরণ ও ফলাফল স্থিতি" },
+          { part: "Part 2", label: "২য় বর্ষ", desc: "ডিগ্রি ২য় বর্ষ পরীক্ষা, রুটিন ও সময়সূচি" },
+          { part: "Part 3", label: "৩য় বর্ষ", desc: "ডিগ্রি ৩য় বর্ষ চূড়ান্ত পরীক্ষা ও সনদ প্রাপ্তি" }
+        ];
+        optionsHtml = parts.map(p => `
+          <button onclick="closeExamPartModal(); openTimelineView('Degree Pass', '${p.part}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] hover:border-teal-500 hover:bg-teal-50/50 transition flex items-center justify-between group cursor-pointer shadow-2xs">
+            <div>
+              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-teal-700">ডিগ্রি ${p.label}</div>
+              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">${p.desc}</div>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800 shrink-0">টাইমলাইন →</span>
+          </button>
+        `).join("");
+      } else if (prog === "Master's") {
+        progBn = "মাস্টার্স পরীক্ষা";
+        if (subEl) subEl.innerText = "মাস্টার্স পর্ব নির্বাচন করে অগ্রগতি ট্র্যাক করুন:";
+        const parts = [
+          { part: "Final", label: "মাস্টার্স শেষ পর্ব", desc: "মাস্টার্স ফাইনাল পরীক্ষা, ফলাফল ও সনদ মুদ্রণ" },
+          { part: "Preliminary", label: "মাস্টার্স প্রিলিমিনারি", desc: "প্রিলিমিনারি টু মাস্টার্স পরীক্ষার সময়সূচি ও রুটিন" }
+        ];
+        optionsHtml = parts.map(p => `
+          <button onclick="closeExamPartModal(); openTimelineView('Master\\'s', '${p.part}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] hover:border-indigo-500 hover:bg-indigo-50/50 transition flex items-center justify-between group cursor-pointer shadow-2xs">
+            <div>
+              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-indigo-700">${p.label}</div>
+              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">${p.desc}</div>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 shrink-0">টাইমলাইন →</span>
+          </button>
+        `).join("");
+      } else if (prog === "Professional") {
+        progBn = "প্রফেশনাল কোর্স পরীক্ষা";
+        if (subEl) subEl.innerText = "কোর্স বা বর্ষ নির্বাচন করে অগ্রগতি ট্র্যাক করুন:";
+        const proCourses = [
+          { code: "CSE", name: "B.Sc. in Computer Science & Engineering (CSE)", part: "Part 1" },
+          { code: "BBA", name: "Bachelor of Business Administration (BBA)", part: "Part 1" },
+          { code: "B.Ed", name: "Bachelor of Education (B.Ed)", part: "Part 1" },
+          { code: "TST", name: "Theatre & Stage Technology", part: "Part 1" },
+          { code: "ECE", name: "Electronics & Communication Eng.", part: "Part 1" }
+        ];
+        optionsHtml = proCourses.map(c => `
+          <button onclick="closeExamPartModal(); openTimelineView('Professional', '${c.part}', null, '${c.code}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] hover:border-amber-500 hover:bg-amber-50/50 transition flex items-center justify-between group cursor-pointer shadow-2xs">
+            <div>
+              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-amber-700">${c.name}</div>
+              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">কোর্স কোড: ${c.code} • ${c.part}</div>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 shrink-0">টাইমলাইন →</span>
+          </button>
+        `).join("");
+      }
+
+      // Add a quick action button for direct chat question
+      optionsHtml += `
+        <div class="pt-2 border-t border-[var(--hairline)] flex justify-between items-center text-xs">
+          <span class="text-[var(--text-secondary)]">সরাসরি প্রশ্ন করতে চান?</span>
+          <button onclick="closeExamPartModal(); handleExamCategoryClick('${prog}')" class="text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer">
+            💬 চ্যাটে এআই সহকারীকে জিজ্ঞাসা করুন →
+          </button>
+        </div>
+      `;
+
+      if (titleEl) titleEl.innerText = progBn;
+      contentEl.innerHTML = optionsHtml;
+      modal.classList.remove("hidden");
+    }
+
+    function closeExamPartModal() {
+      const modal = document.getElementById("exam-part-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    // Main fetch & display handler for interactive timeline
+    async function openTimelineView(prog, part, year, course, sem) {
+      setSplitMode("chat");
+      showTimelineView();
+      closeExamPartModal();
+
+      currentTimelineContext = { prog, part, year, course, sem };
+      activeTimelinePhaseFilter = 0;
+
+      const timelineEl = document.getElementById("timeline-view");
+      if (!timelineEl) return;
+
+      timelineEl.innerHTML = `
+        <div class="p-8 text-center space-y-3">
+          <div class="w-8 h-8 mx-auto border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <div class="text-sm font-semibold text-[var(--text)]">জাতীয় বিশ্ববিদ্যালয় ডাটাবেজ থেকে পরীক্ষার অগ্রগতি লোড হচ্ছে...</div>
+          <div class="text-xs text-[var(--text-secondary)]">অনুগ্রহ করে অপেক্ষা করুন</div>
+        </div>
+      `;
+
+      try {
+        const params = new URLSearchParams();
+        if (prog) params.append("program_type", prog);
+        if (part && part !== "N/A") params.append("part", part);
+        if (year) params.append("examination_year", year);
+        if (course && course !== "N/A") params.append("course_name", course);
+        if (sem && sem !== "N/A") params.append("semester", sem);
+
+        const res = await fetch("/api/v1/academic-exams/lookup?" + params.toString());
+        const data = await res.json();
+
+        if (data.status === "error") {
+          throw new Error(data.message || "তথ্য পাওয়া যায়নি");
+        }
+
+        currentTimelineData = data.timeline;
+        renderTimelineView(data.timeline, data.available_years || []);
+      } catch (err) {
+        timelineEl.innerHTML = `
+          <div class="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs space-y-2 text-center">
+            <div class="font-bold text-sm">তথ্য লোড করতে সমস্যা হয়েছে</div>
+            <div>${err.message || 'সার্ভারে সংযোগ স্থাপন করা সম্ভব হয়নি।'}</div>
+            <button onclick="goToMainMenu()" class="mt-2 px-3 py-1.5 bg-white border border-rose-300 rounded-lg font-semibold hover:bg-rose-100 transition cursor-pointer">
+              ← মূল মেনুতে ফিরুন
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // Renders the entire interactive timeline inside #timeline-view
+    function renderTimelineView(timeline, availableYears) {
+      const timelineEl = document.getElementById("timeline-view");
+      if (!timelineEl || !timeline) return;
+
+      // 1. Breadcrumbs
+      const breadcrumbHtml = `
+        <div class="flex items-center justify-between flex-wrap gap-2 pb-2">
+          <nav class="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium flex-wrap">
+            <button onclick="goToMainMenu()" class="inline-flex items-center gap-1 hover:text-[var(--text)] transition cursor-pointer">
+              <span>🏠</span>
+              <span>মূল মেনু</span>
+            </button>
+            <span>/</span>
+            <button onclick="openExamCategoryPicker('${timeline.program_type}')" class="hover:text-[var(--text)] transition cursor-pointer">
+              ${timeline.program_type_name}
+            </button>
+            <span>/</span>
+            <span class="text-[var(--text)] font-semibold">${timeline.part_name_bn || timeline.course_name || timeline.part}</span>
+          </nav>
+
+          <button onclick="goToMainMenu()" class="apple-quiet-btn text-xs py-1 px-2.5 border border-[var(--hairline)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center gap-1 cursor-pointer">
+            <span>← পেছনে যান</span>
+          </button>
+        </div>
+      `;
+
+      // 2. Year switcher pills
+      const allYears = (availableYears && availableYears.length > 0) ? availableYears : (timeline.available_years || [timeline.examination_year]);
+      const yearPillsHtml = allYears.filter(Boolean).map(yr => {
+        const isActive = (String(yr).trim() === String(timeline.examination_year).trim());
+        const activeClass = isActive 
+          ? "bg-[var(--text)] text-[var(--surface)] font-semibold shadow-xs" 
+          : "bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)] border border-[var(--hairline)] hover:border-indigo-400";
+        return `
+          <button onclick="openTimelineView('${timeline.program_type}', '${timeline.part}', '${yr}', '${timeline.course_name || ''}', '${timeline.semester || ''}')" 
+            class="px-2.5 py-1 rounded-full text-xs transition cursor-pointer ${activeClass}">
+            📅 ${toBnDigits(yr)} ${isActive ? '(চলতি)' : ''}
+          </button>
+        `;
+      }).join("");
+
+      // 3. Hero Header
+      const heroHtml = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--hairline)]">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                ${timeline.program_type_name}
+              </span>
+              <span class="text-xs text-[var(--text-secondary)]">${timeline.subheading}</span>
+            </div>
+            <h2 class="text-lg sm:text-xl font-bold text-[var(--text)] tracking-tight mt-1">
+              ${timeline.heading}
+            </h2>
+          </div>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-xs text-[var(--text-secondary)] mr-1">পরীক্ষার বছর:</span>
+            ${yearPillsHtml}
+          </div>
+        </div>
+      `;
+
+      // 4. Compact Progress Overview
+      const sum = timeline.summary;
+      const progressOverviewHtml = `
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-[var(--hairline)] space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-sm font-bold">
+                📊
+              </div>
+              <div>
+                <div class="text-xs font-bold text-[var(--text)]">পরীক্ষার সার্বিক অগ্রগতি ও মাইলস্টোন ট্র্যাকার</div>
+                <div class="text-[11px] text-[var(--text-secondary)]">${sum.progress_text}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs font-semibold flex-wrap">
+              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">✓ ${toBnDigits(sum.completed_milestones)} সম্পন্ন</span>
+              <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">⏳ ${toBnDigits(sum.upcoming_milestones)} আসন্ন</span>
+              ${sum.passed_unconfirmed_milestones > 0 ? `<span class="px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">⚠️ ${toBnDigits(sum.passed_unconfirmed_milestones)} তারিখ অতিক্রান্ত</span>` : ''}
+              <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">ℹ️ ${toBnDigits(sum.missing_milestones)} তথ্য নেই</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
+            <div class="h-full bg-emerald-500 transition-all duration-500" style="width: ${sum.progress_percentage}%"></div>
+            <div class="h-full bg-orange-400 transition-all duration-500" style="width: ${roundPct(sum.passed_unconfirmed_milestones, sum.total_milestones)}%"></div>
+            <div class="h-full bg-amber-400 transition-all duration-500" style="width: ${roundPct(sum.upcoming_milestones, sum.total_milestones)}%"></div>
+          </div>
+
+          <!-- Disclaimer -->
+          <div class="text-[11px] text-[var(--text-secondary)] flex items-center gap-1.5 pt-0.5">
+            <span>ℹ️</span>
+            <span>${sum.disclaimer}</span>
+          </div>
+        </div>
+      `;
+
+      // 5. 5-Phase Horizontal Stepper
+      const allTabActive = (activeTimelinePhaseFilter === 0) ? "active" : "";
+      const stepperTabsHtml = `
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          <button onclick="filterTimelinePhase(0)" class="timeline-stepper-btn ${allTabActive}">
+            <span>🌐</span>
+            <span>সকল পর্যায় (All)</span>
+          </button>
+          ${timeline.phases.map(p => {
+            const isActive = (activeTimelinePhaseFilter === p.phase_id);
+            const activeClass = isActive ? "active" : "";
+            const badgeColor = p.phase_status === 'completed' ? 'text-emerald-600' : (p.phase_status === 'in_progress' ? 'text-amber-600' : 'text-slate-400');
+            return `
+              <button onclick="filterTimelinePhase(${p.phase_id})" class="timeline-stepper-btn ${activeClass}">
+                <span>${p.icon}</span>
+                <span>ধাপ ${toBnDigits(p.phase_id)}: ${p.title_bn}</span>
+                <span class="text-[10px] ml-0.5 opacity-80 ${badgeColor}">(${toBnDigits(p.completed_count)}/${toBnDigits(p.total_count)})</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      `;
+
+      // 6. Milestones Content by Phase
+      const phasesToRender = (activeTimelinePhaseFilter === 0) 
+        ? timeline.phases 
+        : timeline.phases.filter(p => p.phase_id === activeTimelinePhaseFilter);
+
+      const phasesContentHtml = phasesToRender.map(p => {
+        const statusBadge = p.phase_status === 'completed' 
+          ? '<span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">✓ সম্পন্ন</span>'
+          : (p.phase_status === 'in_progress' 
+            ? '<span class="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">⏳ চলমান</span>'
+            : '<span class="text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">অপেক্ষমাণ</span>');
+
+        const milestoneCardsHtml = p.milestones.map(m => {
+          const isToday = (m.status_type === 'today');
+          const pulseClass = isToday ? 'badge-today-pulse' : '';
+          return `
+            <div onclick="openMilestoneDetailModal('${m.id}')" class="milestone-node-card group cursor-pointer">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div class="text-[13px] font-bold text-[var(--text)] group-hover:text-indigo-600 transition leading-snug">
+                  ${m.title_bn}
+                </div>
+                <span class="text-[11px] px-2 py-0.5 rounded-full font-semibold border shrink-0 ${m.badge_class} ${pulseClass}">
+                  ${m.status_label}
+                </span>
+              </div>
+              
+              <div class="flex items-center justify-between text-xs text-[var(--text-secondary)] mt-1.5">
+                <span class="flex items-center gap-1 font-medium">
+                  <span>📅</span>
+                  <span>${m.formatted_date}</span>
+                </span>
+                <span class="text-[11px] text-indigo-600 opacity-0 group-hover:opacity-100 transition font-medium">
+                  বিস্তারিত →
+                </span>
+              </div>
+
+              <div class="text-[11px] text-[var(--text-secondary)] mt-1.5 line-clamp-2 leading-relaxed">
+                ${m.description}
+              </div>
+
+              ${m.links && m.links.length > 0 ? `
+                <div class="mt-2.5 pt-2 border-t border-[var(--hairline)] flex items-center gap-1.5 flex-wrap" onclick="event.stopPropagation()">
+                  ${m.links.map(l => `
+                    <a href="${l.url}" target="_blank" class="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium transition">
+                      <span>${l.icon || '🔗'}</span>
+                      <span>${l.title}</span>
+                      <span>↗</span>
+                    </a>
+                  `).join("")}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <div class="space-y-2.5 pt-3">
+            <div class="flex items-center justify-between px-1">
+              <div class="flex items-center gap-2">
+                <span class="text-base">${p.icon}</span>
+                <h3 class="text-sm font-bold text-[var(--text)] tracking-tight">
+                  ধাপ ${toBnDigits(p.phase_id)}: ${p.title_bn}
+                </h3>
+                <span class="text-xs text-[var(--text-secondary)]">(${p.title_en})</span>
+              </div>
+              <div>${statusBadge}</div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              ${milestoneCardsHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // 7. Official Portals Quick Links Bar
+      const portalsHtml = `
+        <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-[var(--hairline)] space-y-3 mt-4">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="text-xs font-bold text-[var(--text)] flex items-center gap-1.5">
+              <span>🏛️</span>
+              <span>জাতীয় বিশ্ববিদ্যালয় অফিসিয়াল পোর্টাল লিংকসমূহ</span>
+            </div>
+            <button onclick="askAiAboutExam('${timeline.heading}')" class="apple-quiet-btn text-xs px-3 py-1 bg-white border border-[var(--hairline)] text-indigo-600 font-semibold shadow-xs hover:bg-indigo-50 transition cursor-pointer">
+              💬 এই পরীক্ষা নিয়ে এআই-কে জিজ্ঞাসা করুন
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            ${timeline.official_portals.map(pt => `
+              <a href="${pt.url}" target="_blank" class="p-2.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] hover:border-indigo-400 hover:shadow-xs transition text-xs flex items-center justify-between group">
+                <div class="flex items-center gap-2 truncate">
+                  <span>${pt.icon}</span>
+                  <span class="font-medium text-[var(--text)] group-hover:text-indigo-600 truncate">${pt.title}</span>
+                </div>
+                <span class="text-[var(--text-secondary)] group-hover:text-indigo-600 shrink-0">↗</span>
+              </a>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+      timelineEl.innerHTML = `
+        ${breadcrumbHtml}
+        ${heroHtml}
+        ${progressOverviewHtml}
+        ${stepperTabsHtml}
+        <div class="space-y-4">
+          ${phasesContentHtml}
+        </div>
+        ${portalsHtml}
+      `;
+    }
+
+    // Filters stepper phase
+    function filterTimelinePhase(phaseId) {
+      activeTimelinePhaseFilter = phaseId;
+      if (currentTimelineData) {
+        renderTimelineView(currentTimelineData, currentTimelineData.available_years);
+      }
+    }
+
+    // Opens milestone detail modal
+    function openMilestoneDetailModal(milestoneId) {
+      if (!currentTimelineData) return;
+      let targetM = null;
+      let targetPhase = null;
+
+      for (const p of currentTimelineData.phases) {
+        for (const m of p.milestones) {
+          if (m.id === milestoneId) {
+            targetM = m;
+            targetPhase = p;
+            break;
+          }
+        }
+        if (targetM) break;
+      }
+
+      if (!targetM) return;
+
+      const modal = document.getElementById("milestone-detail-modal");
+      const titleEl = document.getElementById("milestone-detail-title");
+      const phaseEl = document.getElementById("milestone-detail-phase");
+      const badgeEl = document.getElementById("milestone-detail-badge");
+      const dateEl = document.getElementById("milestone-detail-date");
+      const descEl = document.getElementById("milestone-detail-desc");
+      const linksEl = document.getElementById("milestone-detail-links");
+      const askBtnEl = document.getElementById("milestone-detail-ask-btn");
+
+      if (!modal) return;
+
+      if (titleEl) titleEl.innerText = targetM.title_bn;
+      if (phaseEl) phaseEl.innerText = `${targetPhase.icon} ধাপ ${toBnDigits(targetPhase.phase_id)}: ${targetPhase.title_bn}`;
+      if (badgeEl) {
+        badgeEl.className = `text-xs px-2.5 py-0.5 rounded-full font-semibold border ${targetM.badge_class}`;
+        badgeEl.innerText = targetM.status_label;
+      }
+      if (dateEl) dateEl.innerText = targetM.formatted_date;
+      if (descEl) descEl.innerText = targetM.description;
+
+      if (linksEl) {
+        if (targetM.links && targetM.links.length > 0) {
+          linksEl.innerHTML = `
+            <div class="text-xs font-bold text-[var(--text)] mb-1.5">সরাসরি অ্যাকশন ও অফিসিয়াল পোর্টাল:</div>
+            <div class="space-y-1.5">
+              ${targetM.links.map(l => `
+                <a href="${l.url}" target="_blank" class="w-full p-2 rounded-xl border border-[var(--hairline)] bg-[var(--bg)] hover:bg-indigo-50 hover:border-indigo-300 text-xs text-[var(--text)] hover:text-indigo-700 font-medium transition flex items-center justify-between">
+                  <span class="flex items-center gap-1.5">
+                    <span>${l.icon || '🔗'}</span>
+                    <span>${l.title}</span>
+                  </span>
+                  <span>↗</span>
+                </a>
+              `).join("")}
+            </div>
+          `;
+          linksEl.classList.remove("hidden");
+        } else {
+          linksEl.innerHTML = "";
+          linksEl.classList.add("hidden");
+        }
+      }
+
+      if (askBtnEl) {
+        askBtnEl.onclick = () => {
+          closeMilestoneDetailModal();
+          const query = `${currentTimelineData.heading} সংক্রান্ত ${targetM.title_bn} এবং এর বিস্তারিত নিয়মাবলি কি?`;
+          sendQuickQuestion(query);
+        };
+      }
+
+      modal.classList.remove("hidden");
+    }
+
+    function closeMilestoneDetailModal() {
+      const modal = document.getElementById("milestone-detail-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function askAiAboutExam(heading) {
+      const query = `${heading} সংক্রান্ত রুটিন, ফরম পূরণ ও সর্বশেষ পরীক্ষার তথ্য বিস্তারিত জানান`;
+      sendQuickQuestion(query);
     }
 
     // Handle Exam Category clicks
@@ -2072,6 +2642,58 @@
         </form>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Academic Exam Program/Part Selection Modal (Apple Monochromatic Design) -->
+  <div id="exam-part-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/45 backdrop-blur-md" onclick="if(event.target===this) closeExamPartModal()">
+    <div class="bg-[var(--surface)] text-[var(--text)] border border-[var(--hairline)] rounded-[20px] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 border-b border-[var(--hairline)] flex items-center justify-between bg-[var(--bg)]">
+        <div>
+          <h3 id="exam-part-modal-title" class="text-[16px] font-bold text-[var(--text)]">পরীক্ষা নির্বাচন</h3>
+          <p id="exam-part-modal-sub" class="text-[12px] text-[var(--text-secondary)] mt-0.5">বর্ষ নির্বাচন করে টাইমলাইন দেখুন</p>
+        </div>
+        <button onclick="closeExamPartModal()" class="apple-quiet-btn p-1.5 text-lg leading-none cursor-pointer" title="বন্ধ করুন">✕</button>
+      </div>
+      <div id="exam-part-modal-options" class="p-6 space-y-2.5 max-h-[60vh] overflow-y-auto thin-scrollbar">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestone Detail Modal (Apple Monochromatic Design) -->
+  <div id="milestone-detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/45 backdrop-blur-md" onclick="if(event.target===this) closeMilestoneDetailModal()">
+    <div class="bg-[var(--surface)] text-[var(--text)] border border-[var(--hairline)] rounded-[20px] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 border-b border-[var(--hairline)] flex items-center justify-between bg-[var(--bg)]">
+        <div>
+          <div id="milestone-detail-phase" class="text-[11px] font-semibold text-indigo-600 mb-0.5"></div>
+          <h3 id="milestone-detail-title" class="text-[16px] font-bold text-[var(--text)]"></h3>
+        </div>
+        <button onclick="closeMilestoneDetailModal()" class="apple-quiet-btn p-1.5 text-lg leading-none cursor-pointer" title="বন্ধ করুন">✕</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between p-3 rounded-xl bg-[var(--bg)] border border-[var(--hairline)]">
+          <div class="text-xs text-[var(--text-secondary)]">নির্ধারিত তারিখ/সময়সূচি:</div>
+          <div id="milestone-detail-date" class="text-xs font-bold text-[var(--text)]"></div>
+          <div id="milestone-detail-badge"></div>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold text-[var(--text)] mb-1">প্রশাসনিক স্ট্যাটাস ও বিবরণ:</div>
+          <div id="milestone-detail-desc" class="text-xs text-[var(--text-secondary)] leading-relaxed p-3 rounded-xl bg-[var(--bg)] border border-[var(--hairline)]"></div>
+        </div>
+
+        <div id="milestone-detail-links" class="hidden"></div>
+
+        <div class="pt-2 flex items-center gap-2">
+          <button id="milestone-detail-ask-btn" class="flex-1 apple-send-btn justify-center py-2.5 text-xs font-semibold rounded-xl">
+            <span>💬 এআই সহকারীকে জিজ্ঞাসা করুন</span>
+          </button>
+          <button onclick="closeMilestoneDetailModal()" class="apple-quiet-btn py-2.5 px-4 text-xs font-medium border border-[var(--hairline)] rounded-xl cursor-pointer">
+            বন্ধ করুন
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </body>

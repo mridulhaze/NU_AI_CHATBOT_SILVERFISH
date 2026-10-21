@@ -5,9 +5,509 @@ student chatbot query grounding with small modern nice looking vertical cards.
 """
 
 from typing import Optional, List, Dict, Any, Tuple
+from datetime import datetime, timezone, timedelta, date
 import re
 from backend.models.schemas import ChatResponse, SourceCitation
 from db.sql_store import get_sql_store
+
+BD_TZ = timezone(timedelta(hours=6))
+
+BN_TO_EN_DIGITS = str.maketrans('০১২৩৪৫৬৭৮৯', '0123456789')
+EN_TO_BN_DIGITS = str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯')
+
+BN_MONTHS = {
+    'জানুয়ারি': 1, 'জানুয়ারি': 1, 'ফেব্রুয়ারি': 2, 'ফেব্রুয়ারি': 2,
+    'মার্চ': 3, 'এপ্রিল': 4, 'মে': 5, 'জুন': 6,
+    'জুলাই': 7, 'আগস্ট': 8, 'সেপ্টেম্বর': 9, 'অক্টোবর': 10,
+    'নভেম্বর': 11, 'ডিসেম্বর': 12
+}
+
+def to_bn_digits(s: Any) -> str:
+    """Converts ASCII digits to Bengali digits."""
+    return str(s).translate(EN_TO_BN_DIGITS)
+
+def get_bd_now() -> datetime:
+    """Returns the current datetime in Bangladesh Standard Time (UTC+6)."""
+    return datetime.now(BD_TZ)
+
+def parse_date_str(val: Optional[str]) -> Optional[date]:
+    """
+    Parses various date strings (e.g. '15 May 2024', '10 Jan 2025 - 20 Jan 2025',
+    '15-05-2024', '2025-06-20', Bengali numerals/months) into a date object.
+    """
+    if not val or not isinstance(val, str):
+        return None
+    s = val.translate(BN_TO_EN_DIGITS).strip()
+    if not s or s.lower() in ['n/a', 'none', 'তথ্য এখনো প্রকাশ করা হয়নি।', 'নাই', 'বাতিল', 'অপেক্ষমাণ']:
+        return None
+    if s.startswith('http://') or s.startswith('https://'):
+        return None
+
+    # Handle range (e.g. '10 Jan 2025 - 20 Jan 2025' or '10 Jan to 20 Jan 2025')
+    if ' - ' in s:
+        s = s.split(' - ')[-1].strip()
+    elif ' হতে ' in s:
+        s = s.split(' হতে ')[-1].strip()
+    elif ' to ' in s.lower():
+        s = re.split(r'\s+to\s+', s, flags=re.I)[-1].strip()
+
+    formats = [
+        '%d %B %Y', '%d %b %Y', '%Y-%m-%d', '%d-%m-%Y', '%d/%m/%Y',
+        '%B %d, %Y', '%b %d, %Y', '%d.%m.%Y'
+    ]
+    for fmt in formats:
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            pass
+
+    for bn, m in BN_MONTHS.items():
+        if bn in val:
+            nums = re.findall(r'\d+', val.translate(BN_TO_EN_DIGITS))
+            if len(nums) >= 2:
+                day = int(nums[0])
+                year = int(nums[-1]) if len(nums[-1]) == 4 else int(nums[1])
+                try:
+                    return datetime(year, m, day).date()
+                except ValueError:
+                    pass
+    return None
+
+def format_user_facing_date(val: Optional[str], parsed: Optional[date]) -> str:
+    """
+    Normalizes user-facing dates into DD-MM-YYYY format when parsed,
+    or falls back cleanly to the admin-entered string.
+    """
+    if parsed:
+        return parsed.strftime("%d-%m-%Y")
+    if val and not val.startswith("http"):
+        return val.strip()
+    return "তথ্য নেই"
+
+def evaluate_milestone_status(
+    milestone_id: str,
+    raw_val: Optional[str],
+    record: Dict[str, Any],
+    today_bd: date
+) -> Tuple[str, str, bool, str]:
+    """
+    Intelligent status evaluation for academic examination milestones.
+    Returns: (status_label_bn, status_type, is_completed, status_description_bn)
+
+    Statuses:
+    - 'সম্পন্ন' (completed): Confirmed completion explicitly verified
+    - 'আজ' (today): Confirmed scheduled date is today in Bangladesh Standard Time
+    - 'আসন্ন' (upcoming): Scheduled date or deadline is in the future
+    - 'তারিখ অতিক্রান্ত' (passed_unconfirmed): Date has passed, but completion is NOT explicitly confirmed
+    - 'প্রকাশিত' (published): Result or official document confirmed published
+    - 'অপেক্ষমাণ' (pending): Expected event not yet confirmed
+    - 'তথ্য নেই' (no_info): Administrator has not supplied date or info
+    - 'প্রযোজ্য নয়' (not_applicable): Not applicable to this program/part
+    """
+    raw_clean = (raw_val or "").strip()
+
+    # 1. Results Published status
+    if milestone_id == "results_published":
+        val = (record.get("results_published") or "").strip().lower()
+        if val in ["yes", "true", "1", "হ্যাঁ", "সম্পন্ন", "প্রকাশিত"]:
+            return ("প্রকাশিত", "published", True, "জাতীয় বিশ্ববিদ্যালয় কর্তৃক ফলাফল আনুষ্ঠানিকভাবে প্রকাশ করা হয়েছে।")
+        elif val in ["no", "false", "0", "না"]:
+            return ("অপেক্ষমাণ", "pending", False, "ফলাফল প্রকাশের অপেক্ষায় রয়েছে।")
+        return ("তথ্য নেই", "no_info", False, "ফলাফল প্রকাশের তথ্য এখনো প্রশাসনিকভাবে এন্ট্রি করা হয়নি।")
+
+    # 2. Documents Printed status
+    if milestone_id == "documents_printed":
+        val = (record.get("documents_printed") or "").strip().lower()
+        if val in ["yes", "true", "1", "হ্যাঁ", "সম্পন্ন"]:
+            return ("সম্পন্ন", "completed", True, "সনদ ও মূল মার্কশিট মুদ্রণ ও প্রস্তুতকরণ সম্পন্ন হয়েছে।")
+        elif val in ["no", "false", "0", "না"]:
+            return ("অপেক্ষমাণ", "pending", False, "সনদ বা মার্কশিট মুদ্রণের প্রক্রিয়া অপেক্ষমাণ।")
+        return ("তথ্য নেই", "no_info", False, "মুদ্রণ সংক্রান্ত তথ্য এখনো হালনাগাদ করা হয়নি।")
+
+    # 3. Routine Publication
+    if milestone_id == "routine_publication_date":
+        if raw_clean.startswith("http://") or raw_clean.startswith("https://"):
+            return ("প্রকাশিত", "published", True, "পরীক্ষার অফিসিয়াল সময়সূচি/রুটিন প্রকাশিত হয়েছে এবং লিঙ্ক সংযুক্ত আছে।")
+        p_date = parse_date_str(raw_clean)
+        if p_date:
+            if p_date == today_bd:
+                return ("আজ", "today", False, "আজ রুটিন প্রকাশিত হওয়ার নির্ধারিত তারিখ।")
+            elif p_date > today_bd:
+                return ("আসন্ন", "upcoming", False, f"রুটিন প্রকাশের নির্ধারিত তারিখ: {p_date.strftime('%d-%m-%Y')}।")
+            else:
+                return ("তারিখ অতিক্রান্ত", "passed_unconfirmed", False, f"রুটিন প্রকাশের নির্ধারিত তারিখ ({p_date.strftime('%d-%m-%Y')}) অতিক্রান্ত হয়েছে, তবে রুটিন লিঙ্ক এখনো হালনাগাদ করা হয়নি।")
+        if raw_clean:
+            return ("অপেক্ষমাণ", "pending", False, raw_clean)
+        return ("তথ্য নেই", "no_info", False, "রুটিনের নির্ধারিত তারিখ এন্ট্রি করা হয়নি।")
+
+    # 4. Standard Date-based Milestones
+    if not raw_clean or raw_clean.lower() in ["n/a", "none", "তথ্য নেই", "নাই", "বাতিল", "অপেক্ষমাণ", "তথ্য এখনো প্রকাশ করা হয়নি।"]:
+        return ("তথ্য নেই", "no_info", False, "প্রশাসনিকভাবে এই তারিখের তথ্য এখনো প্রদান করা হয়নি।")
+
+    p_date = parse_date_str(raw_clean)
+    if not p_date:
+        return ("অপেক্ষমাণ", "pending", False, raw_clean)
+
+    if p_date == today_bd:
+        return ("আজ", "today", False, "আজকের জন্য নির্ধারিত কার্যক্রম/সময়সীমা।")
+    elif p_date > today_bd:
+        return ("আসন্ন", "upcoming", False, f"নির্ধারিত তারিখ/সময়সীমা ভবিষ্যতে রয়েছে ({p_date.strftime('%d-%m-%Y')})।")
+    else:
+        # CRITICAL ACCURACY RULE:
+        # Never mark a milestone as completed merely because its date is in the past!
+        return ("তারিখ অতিক্রান্ত", "passed_unconfirmed", False, f"নির্ধারিত তারিখ ({p_date.strftime('%d-%m-%Y')}) অতিক্রান্ত হয়েছে। নিশ্চিত সমাপ্তি প্রশাসনিকভাবে অপেক্ষমাণ।")
+
+def get_academic_exam_years(
+    program_type: str,
+    part: Optional[str] = None,
+    semester: Optional[str] = None,
+    course_name: Optional[str] = None
+) -> List[str]:
+    """
+    Retrieves all distinct examination years available in SQLite for a given program and part.
+    """
+    sql_store = get_sql_store()
+    records = sql_store.lookup_academic_exam_info(
+        program_type=program_type,
+        part=part,
+        semester=semester,
+        course_name=course_name
+    )
+    years = {str(r.get("examination_year")).strip() for r in records if r.get("examination_year")}
+    def _extract_year_num(y: str) -> int:
+        nums = re.findall(r'\d+', y)
+        return int(nums[0]) if nums else 0
+    return sorted(list(years), key=_extract_year_num, reverse=True)
+
+def build_academic_milestone_timeline(
+    record: Optional[Dict[str, Any]],
+    available_years: Optional[List[str]] = None,
+    program_type: Optional[str] = None,
+    part: Optional[str] = None,
+    semester: Optional[str] = None,
+    course_name: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Builds the interactive 5-phase examination milestone timeline & progress tracker
+    grounded strictly in SQLite database records.
+    """
+    today_bd = get_bd_now().date()
+    rec = record or {}
+
+    prog = rec.get("program_type") or program_type or "Honours"
+    prog_cfg = PROGRAM_CONFIG.get(prog, {})
+    prog_bn = rec.get("program_type_name") or prog_cfg.get("bn_name", prog)
+
+    p_part = rec.get("part") or part or "Part 1"
+    part_bn = prog_cfg.get("part_labels", {}).get(p_part, p_part) if p_part and p_part != "N/A" else ""
+
+    p_sem = rec.get("semester") or semester or ""
+    p_course = rec.get("course_name") or course_name or ""
+    exam_year = str(rec.get("examination_year") or "").strip()
+
+    # Determine heading
+    heading_parts = [prog_bn]
+    if part_bn:
+        heading_parts.append(part_bn)
+    if p_course and p_course != "N/A":
+        heading_parts.append(f"({p_course})")
+    if p_sem and p_sem != "N/A":
+        heading_parts.append(f"সেমিস্টার: {to_bn_digits(p_sem)}")
+
+    heading = " ".join(heading_parts) + " — পরীক্ষা বিষয়ক অগ্রগতি"
+    subheading = f"পরীক্ষার বছর: {to_bn_digits(exam_year)}" if exam_year else "পরীক্ষার সময়সূচি ও অগ্রগতি"
+
+    # Define the 5 phases with their milestones
+    phase_defs = [
+        {
+            "phase_id": 1,
+            "title_bn": "ইনকোর্স ও ফরম পূরণ",
+            "title_en": "Incourse & Form Fill-up",
+            "icon": "📝",
+            "milestone_specs": [
+                {
+                    "id": "incourse_exam",
+                    "title_bn": "ইনকোর্স পরীক্ষা",
+                    "field": "incourse_exam_date",
+                    "category": "academic"
+                },
+                {
+                    "id": "incourse_marks_deadline",
+                    "title_bn": "ইনকোর্স নম্বর জমার শেষ তারিখ",
+                    "field": "incourse_marks_deadline",
+                    "category": "deadline"
+                },
+                {
+                    "id": "form_fillup_start",
+                    "title_bn": "ফরম পূরণ শুরু",
+                    "field": "form_fillup_start_date",
+                    "category": "portal"
+                },
+                {
+                    "id": "form_fillup_deadline",
+                    "title_bn": "ফরম পূরণের শেষ তারিখ",
+                    "field": "form_fillup_deadline",
+                    "category": "deadline"
+                }
+            ]
+        },
+        {
+            "phase_id": 2,
+            "title_bn": "পরীক্ষা",
+            "title_en": "Examination",
+            "icon": "📋",
+            "milestone_specs": [
+                {
+                    "id": "routine_publication_date",
+                    "title_bn": "রুটিন প্রকাশ",
+                    "field": "routine_publication_date",
+                    "category": "routine"
+                },
+                {
+                    "id": "admit_card_date",
+                    "title_bn": "প্রবেশপত্র প্রকাশ বা প্রাপ্তি",
+                    "field": "admit_card_date",
+                    "category": "portal"
+                },
+                {
+                    "id": "exam_date",
+                    "title_bn": "পরীক্ষার তারিখ (শুরু)",
+                    "field": "exam_date",
+                    "category": "exam"
+                },
+                {
+                    "id": "last_exam_date",
+                    "title_bn": "শেষ পরীক্ষা",
+                    "field": "last_exam_date",
+                    "category": "exam"
+                },
+                {
+                    "id": "practical_marks_start_date",
+                    "title_bn": "ব্যবহারিক নম্বর জমা শুরু",
+                    "field": "practical_marks_start_date",
+                    "category": "academic"
+                },
+                {
+                    "id": "practical_marks_deadline",
+                    "title_bn": "ব্যবহারিক নম্বর জমার শেষ তারিখ",
+                    "field": "practical_marks_deadline",
+                    "category": "deadline"
+                }
+            ]
+        },
+        {
+            "phase_id": 3,
+            "title_bn": "ফলাফল",
+            "title_en": "Results",
+            "icon": "📊",
+            "milestone_specs": [
+                {
+                    "id": "probable_result_date",
+                    "title_bn": "সম্ভাব্য ফলাফল প্রকাশ",
+                    "field": "probable_result_date",
+                    "category": "result"
+                },
+                {
+                    "id": "actual_result_date",
+                    "title_bn": "প্রকৃত ফলাফল প্রকাশ",
+                    "field": "actual_result_date",
+                    "category": "result"
+                },
+                {
+                    "id": "results_published",
+                    "title_bn": "ফলাফল প্রকাশের স্থিতি",
+                    "field": "results_published",
+                    "category": "confirmation"
+                }
+            ]
+        },
+        {
+            "phase_id": 4,
+            "title_bn": "পুনঃনিরীক্ষণ",
+            "title_en": "Re-scrutiny",
+            "icon": "🔍",
+            "milestone_specs": [
+                {
+                    "id": "rescrutiny_start_date",
+                    "title_bn": "পুনঃনিরীক্ষণ আবেদনের শুরু",
+                    "field": "rescrutiny_start_date",
+                    "category": "rescrutiny"
+                },
+                {
+                    "id": "rescrutiny_deadline",
+                    "title_bn": "পুনঃনিরীক্ষণ আবেদনের শেষ তারিখ",
+                    "field": "rescrutiny_deadline",
+                    "category": "deadline"
+                },
+                {
+                    "id": "rescrutiny_result_date",
+                    "title_bn": "পুনঃনিরীক্ষণের ফলাফল প্রকাশ",
+                    "field": "rescrutiny_result_date",
+                    "category": "result"
+                }
+            ]
+        },
+        {
+            "phase_id": 5,
+            "title_bn": "সনদ ও মার্কশিট",
+            "title_en": "Certificate & Marksheet",
+            "icon": "🎓",
+            "milestone_specs": [
+                {
+                    "id": "document_printing_date",
+                    "title_bn": "সার্টিফিকেট/মার্কশিট মুদ্রণের তারিখ",
+                    "field": "document_printing_date",
+                    "category": "printing"
+                },
+                {
+                    "id": "documents_printed",
+                    "title_bn": "মুদ্রণ সম্পন্ন হয়েছে কি না",
+                    "field": "documents_printed",
+                    "category": "confirmation"
+                }
+            ]
+        }
+    ]
+
+    # Status badge styling helper
+    badge_styles = {
+        "completed": "bg-emerald-50 text-emerald-700 border-emerald-200",
+        "published": "bg-blue-50 text-blue-700 border-blue-200",
+        "today": "bg-sky-500 text-white font-bold animate-pulse shadow-sm",
+        "upcoming": "bg-amber-50 text-amber-700 border-amber-200",
+        "passed_unconfirmed": "bg-orange-50 text-orange-700 border-orange-200",
+        "pending": "bg-purple-50 text-purple-700 border-purple-200",
+        "no_info": "bg-slate-100 text-slate-500 border-slate-200",
+        "not_applicable": "bg-gray-100 text-gray-400 border-gray-200"
+    }
+
+    total_milestones = 0
+    completed_milestones = 0
+    upcoming_milestones = 0
+    passed_unconfirmed_milestones = 0
+    missing_milestones = 0
+    today_milestones = 0
+
+    evaluated_phases = []
+
+    for p_def in phase_defs:
+        phase_milestones = []
+        phase_completed_count = 0
+
+        for m_spec in p_def["milestone_specs"]:
+            m_id = m_spec["id"]
+            field = m_spec["field"]
+            raw_val = str(rec.get(field) or "").strip()
+
+            p_date = parse_date_str(raw_val)
+            formatted_date = format_user_facing_date(raw_val, p_date)
+            status_label, status_type, is_comp, desc = evaluate_milestone_status(m_id, raw_val, rec, today_bd)
+
+            # Determine relevant portal links for this milestone
+            links = []
+            if m_id in ["results_published", "actual_result_date", "probable_result_date"]:
+                res_url = rec.get("revaluation_result_url") or "https://results.nu.ac.bd/"
+                cw_url = rec.get("college_wise_result_url") or "http://103.113.200.68/nu-app/search.php"
+                links.append({"title": "অনলাইন ফলাফল পোর্টাল", "url": res_url, "icon": "📊"})
+                links.append({"title": "কলেজভিত্তিক ফলাফল অনুসন্ধান", "url": cw_url, "icon": "🏫"})
+            elif m_id in ["rescrutiny_start_date", "rescrutiny_deadline", "rescrutiny_result_date"]:
+                res_url = rec.get("revaluation_result_url") or "https://results.nu.ac.bd/"
+                links.append({"title": "পুনঃনিরীক্ষণ আবেদন ও ফলাফল", "url": res_url, "icon": "🔍"})
+                links.append({"title": "সোনালী সেবা ফি পেমেন্ট পোর্টাল", "url": "http://103.113.200.68/nu-app/", "icon": "💳"})
+            elif m_id == "routine_publication_date":
+                if raw_val.startswith("http://") or raw_val.startswith("https://"):
+                    links.append({"title": "অফিসিয়াল রুটিন ডাউনলোড (PDF/ওয়েব)", "url": raw_val, "icon": "📥"})
+                links.append({"title": "পরীক্ষা সংক্রান্ত নোটিশ বোর্ড", "url": rec.get("source_url") or "https://www.nu.ac.bd/recent-news-notice.php", "icon": "📢"})
+            elif m_id in ["form_fillup_start", "form_fillup_deadline"]:
+                links.append({"title": "ইএমএস ফরম পূরণ পোর্টাল", "url": "http://ems.nu.ac.bd/", "icon": "📝"})
+                links.append({"title": "শিক্ষার্থী সেবা পোর্টাল", "url": "http://103.113.200.68/nu-app/", "icon": "🎓"})
+            elif m_id in ["document_printing_date", "documents_printed"]:
+                links.append({"title": "অনলাইন সার্টিফিকেট/ট্রান্সক্রিপ্ট আবেদন", "url": "http://103.113.200.68/nu-app/", "icon": "🎓"})
+
+            # Counts
+            total_milestones += 1
+            if is_comp:
+                completed_milestones += 1
+                phase_completed_count += 1
+            elif status_type == "today":
+                today_milestones += 1
+            elif status_type == "upcoming":
+                upcoming_milestones += 1
+            elif status_type == "passed_unconfirmed":
+                passed_unconfirmed_milestones += 1
+            elif status_type == "no_info":
+                missing_milestones += 1
+
+            phase_milestones.append({
+                "id": m_id,
+                "title_bn": m_spec["title_bn"],
+                "category": m_spec["category"],
+                "raw_value": raw_val,
+                "formatted_date": formatted_date,
+                "status_label": status_label,
+                "status_type": status_type,
+                "badge_class": badge_styles.get(status_type, badge_styles["no_info"]),
+                "is_completed": is_comp,
+                "description": desc,
+                "links": links
+            })
+
+        # Phase status
+        phase_status = "pending"
+        if phase_completed_count == len(phase_milestones) and len(phase_milestones) > 0:
+            phase_status = "completed"
+        elif any(m["status_type"] in ["today", "upcoming", "passed_unconfirmed"] or m["is_completed"] for m in phase_milestones):
+            phase_status = "in_progress"
+
+        evaluated_phases.append({
+            "phase_id": p_def["phase_id"],
+            "title_bn": p_def["title_bn"],
+            "title_en": p_def["title_en"],
+            "icon": p_def["icon"],
+            "phase_status": phase_status,
+            "completed_count": phase_completed_count,
+            "total_count": len(phase_milestones),
+            "milestones": phase_milestones
+        })
+
+    progress_pct = round((completed_milestones / total_milestones) * 100) if total_milestones > 0 else 0
+
+    return {
+        "record_id": rec.get("id"),
+        "program_type": prog,
+        "program_type_name": prog_bn,
+        "part": p_part,
+        "part_name_bn": part_bn,
+        "semester": p_sem,
+        "course_name": p_course,
+        "examination_year": exam_year,
+        "available_years": available_years or [exam_year] if exam_year else [],
+        "heading": heading,
+        "subheading": subheading,
+        "updated_at": rec.get("updated_at") or "",
+        "summary": {
+            "total_milestones": total_milestones,
+            "completed_milestones": completed_milestones,
+            "upcoming_milestones": upcoming_milestones,
+            "passed_unconfirmed_milestones": passed_unconfirmed_milestones,
+            "missing_milestones": missing_milestones,
+            "today_milestones": today_milestones,
+            "progress_percentage": progress_pct,
+            "progress_text": f"{to_bn_digits(completed_milestones)} / {to_bn_digits(total_milestones)} ধাপ নিশ্চিত সম্পন্ন ({to_bn_digits(progress_pct)}%)",
+            "disclaimer": "তথ্যসূত্র: জাতীয় বিশ্ববিদ্যালয় পরীক্ষা নিয়ন্ত্রণ দপ্তর ও প্রশাসনিক পোর্টাল। তারিখ ও সময়সূচি পরিবর্তনশীল।"
+        },
+        "phases": evaluated_phases,
+        "official_portals": [
+            {"title": "ফলাফল আর্কাইভ পোর্টাল", "url": rec.get("revaluation_result_url") or "https://results.nu.ac.bd/", "icon": "📊"},
+            {"title": "কলেজভিত্তিক ফলাফল অনুসন্ধান", "url": rec.get("college_wise_result_url") or "http://103.113.200.68/nu-app/search.php", "icon": "🏫"},
+            {"title": "শিক্ষার্থী অনলাইন সেবা (সার্টিফিকেট/মার্কশিট/সংশোধন)", "url": "http://103.113.200.68/nu-app/", "icon": "🎓"},
+            {"title": "ভর্তি বিষয়ক পোর্টাল", "url": "http://app11.nu.edu.bd/", "icon": "🎯"},
+            {"title": "ইএমএস ফরম পূরণ পোর্টাল", "url": "http://ems.nu.ac.bd/", "icon": "📝"},
+            {"title": "পরীক্ষা নিয়ন্ত্রণ সার্কুলার ও নোটিশ", "url": rec.get("source_url") or "https://www.nu.ac.bd/recent-news-notice.php", "icon": "📢"}
+        ],
+        "remarks": rec.get("remarks") or ""
+    }
+
 
 STATIC_CITATIONS = [
     SourceCitation(title="জাতীয় বিশ্ববিদ্যালয় ফলাফল ও পুনর্নিরীক্ষণ পোর্টাল", url="https://results.nu.ac.bd/", date="ফলাফল আর্কাইভ"),
@@ -825,21 +1325,27 @@ def format_exam_card_markdown(item: Dict[str, Any]) -> str:
 
   <!-- Card 5: 🔗 সরাসরি পোর্টাল লিংকসমূহ -->
   <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-    <span class="font-bold text-slate-700 flex items-center gap-1.5">
-      <span>🔗</span>
-      <span>অফিসিয়াল পোর্টাল:</span>
-    </span>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="font-bold text-slate-700 flex items-center gap-1.5">
+        <span>🔗</span>
+        <span>অফিসিয়াল পোর্টাল:</span>
+      </span>
+      <button onclick="openTimelineView('{prog}', '{part}', '{year}', '{course_name}', '{sem}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1 rounded-lg text-xs shadow-2xs transition inline-flex items-center gap-1 cursor-pointer">
+        <span>📅 টাইমলাইন ও অগ্রগতি দেখুন</span>
+        <span>→</span>
+      </button>
+    </div>
     <div class="flex flex-wrap gap-1.5">
       <a href="{reval_link}" target="_blank" class="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg font-semibold transition shadow-2xs inline-flex items-center gap-1">
-        <span>ফলাফল পোর্টাল (Revaluation Link)</span>
+        <span>ফলাফল পোর্টাল</span>
         <span>↗</span>
       </a>
       <a href="{college_link}" target="_blank" class="bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-lg font-semibold transition shadow-2xs inline-flex items-center gap-1">
-        <span>কলেজভিত্তিক রেজাল্ট অনুসন্ধান (College-wise Result)</span>
+        <span>কলেজ রেজাল্ট</span>
         <span>↗</span>
       </a>
       <a href="https://www.nu.ac.bd/recent-news-notice.php" target="_blank" class="bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-semibold transition shadow-2xs inline-flex items-center gap-1">
-        <span>জাতীয় বিশ্ববিদ্যালয় নোটিশ বোর্ড</span>
+        <span>নোটিশ বোর্ড</span>
         <span>↗</span>
       </a>
     </div>

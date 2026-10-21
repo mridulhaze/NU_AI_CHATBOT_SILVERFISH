@@ -7,9 +7,37 @@ examination schedules, dates, and results published by administrators.
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, List, Dict, Any
 from db.sql_store import get_sql_store
-from backend.services.academic_exam_service import PROGRAM_CONFIG, format_exam_card_markdown
+from backend.services.academic_exam_service import (
+    PROGRAM_CONFIG,
+    format_exam_card_markdown,
+    build_academic_milestone_timeline,
+    get_academic_exam_years
+)
 
 router = APIRouter(prefix="/api/v1/academic-exams", tags=["Academic Examination Information (Public)"])
+
+@router.get("/years")
+def get_available_exam_years(
+    program_type: str = Query(..., description="Honours, Degree Pass, Master's, or Professional"),
+    part: Optional[str] = Query(None, description="Part e.g. Part 1"),
+    semester: Optional[str] = Query(None, description="Semester e.g. Semester 1"),
+    course_name: Optional[str] = Query(None, description="Course name e.g. CSE")
+):
+    """
+    Returns available examination years for a specific program, part, or course.
+    """
+    years = get_academic_exam_years(
+        program_type=program_type,
+        part=part,
+        semester=semester,
+        course_name=course_name
+    )
+    return {
+        "status": "success",
+        "program_type": program_type,
+        "part": part,
+        "years": years
+    }
 
 @router.get("/programs")
 def get_available_programs():
@@ -81,7 +109,6 @@ def list_academic_exams(
     }
 
 @router.get("/lookup")
-
 def lookup_academic_exam(
     program_type: str = Query(..., description="Honours, Degree Pass, Master's, or Professional"),
     examination_year: Optional[str] = Query(None, description="Examination Year e.g. 2024"),
@@ -90,7 +117,8 @@ def lookup_academic_exam(
     course_name: Optional[str] = Query(None, description="Course name e.g. CSE, BBA")
 ):
     """
-    Finds a specific exam schedule record and returns both structured data and formatted Markdown.
+    Finds a specific exam schedule record and returns structured data, formatted Markdown,
+    and the interactive 5-phase milestone timeline.
     """
     sql_store = get_sql_store()
     records = sql_store.lookup_academic_exam_info(
@@ -100,29 +128,72 @@ def lookup_academic_exam(
         semester=semester if isinstance(semester, str) else None,
         course_name=course_name if isinstance(course_name, str) else None
     )
+
+    available_years = get_academic_exam_years(
+        program_type=program_type,
+        part=part,
+        semester=semester,
+        course_name=course_name
+    )
+
     if not records:
-        raise HTTPException(status_code=404, detail="উক্ত শিক্ষাবর্ষ ও কোর্সের পরীক্ষার তথ্য পাওয়া যায়নি।")
-        
+        # Build an empty milestone timeline so frontend can display structured missing state gracefully
+        empty_timeline = build_academic_milestone_timeline(
+            record=None,
+            available_years=available_years,
+            program_type=program_type,
+            part=part,
+            semester=semester,
+            course_name=course_name
+        )
+        return {
+            "status": "not_found",
+            "message": "উক্ত শিক্ষাবর্ষ ও কোর্সের পরীক্ষার তথ্য পাওয়া যায়নি।",
+            "record": None,
+            "markdown_card": None,
+            "timeline": empty_timeline,
+            "available_years": available_years
+        }
+
     record = records[0]
     markdown_card = format_exam_card_markdown(record)
+    timeline = build_academic_milestone_timeline(
+        record=record,
+        available_years=available_years,
+        program_type=program_type,
+        part=part,
+        semester=semester,
+        course_name=course_name
+    )
     return {
         "status": "success",
         "record": record,
-        "markdown_card": markdown_card
+        "markdown_card": markdown_card,
+        "timeline": timeline,
+        "available_years": available_years
     }
 
 
 @router.get("/{record_id}")
 def get_academic_exam_by_id(record_id: int):
     """
-    Fetch a single record by primary key ID.
+    Fetch a single record by primary key ID with milestone timeline.
     """
     sql_store = get_sql_store()
     record = sql_store.get_academic_exam_info_by_id(record_id)
     if not record:
         raise HTTPException(status_code=404, detail="তথ্য পাওয়া যায়নি।")
+
+    available_years = get_academic_exam_years(
+        program_type=record.get("program_type", ""),
+        part=record.get("part"),
+        semester=record.get("semester"),
+        course_name=record.get("course_name")
+    )
+    timeline = build_academic_milestone_timeline(record=record, available_years=available_years)
     return {
         "status": "success",
         "record": record,
-        "markdown_card": format_exam_card_markdown(record)
+        "markdown_card": format_exam_card_markdown(record),
+        "timeline": timeline
     }
