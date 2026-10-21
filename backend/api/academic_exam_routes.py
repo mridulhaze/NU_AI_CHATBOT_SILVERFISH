@@ -173,6 +173,35 @@ def lookup_academic_exam(
         "available_years": available_years
     }
 
+@router.get("/all-timelines")
+def get_all_academic_exam_timelines(
+    program_type: Optional[str] = Query(None, description="Honours, Degree Pass, Master's, Professional"),
+    examination_year: Optional[str] = Query(None, description="Examination year e.g. 2024, 2025")
+):
+    """
+    Returns all academic examination records with their computed 5-phase milestone timelines,
+    ideal for rendering the global horizontal Exam Timeline Hub.
+    """
+    sql_store = get_sql_store()
+    records, total = sql_store.list_academic_exam_info(
+        program_type=program_type,
+        examination_year=examination_year,
+        limit=200
+    )
+    
+    results = []
+    for r in records:
+        tl = build_academic_milestone_timeline(record=r)
+        results.append({
+            "record": r,
+            "timeline": tl
+        })
+        
+    return {
+        "status": "success",
+        "total": len(results),
+        "items": results
+    }
 
 @router.get("/{record_id}")
 def get_academic_exam_by_id(record_id: int):

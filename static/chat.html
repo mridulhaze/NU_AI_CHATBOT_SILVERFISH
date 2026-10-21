@@ -697,6 +697,34 @@
     #faq-forum-panel {
       position: relative;
     }
+    /* Straight-line Linear Stepper */
+    .linear-timeline-axis {
+      position: relative;
+      width: 100%;
+      min-width: 640px;
+    }
+    .linear-timeline-line {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 36px;
+      height: 2px;
+      background: #111827;
+      z-index: 0;
+    }
+    [data-theme="dark"] .linear-timeline-line {
+      background: #E5E7EB;
+    }
+    .linear-timeline-tick {
+      width: 2px;
+      height: 14px;
+      background: #111827;
+      margin: 0 auto;
+    }
+    [data-theme="dark"] .linear-timeline-tick {
+      background: #E5E7EB;
+    }
+
   </style>
 </head>
 <body>
@@ -741,6 +769,17 @@
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           <span class="hidden md:inline">নতুন চ্যাট</span>
+        </button>
+
+                <!-- Button: Exam Timeline (New tab beside মূল মেনু - নতুন চ্যাট - স্টাফ পোর্টাল) -->
+        <button id="nav-exam-timeline-btn" onclick="openAllExamTimelinesHub()" class="apple-quiet-btn" title="সকল পরীক্ষার টাইমলাইন ও রোডম্যাপ">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="7" y1="8" x2="7" y2="16"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="17" y1="8" x2="17" y2="16"/>
+          </svg>
+          <span class="font-medium">Exam Timeline</span>
         </button>
 
         <!-- Mobile FAQ Scroll Toggle -->
@@ -982,15 +1021,20 @@
         <!-- Dynamically rendered by renderTimelineView() -->
       </div>
 
+      <!-- State D: Global All-Exam Timelines Hub (Horizontal Straight-Line Linear Stepper) -->
+      <div id="all-exam-timelines-view" class="hidden flex-1 space-y-4 overflow-y-auto mb-3 pb-3 max-h-[calc(100vh-270px)] min-h-[320px] thin-scrollbar pr-1">
+        <!-- Dynamically rendered by renderAllExamTimelinesHub() -->
+      </div>
+
       <!-- State B: Active Conversation Flow (Scrollable messages area) -->
-      <div id="conversation-view" class="hidden flex-1 space-y-4 overflow-y-auto mb-4 pb-2 max-h-[580px] thin-scrollbar">
+      <div id="conversation-view" class="hidden flex-1 space-y-4 overflow-y-auto mb-2 pb-2 max-h-[calc(100vh-270px)] min-h-[320px] thin-scrollbar pr-1">
         <div id="messages-container" class="space-y-4">
           <!-- Message bubbles appended here -->
         </div>
       </div>
 
-      <!-- Bottom Controls Wrapper -->
-      <div class="space-y-3 pt-5 sm:pt-6">
+      <!-- Bottom Controls Wrapper (Constant at the screen bottom when chatting) -->
+      <div id="bottom-controls-bar" class="space-y-2.5 pt-3 pb-1 sticky bottom-0 z-30 bg-[var(--surface)]/95 backdrop-blur-md border-t border-[var(--hairline)]">
         
         <!-- Category Chips Row (Monochromatic Pills, horizontally scrollable) -->
         <div class="relative">
@@ -1026,10 +1070,16 @@
           </button>
         </div>
 
-        <!-- Footer Disclaimer -->
-        <p class="text-[12px] text-center text-[var(--text-secondary)] mt-2">
-          জাতীয় বিশ্ববিদ্যালয় বাংলাদেশ (nu.ac.bd) দ্বারা সংরক্ষিত। কোনো ব্যক্তিগত পাসওয়ার্ড বা সংবেদনশীল তথ্য শেয়ার করবেন না!
-        </p>
+        <!-- Footer Disclaimer + Security Bot Badge -->
+        <div class="flex items-center justify-between text-[11px] sm:text-[12px] text-[var(--text-secondary)] mt-1 px-1">
+          <p class="truncate">
+            জাতীয় বিশ্ববিদ্যালয় বাংলাদেশ (nu.ac.bd) দ্বারা সংরক্ষিত। কোনো ব্যক্তিগত পাসওয়ার্ড বা সংবেদনশীল তথ্য শেয়ার করবেন না!
+          </p>
+          <button onclick="openCaptchaModal()" class="inline-flex items-center gap-1 hover:text-[var(--text)] transition cursor-pointer text-[10px] text-[var(--text-secondary)] px-2 py-0.5 rounded border border-[var(--hairline)] shrink-0 ml-2" title="বট প্রতিরোধ ও নিরাপত্তা যাচাই">
+            <span>🛡️</span>
+            <span>নিরাপত্তা যাচাই</span>
+          </button>
+        </div>
 
       </div>
 
@@ -1235,6 +1285,380 @@
     }
 
     // Goal 1: When press "মূল মেনু", clear screen and start a new chat
+    
+    /* ========================================================= */
+    /* ALL EXAM TIMELINES HUB (HORIZONTAL STRAIGHT LINE STEPPERS) */
+    /* ========================================================= */
+    let allExamsTimelineData = [];
+    let allExamsFilterProg = "All";
+
+    function showAllExamTimelinesView() {
+      const welcomeView = document.getElementById("welcome-view");
+      const conversationView = document.getElementById("conversation-view");
+      const timelineView = document.getElementById("timeline-view");
+      const allTimelinesView = document.getElementById("all-exam-timelines-view");
+      if (welcomeView) welcomeView.classList.add("hidden");
+      if (conversationView) conversationView.classList.add("hidden");
+      if (timelineView) timelineView.classList.add("hidden");
+      if (allTimelinesView) allTimelinesView.classList.remove("hidden");
+
+      const hubBtn = document.getElementById("nav-exam-timeline-btn");
+      if (hubBtn) hubBtn.classList.add("border-[var(--text)]", "font-semibold");
+    }
+
+    async function openAllExamTimelinesHub() {
+      setSplitMode("chat");
+      showAllExamTimelinesView();
+
+      const container = document.getElementById("all-exam-timelines-view");
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="p-8 text-center space-y-3">
+          <div class="w-7 h-7 mx-auto border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <div class="text-sm font-semibold text-[var(--text)]">সকল পরীক্ষার রোডম্যাপ ও টাইমলাইন লোড হচ্ছে...</div>
+          <div class="text-xs text-[var(--text-secondary)]">ডাটাবেজ থেকে সর্বশেষ তথ্য যাচাই করা হচ্ছে</div>
+        </div>
+      `;
+
+      try {
+        const res = await fetch("/api/v1/academic-exams/all-timelines");
+        const data = await res.json();
+        if (data.status === "success" && Array.isArray(data.items)) {
+          allExamsTimelineData = data.items;
+          allExamsFilterProg = "All";
+          renderAllExamTimelinesHub();
+        } else {
+          throw new Error("টাইমলাইন তথ্য পাওয়া যায়নি");
+        }
+      } catch (err) {
+        container.innerHTML = `
+          <div class="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs space-y-2 text-center">
+            <div class="font-bold text-sm">টাইমলাইন লোড করা যায়নি</div>
+            <div>${err.message || 'সার্ভারে সংযোগ করতে সমস্যা হয়েছে।'}</div>
+            <button onclick="goToMainMenu()" class="mt-2 px-3 py-1.5 bg-white border border-rose-300 rounded-lg font-semibold hover:bg-rose-100 transition cursor-pointer">
+              ← মূল মেনুতে ফিরুন
+            </button>
+          </div>
+        `;
+      }
+    }
+    window.openAllExamTimelinesHub = openAllExamTimelinesHub;
+
+    function filterAllExamTimelines(prog) {
+      allExamsFilterProg = prog;
+      renderAllExamTimelinesHub();
+    }
+    window.filterAllExamTimelines = filterAllExamTimelines;
+
+    function renderAllExamTimelinesHub() {
+      const container = document.getElementById("all-exam-timelines-view");
+      if (!container) return;
+
+      const filtered = allExamsTimelineData.filter(item => {
+        if (!item.record) return false;
+        if (allExamsFilterProg === "All") return true;
+        return item.record.program_type === allExamsFilterProg;
+      });
+
+      const filterTabs = [
+        { id: "All", label: `সকল (${toBnDigits(allExamsTimelineData.length)})` },
+        { id: "Honours", label: "অনার্স" },
+        { id: "Degree Pass", label: "ডিগ্রি পাস" },
+        { id: "Master's", label: "মাস্টার্স" },
+        { id: "Professional", label: "প্রফেশনাল" }
+      ];
+
+      const tabsHtml = filterTabs.map(t => {
+        const isActive = allExamsFilterProg === t.id;
+        const cls = isActive
+          ? "bg-[var(--text)] text-[var(--surface)] font-semibold shadow-xs"
+          : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)] hover:text-[var(--text)]";
+        return `<button onclick="filterAllExamTimelines('${t.id}')" class="px-3 py-1 rounded-full text-xs transition cursor-pointer ${cls}">${t.label}</button>`;
+      }).join("");
+
+      let examsListHtml = "";
+      if (filtered.length === 0) {
+        examsListHtml = `
+          <div class="p-8 text-center text-xs text-[var(--text-secondary)] border border-dashed border-[var(--hairline)] rounded-2xl">
+            নির্বাচিত ক্যাটাগরির কোনো পরীক্ষার রেকর্ড পাওয়া যায়নি।
+          </div>
+        `;
+      } else {
+        examsListHtml = filtered.map((item) => {
+          const rec = item.record || {};
+          const tl = item.timeline || {};
+          const progName = tl.heading || `${rec.program_type} ${rec.part || ''}`;
+          const examYear = rec.examination_year ? `${toBnDigits(rec.examination_year)} খ্রি.` : "চলতি";
+          
+          // Step definitions: 1. ইনকোর্স, 2. ফরম পূরণ, 3. রুটিন, 4. মূল পরীক্ষা, 5. ফলাফল, 6. সনদ
+          const steps = [
+            {
+              id: "incourse",
+              name: "ইনকোর্স",
+              date: rec.incourse_exam_date || rec.incourse_marks_submission_deadline || "তথ্য নেই",
+              isDone: !!rec.incourse_exam_date
+            },
+            {
+              id: "form_fillup",
+              name: "ফরম পূরণ",
+              date: rec.form_fillup_start_date ? `${rec.form_fillup_start_date} হতে ${rec.form_fillup_end_date || ''}` : "তথ্য নেই",
+              isDone: !!rec.form_fillup_end_date
+            },
+            {
+              id: "routine",
+              name: "রুটিন ও প্রবেশপত্র",
+              date: rec.exam_routine_published_date || rec.admit_card_available_date || "তথ্য নেই",
+              isDone: !!rec.exam_routine_link || !!rec.exam_routine_published_date
+            },
+            {
+              id: "exam",
+              name: "মূল পরীক্ষা",
+              date: rec.exam_start_date ? `${rec.exam_start_date} হতে ${rec.exam_end_date || ''}` : "অপেক্ষমাণ",
+              isDone: !!rec.exam_end_date
+            },
+            {
+              id: "results",
+              name: "ফলাফল প্রকাশ",
+              date: rec.actual_result_date || rec.expected_result_date || "অপেক্ষমাণ",
+              isDone: rec.results_published === 1 || rec.results_published === "1"
+            },
+            {
+              id: "certificate",
+              name: "সনদ ও মার্কশিট",
+              date: rec.documents_printed_date || "অপেক্ষমাণ",
+              isDone: rec.documents_printed === 1 || rec.documents_printed === "1"
+            }
+          ];
+
+          const stepsHtml = steps.map((st, sIdx) => {
+            let statusBadge = "";
+            let badgeCls = "";
+            if (st.isDone) {
+              statusBadge = "সম্পন্ন";
+              badgeCls = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
+            } else if (st.date && st.date !== "তথ্য নেই" && st.date !== "অপেক্ষমাণ") {
+              statusBadge = "ঘোষিত";
+              badgeCls = "bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800";
+            } else {
+              statusBadge = "অপেক্ষমাণ";
+              badgeCls = "bg-zinc-100 text-zinc-500 border border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700";
+            }
+
+            return `
+              <div class="flex-1 min-w-[90px] max-w-[130px] flex flex-col items-center text-center px-1">
+                <!-- Step Title (Apple Bold Text Above Line) -->
+                <div class="text-[11px] sm:text-[12px] font-bold text-[var(--text)] tracking-tight mb-1 whitespace-nowrap">
+                  ${toBnDigits(sIdx + 1)}. ${st.name}
+                </div>
+                
+                <!-- Straight Black Small Vertical Line to Indicate Step -->
+                <div class="w-[2px] h-3.5 bg-black dark:bg-zinc-200 my-0.5"></div>
+                
+                <!-- Step Date & Minimalist Status Below Line -->
+                <div class="text-[10px] sm:text-[11px] font-medium text-[var(--text-secondary)] mt-1 truncate w-full" title="${escapeHTML(st.date)}">
+                  ${escapeHTML(st.date)}
+                </div>
+                <div class="mt-1">
+                  <span class="inline-block text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded font-medium ${badgeCls}">
+                    ${statusBadge}
+                  </span>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+          return `
+            <div class="apple-card p-4 sm:p-5 space-y-4">
+              <!-- Top bar with exam info and direct action -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-[var(--hairline)]">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-base font-bold text-[var(--text)] tracking-tight">${escapeHTML(progName)}</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-[var(--text)] text-[var(--surface)] shadow-2xs">
+                    ${examYear}
+                  </span>
+                  ${rec.course_name ? `<span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${escapeHTML(rec.course_name)}</span>` : ''}
+                  ${rec.semester ? `<span class="text-xs text-[var(--text-secondary)]">(${escapeHTML(rec.semester)})</span>` : ''}
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button onclick="openTimelineView('${rec.program_type}', '${rec.part || ''}', '${rec.examination_year || ''}', '${rec.course_name || ''}', '${rec.semester || ''}')" 
+                    class="apple-quiet-btn text-xs py-1 px-2.5 border border-[var(--hairline)] rounded-lg text-indigo-600 dark:text-indigo-400 font-semibold hover:border-indigo-300 flex items-center gap-1 cursor-pointer">
+                    <span>বিস্তারিত দেখুন</span>
+                    <span>↗</span>
+                  </button>
+                  <button onclick="askAiAboutExam('${escapeHTML(progName)}')" 
+                    class="apple-quiet-btn text-xs py-1 px-2.5 border border-[var(--hairline)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center gap-1 cursor-pointer">
+                    <span>💬 এআই প্রশ্ন</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- HORIZONTAL STRAIGHT BLACK LINE WITH SMALL STRAIGHT VERTICAL LINES -->
+              <div class="relative w-full overflow-x-auto no-scrollbar py-2">
+                <div class="relative min-w-[620px] px-2">
+                  <!-- Straight black line running horizontally -->
+                  <div class="absolute left-6 right-6 top-[25px] h-[2px] bg-black dark:bg-zinc-200 z-0"></div>
+                  
+                  <!-- Steps container -->
+                  <div class="relative z-10 flex justify-between items-start">
+                    ${stepsHtml}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      container.innerHTML = `
+        <!-- Hub Header & Filters -->
+        <div class="space-y-3 pb-3 border-b border-[var(--hairline)]">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📅</span>
+                <h2 class="text-[18px] sm:text-[22px] font-bold text-[var(--text)] tracking-tight">
+                  Exam Timeline Hub — সার্বিক পরীক্ষার রোডম্যাপ
+                </h2>
+              </div>
+              <p class="text-xs sm:text-[13px] text-[var(--text-secondary)] mt-0.5">
+                জাতীয় বিশ্ববিদ্যালয়ের সকল শিক্ষাবর্ষের চলমান ও আসন্ন পরীক্ষার ধাপসমূহ একটি সোজা টাইমলাইনে দেখুন:
+              </p>
+            </div>
+
+            <button onclick="goToMainMenu()" class="apple-quiet-btn text-xs py-1.5 px-3 border border-[var(--hairline)] rounded-xl text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center gap-1.5 cursor-pointer">
+              <span>← মূল মেনুতে ফিরুন</span>
+            </button>
+          </div>
+
+          <!-- Filter Tabs -->
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+            ${tabsHtml}
+          </div>
+        </div>
+
+        <!-- Timeline Cards List -->
+        <div class="space-y-4">
+          ${examsListHtml}
+        </div>
+      `;
+    }
+    window.renderAllExamTimelinesHub = renderAllExamTimelinesHub;
+
+    /* ========================================================= */
+    /* BOT PROTECTION & MATH CAPTCHA VERIFICATION                */
+    /* ========================================================= */
+    let activeCaptchaId = null;
+    let pendingMessageText = null;
+
+    async function openCaptchaModal(message) {
+      const modal = document.getElementById("captcha-modal");
+      const msgEl = document.getElementById("captcha-reason-text");
+      const errEl = document.getElementById("captcha-error-msg");
+      const inputEl = document.getElementById("captcha-answer-input");
+
+      if (msgEl && message) msgEl.innerText = message;
+      if (errEl) errEl.classList.add("hidden");
+      if (inputEl) inputEl.value = "";
+
+      if (modal) modal.classList.remove("hidden");
+      await loadNewCaptchaChallenge();
+      if (inputEl) inputEl.focus();
+    }
+    window.openCaptchaModal = openCaptchaModal;
+
+    function closeCaptchaModal() {
+      const modal = document.getElementById("captcha-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+    window.closeCaptchaModal = closeCaptchaModal;
+
+    async function loadNewCaptchaChallenge() {
+      const qEl = document.getElementById("captcha-question-text");
+      const errEl = document.getElementById("captcha-error-msg");
+      if (errEl) errEl.classList.add("hidden");
+      if (qEl) qEl.innerHTML = `<span class="text-sm font-normal text-[var(--text-secondary)]">প্রশ্ন লোড হচ্ছে...</span>`;
+
+      try {
+        const res = await fetch("/api/v1/captcha/challenge");
+        const data = await res.json();
+        if (data.captcha_id) {
+          activeCaptchaId = data.captcha_id;
+          if (qEl) qEl.innerHTML = `<span class="font-mono text-xl sm:text-2xl font-bold text-[var(--text)] tracking-wider">${data.question}</span>`;
+        }
+      } catch (err) {
+        if (qEl) qEl.innerText = "ক্যাপচা লোড করা যায়নি। পুনরায় চেষ্টা করুন।";
+      }
+    }
+    window.loadNewCaptchaChallenge = loadNewCaptchaChallenge;
+
+    async function submitCaptchaVerification() {
+      const inputEl = document.getElementById("captcha-answer-input");
+      const errEl = document.getElementById("captcha-error-msg");
+      const submitBtn = document.getElementById("captcha-submit-btn");
+
+      const ans = (inputEl ? inputEl.value : "").trim();
+      if (!ans) {
+        if (errEl) {
+          errEl.innerText = "অনুগ্রহ করে উত্তর লিখুন!";
+          errEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const res = await fetch("/api/v1/captcha/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            captcha_id: activeCaptchaId,
+            answer: ans
+          })
+        });
+
+        const data = await res.json();
+        if (data.verified && data.verification_token) {
+          sessionStorage.setItem("nu_captcha_token", data.verification_token);
+          closeCaptchaModal();
+
+          if (pendingMessageText) {
+            const txt = pendingMessageText;
+            pendingMessageText = null;
+            sendPendingMessage(txt);
+          }
+        } else {
+          if (errEl) {
+            errEl.innerText = data.message || "ভুল উত্তর! আবার চেষ্টা করুন।";
+            errEl.classList.remove("hidden");
+          }
+          await loadNewCaptchaChallenge();
+          if (inputEl) {
+            inputEl.value = "";
+            inputEl.focus();
+          }
+        }
+      } catch (err) {
+        if (errEl) {
+          errEl.innerText = "সার্ভার যাচাইকরণে সমস্যা হয়েছে।";
+          errEl.classList.remove("hidden");
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    }
+    window.submitCaptchaVerification = submitCaptchaVerification;
+
+    function sendPendingMessage(text) {
+      const input = document.getElementById("user-input");
+      if (input) {
+        input.value = text;
+        handleSend();
+      }
+    }
+
     function goToMainMenu() {
       setSplitMode("chat");
       conversationHistory = [];
@@ -1255,11 +1679,17 @@
       const welcomeView = document.getElementById("welcome-view");
       const conversationView = document.getElementById("conversation-view");
       const timelineView = document.getElementById("timeline-view");
+      const allTimelinesView = document.getElementById("all-exam-timelines-view");
       if (welcomeView) welcomeView.classList.remove("hidden");
       if (conversationView) conversationView.classList.add("hidden");
       if (timelineView) timelineView.classList.add("hidden");
+      if (allTimelinesView) allTimelinesView.classList.add("hidden");
+
+      const navTimelineBtn = document.getElementById("nav-exam-timeline-btn");
+      if (navTimelineBtn) navTimelineBtn.classList.remove("border-[var(--text)]", "font-semibold");
 
       closeMilestoneDetailModal();
+      closeCaptchaModal();
 
       renderChips(MAIN_CHIPS);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1291,8 +1721,10 @@
       const welcomeView = document.getElementById("welcome-view");
       const conversationView = document.getElementById("conversation-view");
       const timelineView = document.getElementById("timeline-view");
+      const allTimelinesView = document.getElementById("all-exam-timelines-view");
       if (welcomeView) welcomeView.classList.add("hidden");
       if (timelineView) timelineView.classList.add("hidden");
+      if (allTimelinesView) allTimelinesView.classList.add("hidden");
       if (conversationView) conversationView.classList.remove("hidden");
     }
 
@@ -1301,8 +1733,10 @@
       const welcomeView = document.getElementById("welcome-view");
       const conversationView = document.getElementById("conversation-view");
       const timelineView = document.getElementById("timeline-view");
+      const allTimelinesView = document.getElementById("all-exam-timelines-view");
       if (welcomeView) welcomeView.classList.add("hidden");
       if (conversationView) conversationView.classList.add("hidden");
+      if (allTimelinesView) allTimelinesView.classList.add("hidden");
       if (timelineView) timelineView.classList.remove("hidden");
     }
 
@@ -1921,11 +2355,24 @@
           session_id: sessionId
         };
 
+        const headers = { "Content-Type": "application/json" };
+        const captchaTok = sessionStorage.getItem("nu_captcha_token");
+        if (captchaTok) {
+          headers["X-Captcha-Token"] = captchaTok;
+        }
+
         const res = await fetch("/api/v1/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: headers,
           body: JSON.stringify(payload)
         });
+
+        if (res.status === 429) {
+          loadingBubble.remove();
+          pendingMessageText = text;
+          openCaptchaModal("রেট লিমিট ও অতিরিক্ত অনুরোধের সুরক্ষায় অনুগ্রহ করে নিচের সহজ ক্যাপচাটি পূরণ করুন:");
+          return;
+        }
 
         const data = await res.json();
         loadingBubble.remove();
@@ -2602,5 +3049,56 @@
       </div>
     </div>
   </div>
+  <!-- Math CAPTCHA & Anti-Bot Verification Modal (Apple Monochromatic Design) -->
+  <div id="captcha-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/45 backdrop-blur-md" onclick="if(event.target===this) closeCaptchaModal()">
+    <div class="bg-[var(--surface)] text-[var(--text)] border border-[var(--hairline)] rounded-[20px] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-5 py-4 border-b border-[var(--hairline)] flex items-center justify-between bg-[var(--bg)]">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🛡️</span>
+          <h3 class="text-[15px] font-bold text-[var(--text)] tracking-tight">নিরাপত্তা ও শিক্ষার্থী যাচাই</h3>
+        </div>
+        <button onclick="closeCaptchaModal()" class="apple-quiet-btn p-1 text-sm leading-none cursor-pointer" title="বন্ধ করুন">✕</button>
+      </div>
+      <div class="p-5 space-y-3.5">
+        <p id="captcha-reason-text" class="text-xs text-[var(--text-secondary)] text-center leading-relaxed">
+          অতিরিক্ত অনুরোধ ও রোবট প্রতিরোধে নিচের সহজ গণিতটির উত্তর দিন:
+        </p>
+
+        <!-- Challenge Display Box -->
+        <div class="py-3 px-4 bg-[var(--bg)] border border-[var(--hairline)] rounded-xl text-center space-y-1">
+          <div id="captcha-question-text" class="text-xl sm:text-2xl font-bold font-mono tracking-wider text-[var(--text)]">
+            ৭ + ৫ = ?
+          </div>
+          <button onclick="loadNewCaptchaChallenge()" class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer inline-flex items-center gap-1">
+            <span>🔄</span>
+            <span>অন্য প্রশ্ন দিন</span>
+          </button>
+        </div>
+
+        <!-- Answer Input -->
+        <div>
+          <input 
+            id="captcha-answer-input" 
+            type="text" 
+            placeholder="উত্তর লিখুন (যেমন: 12 বা ১২)" 
+            class="w-full px-4 py-2.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] text-center text-lg font-bold text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-xs placeholder:font-normal placeholder:text-[var(--text-secondary)]" 
+            onkeydown="if(event.key==='Enter') submitCaptchaVerification()"
+          />
+          <div id="captcha-error-msg" class="hidden text-xs text-rose-600 font-semibold text-center mt-1.5"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-1 flex items-center gap-2">
+          <button id="captcha-submit-btn" onclick="submitCaptchaVerification()" class="flex-1 apple-send-btn justify-center py-2.5 text-xs font-semibold rounded-xl">
+            <span>যাচাই সম্পন্ন করুন</span>
+          </button>
+          <button onclick="closeCaptchaModal()" class="apple-quiet-btn py-2.5 px-3 text-xs font-medium border border-[var(--hairline)] rounded-xl cursor-pointer">
+            বাতিল
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

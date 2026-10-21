@@ -15,7 +15,8 @@ router = APIRouter(prefix="/api/v1/chat", tags=["AI Orchestrator & Skills Chat"]
 async def process_orchestrated_chat(payload: ChatRequest, request: Request):
     forwarded = request.headers.get("x-forwarded-for")
     client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
-    rate_limiter.check_rate_limit(client_ip)
+    captcha_token = request.headers.get("x-captcha-token")
+    rate_limiter.check_rate_limit(client_ip, captcha_token=captcha_token)
 
     user_query = payload.message.strip()
     if not user_query:
@@ -35,7 +36,8 @@ async def process_orchestrated_chat(payload: ChatRequest, request: Request):
 @router.post("/stream")
 async def process_orchestrated_stream(payload: ChatRequest, request: Request):
     client_ip = request.client.host if request.client else "127.0.0.1"
-    rate_limiter.check_rate_limit(client_ip)
+    captcha_token = request.headers.get("x-captcha-token")
+    rate_limiter.check_rate_limit(client_ip, captcha_token=captcha_token)
 
     user_query = payload.message.strip()
     if not user_query:
