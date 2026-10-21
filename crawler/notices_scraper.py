@@ -3,7 +3,7 @@ import logging
 import urllib.parse
 import itertools
 from bs4 import BeautifulSoup
-from typing import List, Tuple
+from typing import List, Tuple, Optional, Dict, Any
 from langchain_core.documents import Document
 
 from .base_scraper import BaseScraper
