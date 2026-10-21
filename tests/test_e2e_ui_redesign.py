@@ -1080,3 +1080,35 @@ def test_t4_06_admin_faq_input_form_and_chat_lighting_bars(index_soup, chat_soup
     assert pro_card is not None, "Missing Professional card in static/chat.html"
     assert pro_card.find("svg") is not None, "Card 4 (Professional) must have a valid <svg> tag wrapper"
 
+
+def test_t4_07_simplified_faq_header_and_admin_maximize_button(index_soup, chat_soup, index_html, chat_html):
+    """
+    Scenario 7: Simplified Minimalist FAQ Header & Admin Fullscreen Maximize Button
+    - Confirms FAQ panel header is simplified to clean 'FAQ' title.
+    - Confirms #faq-toggle-split-btn and refresh button remain functional.
+    - Confirms #admin-modal-maximize-btn exists with toggleAdminModalFullscreen handler.
+    - Confirms #admin-modal-container exists for fluid fullscreen resizing.
+    """
+    # 1. Simplified FAQ header in static/chat.html
+    faq_panel = chat_soup.find(id="faq-forum-panel")
+    assert faq_panel is not None, "Missing #faq-forum-panel in chat.html"
+    faq_h3 = faq_panel.find("h3")
+    assert faq_h3 is not None, "Missing <h3> heading in #faq-forum-panel"
+    assert faq_h3.text.strip() == "FAQ", f"Expected header text to be exactly 'FAQ', got '{faq_h3.text.strip()}'"
+
+    # Split toggle button preserved
+    split_btn = faq_panel.find(id="faq-toggle-split-btn")
+    assert split_btn is not None, "Missing #faq-toggle-split-btn in #faq-forum-panel"
+    assert "toggleSplitMode" in chat_html, "toggleSplitMode function missing from chat.html"
+
+    # 2. Admin Modal Maximize Button in static/index.html
+    admin_modal = index_soup.find(id="admin-modal")
+    assert admin_modal is not None, "Missing #admin-modal in index.html"
+    container = admin_modal.find(id="admin-modal-container")
+    assert container is not None, "Missing #admin-modal-container in index.html"
+
+    max_btn = admin_modal.find(id="admin-modal-maximize-btn")
+    assert max_btn is not None, "Missing #admin-modal-maximize-btn in admin header"
+    assert "toggleAdminModalFullscreen" in index_html, "toggleAdminModalFullscreen missing in index.html"
+
+

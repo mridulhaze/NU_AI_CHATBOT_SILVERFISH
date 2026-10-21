@@ -1107,8 +1107,8 @@
   </div>
 
   <!-- Admin Modal (Gap Queue, Crawlers, Users & Token Support Center) -->
-  <div id="admin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden">
+  <div id="admin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-6 transition-all duration-200">
+    <div id="admin-modal-container" class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden transition-all duration-200">
       <!-- Modal Header (Deep Navy Banner matching reference UI) -->
       <div class="shrink-0 px-6 py-3.5 border-b border-slate-800 flex items-center justify-between bg-[#0B1528] text-white">
         <div class="flex items-center gap-3">
@@ -1140,7 +1140,13 @@
             <span>🚪</span>
             <span>Logout</span>
           </button>
-          <button onclick="toggleAdminModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition">
+          <!-- Fullscreen / Maximize Toggle Button -->
+          <button id="admin-modal-maximize-btn" onclick="toggleAdminModalFullscreen()" class="text-slate-300 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer" title="Maximize to Full Screen (ফুলস্ক্রিন করুন)">
+            <svg id="admin-modal-maximize-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+            </svg>
+          </button>
+          <button onclick="toggleAdminModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition" title="Close">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
@@ -4669,6 +4675,54 @@
       if (modal) modal.classList.add("hidden");
       showToast("Logged out from admin portal.");
     }
+
+    let isAdminModalMaximized = false;
+
+    function toggleAdminModalFullscreen() {
+      const modalWrapper = document.getElementById("admin-modal");
+      const modalContainer = document.getElementById("admin-modal-container");
+      const maxBtn = document.getElementById("admin-modal-maximize-btn");
+      const maxIcon = document.getElementById("admin-modal-maximize-icon");
+      if (!modalWrapper || !modalContainer) return;
+
+      isAdminModalMaximized = !isAdminModalMaximized;
+
+      if (isAdminModalMaximized) {
+        modalWrapper.classList.remove("p-3", "sm:p-6", "items-center", "justify-center");
+        modalWrapper.classList.add("p-0");
+        modalContainer.classList.remove("max-w-5xl", "h-[90vh]", "rounded-2xl");
+        modalContainer.classList.add("w-full", "h-full", "max-w-none", "rounded-none", "border-0");
+        if (maxBtn) maxBtn.title = "Restore Down (স্বাভাবিক আকার)";
+        if (maxIcon) {
+          maxIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />`;
+        }
+        try {
+          if (!document.fullscreenElement && modalWrapper.requestFullscreen) {
+            modalWrapper.requestFullscreen().catch(() => {});
+          }
+        } catch (e) {}
+      } else {
+        modalWrapper.classList.remove("p-0");
+        modalWrapper.classList.add("p-3", "sm:p-6", "items-center", "justify-center");
+        modalContainer.classList.remove("w-full", "h-full", "max-w-none", "rounded-none", "border-0");
+        modalContainer.classList.add("max-w-5xl", "h-[90vh]", "rounded-2xl");
+        if (maxBtn) maxBtn.title = "Maximize to Full Screen (ফুলস্ক্রিন করুন)";
+        if (maxIcon) {
+          maxIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />`;
+        }
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          }
+        } catch (e) {}
+      }
+    }
+
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement && isAdminModalMaximized) {
+        toggleAdminModalFullscreen();
+      }
+    });
 
     function toggleAdminModal() {
       const user = getAdminUser();
