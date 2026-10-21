@@ -1109,6 +1109,264 @@ def render_program_selection_cards(program_type: str) -> str:
     return wrapper.strip()
 
 
+def render_exam_card_timeline_bar(item: Dict[str, Any]) -> str:
+    """
+    Renders an interactive, responsive horizontal milestone timeline with a central progress bar
+    matching the user-provided timeline template (media_1792588891660_fe7a1e9f.png).
+    Alternates milestones above and below the central progress track.
+    """
+    today_bd = get_bd_now().date()
+
+    # 1. Incourse
+    incourse_raw = (item.get("incourse_exam_date") or item.get("incourse_marks_deadline") or "").strip()
+    status_1, type_1, comp_1, desc_1 = evaluate_milestone_status("incourse_exam_date", incourse_raw, item, today_bd)
+    date_1 = format_user_facing_date(incourse_raw, parse_date_str(incourse_raw))
+
+    # 2. Form fillup
+    form_raw = (item.get("form_fillup_deadline") or item.get("form_fillup_start_date") or "").strip()
+    status_2, type_2, comp_2, desc_2 = evaluate_milestone_status("form_fillup_deadline", form_raw, item, today_bd)
+    date_2 = format_user_facing_date(form_raw, parse_date_str(form_raw))
+
+    # 3. Routine & Admit Card
+    routine_raw = (item.get("routine_publication_date") or item.get("admit_card_date") or "").strip()
+    status_3, type_3, comp_3, desc_3 = evaluate_milestone_status("routine_publication_date", routine_raw, item, today_bd)
+    date_3 = "রুটিন প্রকাশিত" if routine_raw.startswith("http") else format_user_facing_date(routine_raw, parse_date_str(routine_raw))
+
+    # 4. Exam period
+    exam_raw = (item.get("exam_date") or item.get("last_exam_date") or "").strip()
+    status_4, type_4, comp_4, desc_4 = evaluate_milestone_status("exam_date", exam_raw, item, today_bd)
+    date_4 = format_user_facing_date(exam_raw, parse_date_str(exam_raw))
+
+    # 5. Results
+    pub_flag = (item.get("results_published") or "").strip().lower()
+    res_comp = pub_flag in ["yes", "true", "1", "হ্যাঁ", "সম্পন্ন", "প্রকাশিত"]
+    res_raw = (item.get("actual_result_date") or item.get("probable_result_date") or "").strip()
+    if res_comp:
+        status_5, type_5, comp_5, desc_5 = "প্রকাশিত", "published", True, "ফলাফল আনুষ্ঠানিকভাবে প্রকাশ করা হয়েছে।"
+    else:
+        status_5, type_5, comp_5, desc_5 = evaluate_milestone_status("probable_result_date", res_raw, item, today_bd)
+    date_5 = format_user_facing_date(res_raw, parse_date_str(res_raw)) if res_raw else ("প্রকাশিত" if res_comp else "অপেক্ষমাণ")
+
+    # 6. Certificates & Marksheet
+    doc_flag = (item.get("documents_printed") or "").strip().lower()
+    doc_comp = doc_flag in ["yes", "true", "1", "হ্যাঁ", "সম্পন্ন"]
+    doc_raw = (item.get("document_printing_date") or "").strip()
+    if doc_comp:
+        status_6, type_6, comp_6, desc_6 = "সম্পন্ন", "completed", True, "মূল মার্কশিট ও সনদ মুদ্রণ সম্পন্ন হয়েছে।"
+    else:
+        status_6, type_6, comp_6, desc_6 = evaluate_milestone_status("document_printing_date", doc_raw, item, today_bd)
+    date_6 = format_user_facing_date(doc_raw, parse_date_str(doc_raw)) if doc_raw else ("সম্পন্ন" if doc_comp else "অপেক্ষমাণ")
+
+    milestones = [
+        {
+            "id": "1",
+            "title": "ইনকোর্স পরীক্ষা",
+            "sub": "ইনকোর্স ও নম্বর জমা",
+            "date": date_1,
+            "status": status_1,
+            "type": type_1,
+            "comp": comp_1,
+            "color": "#0284c7",
+            "border_color": "border-sky-300",
+            "badge_class": "bg-sky-50 text-sky-800 border-sky-200",
+            "pos": "top"
+        },
+        {
+            "id": "2",
+            "title": "ফরম পূরণ",
+            "sub": "অনলাইন ফরম ও ফি",
+            "date": date_2,
+            "status": status_2,
+            "type": type_2,
+            "comp": comp_2,
+            "color": "#6366f1",
+            "border_color": "border-indigo-300",
+            "badge_class": "bg-indigo-50 text-indigo-800 border-indigo-200",
+            "pos": "bottom"
+        },
+        {
+            "id": "3",
+            "title": "রুটিন ও প্রবেশপত্র",
+            "sub": "সময়সূচি ও এডমিট কার্ড",
+            "date": date_3,
+            "status": status_3,
+            "type": type_3,
+            "comp": comp_3,
+            "color": "#2563eb",
+            "border_color": "border-blue-300",
+            "badge_class": "bg-blue-50 text-blue-800 border-blue-200",
+            "pos": "top"
+        },
+        {
+            "id": "4",
+            "title": "মূল পরীক্ষা",
+            "sub": "তত্ত্বীয় ও ব্যবহারিক পরীক্ষা",
+            "date": date_4,
+            "status": status_4,
+            "type": type_4,
+            "comp": comp_4,
+            "color": "#0d9488",
+            "border_color": "border-teal-300",
+            "badge_class": "bg-teal-50 text-teal-800 border-teal-200",
+            "pos": "bottom"
+        },
+        {
+            "id": "5",
+            "title": "ফলাফল প্রকাশ",
+            "sub": "ফলাফল ও পুনঃনিরীক্ষণ",
+            "date": date_5,
+            "status": status_5,
+            "type": type_5,
+            "comp": comp_5,
+            "color": "#d97706",
+            "border_color": "border-amber-300",
+            "badge_class": "bg-amber-50 text-amber-800 border-amber-200",
+            "pos": "top"
+        },
+        {
+            "id": "6",
+            "title": "সনদ ও মার্কশিট",
+            "sub": "মূল মার্কশিট ও সনদ বিতরণ",
+            "date": date_6,
+            "status": status_6,
+            "type": type_6,
+            "comp": comp_6,
+            "color": "#e11d48",
+            "border_color": "border-rose-300",
+            "badge_class": "bg-rose-50 text-rose-800 border-rose-200",
+            "pos": "bottom"
+        }
+    ]
+
+    completed_count = sum(1 for m in milestones if m["comp"])
+    if doc_comp:
+        progress_pct = 100
+        track_fill_pct = 100
+    elif res_comp:
+        progress_pct = 83
+        track_fill_pct = 83
+    elif comp_4 or (type_4 in ["today", "passed_unconfirmed"]):
+        progress_pct = 66
+        track_fill_pct = 66
+    elif comp_3 or routine_raw.startswith("http") or (type_3 in ["today", "passed_unconfirmed"]):
+        progress_pct = 50
+        track_fill_pct = 50
+    elif comp_2 or (type_2 in ["today", "passed_unconfirmed"]):
+        progress_pct = 33
+        track_fill_pct = 33
+    elif comp_1 or (type_1 in ["today", "passed_unconfirmed"]):
+        progress_pct = 20
+        track_fill_pct = 20
+    else:
+        progress_pct = 10
+        track_fill_pct = 10
+
+    # Top Row Cards
+    top_cols = []
+    for m in milestones:
+        if m["pos"] == "top":
+            top_cols.append(f'''<div class="flex flex-col items-center text-center px-1">
+  <div class="w-full bg-white rounded-xl p-2 shadow-2xs border {m["border_color"]} hover:shadow-xs transition">
+    <div class="text-[12px] font-bold" style="color: {m["color"]};">{m["title"]}</div>
+    <div class="text-[11px] font-semibold text-slate-800 mt-0.5 truncate">{m["date"]}</div>
+    <div class="mt-1 flex items-center justify-center">
+      <span class="text-[9.5px] px-2 py-0.5 rounded-full font-semibold border {m["badge_class"]}">{m["status"]}</span>
+    </div>
+    <div class="text-[9.5px] text-slate-400 mt-1 truncate">{m["sub"]}</div>
+  </div>
+  <div class="w-0.5 h-3.5 bg-slate-300 mt-1"></div>
+</div>''')
+        else:
+            top_cols.append('''<div class="h-full flex items-end justify-center pb-2 opacity-30 text-xs text-slate-400">
+  <span>•</span>
+</div>''')
+    top_row_html = "".join(top_cols)
+
+    # Central Nodes
+    node_cols = []
+    for idx, m in enumerate(milestones):
+        is_active_pulse = (m["type"] == "today")
+        pulse_style = "animate-pulse ring-4 ring-sky-300" if is_active_pulse else ""
+        icon = "✓" if m["comp"] else str(idx + 1)
+        node_cols.append(f'''<div class="flex items-center justify-center">
+  <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-xs transition hover:scale-110 cursor-default {pulse_style}" 
+       style="background: {m["color"]}; border: 3px solid #ffffff;" 
+       title="{m["title"]}: {m["date"]} ({m["status"]})">
+    {icon}
+  </div>
+</div>''')
+    node_row_html = "".join(node_cols)
+
+    # Bottom Row Cards
+    bottom_cols = []
+    for m in milestones:
+        if m["pos"] == "bottom":
+            bottom_cols.append(f'''<div class="flex flex-col items-center text-center px-1">
+  <div class="w-0.5 h-3.5 bg-slate-300 mb-1"></div>
+  <div class="w-full bg-white rounded-xl p-2 shadow-2xs border {m["border_color"]} hover:shadow-xs transition">
+    <div class="text-[12px] font-bold" style="color: {m["color"]};">{m["title"]}</div>
+    <div class="text-[11px] font-semibold text-slate-800 mt-0.5 truncate">{m["date"]}</div>
+    <div class="mt-1 flex items-center justify-center">
+      <span class="text-[9.5px] px-2 py-0.5 rounded-full font-semibold border {m["badge_class"]}">{m["status"]}</span>
+    </div>
+    <div class="text-[9.5px] text-slate-400 mt-1 truncate">{m["sub"]}</div>
+  </div>
+</div>''')
+        else:
+            bottom_cols.append('''<div class="h-full flex items-start justify-center pt-2 opacity-30 text-xs text-slate-400">
+  <span>•</span>
+</div>''')
+    bottom_row_html = "".join(bottom_cols)
+
+    timeline_html = f'''<!-- Timeline Template with Progress Bar (At Top of Cards) -->
+<div class="bg-gradient-to-b from-slate-50 to-white border border-slate-200 rounded-2xl p-3.5 shadow-2xs">
+  <div class="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-200/70 flex-wrap gap-2">
+    <div class="flex items-center gap-2">
+      <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-xs font-bold">📈</span>
+      <div>
+        <h4 class="text-xs sm:text-sm font-bold text-slate-800 tracking-tight">পরীক্ষা মাইলস্টোন টাইমলাইন ও অগ্রগতি</h4>
+        <p class="text-[10px] text-slate-500">Timeline Template with Progress Bar</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5 text-xs font-semibold">
+      <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+        অগ্রগতি: {progress_pct}%
+      </span>
+      <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px]">
+        {to_bn_digits(completed_count)} / ৬ ধাপ সম্পন্ন
+      </span>
+    </div>
+  </div>
+
+  <!-- Horizontal Scroll Container -->
+  <div class="overflow-x-auto thin-scrollbar pb-1 pt-1">
+    <div class="min-w-[680px] px-2 py-2">
+      <!-- TOP ROW CARDS (Odd Milestones) -->
+      <div class="grid grid-cols-6 gap-2 items-end min-h-[96px] mb-1">
+        {top_row_html}
+      </div>
+
+      <!-- CENTRAL PROGRESS TRACK -->
+      <div class="relative py-2 flex items-center">
+        <!-- Background track -->
+        <div class="absolute left-6 right-6 h-2 bg-slate-200 rounded-full"></div>
+        <!-- Filled progress track -->
+        <div class="absolute left-6 h-2 bg-gradient-to-r from-sky-400 via-indigo-500 to-teal-500 rounded-full transition-all duration-500" style="width: {track_fill_pct}%;"></div>
+        <!-- 6 Nodes Grid -->
+        <div class="relative w-full grid grid-cols-6 z-10">
+          {node_row_html}
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW CARDS (Even Milestones) -->
+      <div class="grid grid-cols-6 gap-2 items-start min-h-[96px] mt-1">
+        {bottom_row_html}
+      </div>
+    </div>
+  </div>
+</div>'''
+    return timeline_html
+
 def format_exam_card_markdown(item: Dict[str, Any]) -> str:
     """
     Renders an official Academic Examination Card as Small Modern Nice Looking Vertical Cards.
@@ -1215,6 +1473,8 @@ def format_exam_card_markdown(item: Dict[str, Any]) -> str:
       </div>
     </div>
   </div>
+
+  {render_exam_card_timeline_bar(item)}
 
   <!-- Small Modern Vertical Cards Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">

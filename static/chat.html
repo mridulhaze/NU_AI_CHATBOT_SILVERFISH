@@ -802,7 +802,7 @@
         <div id="cards-3x3-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
           
           <!-- Card 1: Honours -->
-          <div onclick="openExamCategoryPicker('Honours')" class="apple-card card-tint-emerald">
+          <div onclick="handleExamCategoryClick('Honours')" class="apple-card card-tint-emerald">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -819,7 +819,7 @@
           </div>
 
           <!-- Card 2: Degree Pass -->
-          <div onclick="openExamCategoryPicker('Degree Pass')" class="apple-card card-tint-teal">
+          <div onclick="handleExamCategoryClick('Degree Pass')" class="apple-card card-tint-teal">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
@@ -837,7 +837,7 @@
           </div>
 
           <!-- Card 3: Master's -->
-          <div onclick="openExamCategoryPicker('Master\'s')" class="apple-card card-tint-indigo">
+          <div onclick="handleExamCategoryClick('Master\'s')" class="apple-card card-tint-indigo">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -854,7 +854,7 @@
           </div>
 
           <!-- Card 4: Professional -->
-          <div onclick="openExamCategoryPicker('Professional')" class="apple-card card-tint-amber">
+          <div onclick="handleExamCategoryClick('Professional')" class="apple-card card-tint-amber">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
@@ -1259,7 +1259,6 @@
       if (conversationView) conversationView.classList.add("hidden");
       if (timelineView) timelineView.classList.add("hidden");
 
-      closeExamPartModal();
       closeMilestoneDetailModal();
 
       renderChips(MAIN_CHIPS);
@@ -1323,114 +1322,10 @@
       return Math.round((count / total) * 100);
     }
 
-    // Opens selection modal for a specific program type
-    function openExamCategoryPicker(prog) {
-      const modal = document.getElementById("exam-part-modal");
-      const titleEl = document.getElementById("exam-part-modal-title");
-      const subEl = document.getElementById("exam-part-modal-sub");
-      const contentEl = document.getElementById("exam-part-modal-options");
-      if (!modal || !contentEl) return;
-
-      let progBn = "পরীক্ষা বিষয়ক অগ্রগতি";
-      let optionsHtml = "";
-
-      if (prog === "Honours") {
-        progBn = "অনার্স পরীক্ষা";
-        if (subEl) subEl.innerText = "বর্ষ নির্বাচন করে সরাসরি ইন্টারঅ্যাক্টিভ মাইলস্টোন টাইমলাইন দেখুন:";
-        const parts = [
-          { part: "Part 1", label: "১ম বর্ষ", desc: "অনার্স ১ম বর্ষের ইনকোর্স, ফরম পূরণ, রুটিন ও পরীক্ষার অগ্রগতি", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" },
-          { part: "Part 2", label: "২য় বর্ষ", desc: "অনার্স ২য় বর্ষের ইনকোর্স, ফরম পূরণ ও পরীক্ষার সময়সূচি", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" },
-          { part: "Part 3", label: "৩য় বর্ষ", desc: "অনার্স ৩য় বর্ষের পরীক্ষার তারিখ, রুটিন ও ফলাফল", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" },
-          { part: "Part 4", label: "৪র্থ বর্ষ", desc: "অনার্স ৪র্থ বর্ষের চূড়ান্ত পরীক্ষা, ফলাফল ও সনদ বিতরণ", tint: "hover:border-emerald-500 hover:bg-emerald-50/50" }
-        ];
-        optionsHtml = parts.map(p => `
-          <button onclick="closeExamPartModal(); openTimelineView('Honours', '${p.part}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] ${p.tint} transition flex items-center justify-between group cursor-pointer shadow-2xs">
-            <div>
-              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-emerald-700">অনার্স ${p.label}</div>
-              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">${p.desc}</div>
-            </div>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 shrink-0">টাইমলাইন →</span>
-          </button>
-        `).join("");
-      } else if (prog === "Degree Pass") {
-        progBn = "ডিগ্রি পাস ও সার্টিফিকেট কোর্স পরীক্ষা";
-        if (subEl) subEl.innerText = "ডিগ্রি বর্ষ নির্বাচন করে পরীক্ষার অগ্রগতি ও মাইলস্টোন দেখুন:";
-        const parts = [
-          { part: "Part 1", label: "১ম বর্ষ", desc: "ডিগ্রি ১ম বর্ষ পরীক্ষা, ফরম পূরণ ও ফলাফল স্থিতি" },
-          { part: "Part 2", label: "২য় বর্ষ", desc: "ডিগ্রি ২য় বর্ষ পরীক্ষা, রুটিন ও সময়সূচি" },
-          { part: "Part 3", label: "৩য় বর্ষ", desc: "ডিগ্রি ৩য় বর্ষ চূড়ান্ত পরীক্ষা ও সনদ প্রাপ্তি" }
-        ];
-        optionsHtml = parts.map(p => `
-          <button onclick="closeExamPartModal(); openTimelineView('Degree Pass', '${p.part}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] hover:border-teal-500 hover:bg-teal-50/50 transition flex items-center justify-between group cursor-pointer shadow-2xs">
-            <div>
-              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-teal-700">ডিগ্রি ${p.label}</div>
-              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">${p.desc}</div>
-            </div>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800 shrink-0">টাইমলাইন →</span>
-          </button>
-        `).join("");
-      } else if (prog === "Master's") {
-        progBn = "মাস্টার্স পরীক্ষা";
-        if (subEl) subEl.innerText = "মাস্টার্স পর্ব নির্বাচন করে অগ্রগতি ট্র্যাক করুন:";
-        const parts = [
-          { part: "Final", label: "মাস্টার্স শেষ পর্ব", desc: "মাস্টার্স ফাইনাল পরীক্ষা, ফলাফল ও সনদ মুদ্রণ" },
-          { part: "Preliminary", label: "মাস্টার্স প্রিলিমিনারি", desc: "প্রিলিমিনারি টু মাস্টার্স পরীক্ষার সময়সূচি ও রুটিন" }
-        ];
-        optionsHtml = parts.map(p => `
-          <button onclick="closeExamPartModal(); openTimelineView('Master\\'s', '${p.part}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] hover:border-indigo-500 hover:bg-indigo-50/50 transition flex items-center justify-between group cursor-pointer shadow-2xs">
-            <div>
-              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-indigo-700">${p.label}</div>
-              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">${p.desc}</div>
-            </div>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 shrink-0">টাইমলাইন →</span>
-          </button>
-        `).join("");
-      } else if (prog === "Professional") {
-        progBn = "প্রফেশনাল কোর্স পরীক্ষা";
-        if (subEl) subEl.innerText = "কোর্স বা বর্ষ নির্বাচন করে অগ্রগতি ট্র্যাক করুন:";
-        const proCourses = [
-          { code: "CSE", name: "B.Sc. in Computer Science & Engineering (CSE)", part: "Part 1" },
-          { code: "BBA", name: "Bachelor of Business Administration (BBA)", part: "Part 1" },
-          { code: "B.Ed", name: "Bachelor of Education (B.Ed)", part: "Part 1" },
-          { code: "TST", name: "Theatre & Stage Technology", part: "Part 1" },
-          { code: "ECE", name: "Electronics & Communication Eng.", part: "Part 1" }
-        ];
-        optionsHtml = proCourses.map(c => `
-          <button onclick="closeExamPartModal(); openTimelineView('Professional', '${c.part}', null, '${c.code}')" class="w-full text-left p-3.5 rounded-xl border border-[var(--hairline)] bg-[var(--surface)] hover:border-amber-500 hover:bg-amber-50/50 transition flex items-center justify-between group cursor-pointer shadow-2xs">
-            <div>
-              <div class="text-[14px] font-bold text-[var(--text)] group-hover:text-amber-700">${c.name}</div>
-              <div class="text-[12px] text-[var(--text-secondary)] mt-0.5">কোর্স কোড: ${c.code} • ${c.part}</div>
-            </div>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 shrink-0">টাইমলাইন →</span>
-          </button>
-        `).join("");
-      }
-
-      // Add a quick action button for direct chat question
-      optionsHtml += `
-        <div class="pt-2 border-t border-[var(--hairline)] flex justify-between items-center text-xs">
-          <span class="text-[var(--text-secondary)]">সরাসরি প্রশ্ন করতে চান?</span>
-          <button onclick="closeExamPartModal(); handleExamCategoryClick('${prog}')" class="text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer">
-            💬 চ্যাটে এআই সহকারীকে জিজ্ঞাসা করুন →
-          </button>
-        </div>
-      `;
-
-      if (titleEl) titleEl.innerText = progBn;
-      contentEl.innerHTML = optionsHtml;
-      modal.classList.remove("hidden");
-    }
-
-    function closeExamPartModal() {
-      const modal = document.getElementById("exam-part-modal");
-      if (modal) modal.classList.add("hidden");
-    }
-
     // Main fetch & display handler for interactive timeline
     async function openTimelineView(prog, part, year, course, sem) {
       setSplitMode("chat");
       showTimelineView();
-      closeExamPartModal();
 
       currentTimelineContext = { prog, part, year, course, sem };
       activeTimelinePhaseFilter = 0;
@@ -1490,7 +1385,7 @@
               <span>মূল মেনু</span>
             </button>
             <span>/</span>
-            <button onclick="openExamCategoryPicker('${timeline.program_type}')" class="hover:text-[var(--text)] transition cursor-pointer">
+            <button onclick="handleExamCategoryClick('${timeline.program_type}')" class="hover:text-[var(--text)] transition cursor-pointer">
               ${timeline.program_type_name}
             </button>
             <span>/</span>
@@ -2642,22 +2537,6 @@
         </form>
       </div>
 
-    </div>
-  </div>
-
-  <!-- Academic Exam Program/Part Selection Modal (Apple Monochromatic Design) -->
-  <div id="exam-part-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/45 backdrop-blur-md" onclick="if(event.target===this) closeExamPartModal()">
-    <div class="bg-[var(--surface)] text-[var(--text)] border border-[var(--hairline)] rounded-[20px] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-      <div class="px-6 py-4 border-b border-[var(--hairline)] flex items-center justify-between bg-[var(--bg)]">
-        <div>
-          <h3 id="exam-part-modal-title" class="text-[16px] font-bold text-[var(--text)]">পরীক্ষা নির্বাচন</h3>
-          <p id="exam-part-modal-sub" class="text-[12px] text-[var(--text-secondary)] mt-0.5">বর্ষ নির্বাচন করে টাইমলাইন দেখুন</p>
-        </div>
-        <button onclick="closeExamPartModal()" class="apple-quiet-btn p-1.5 text-lg leading-none cursor-pointer" title="বন্ধ করুন">✕</button>
-      </div>
-      <div id="exam-part-modal-options" class="p-6 space-y-2.5 max-h-[60vh] overflow-y-auto thin-scrollbar">
-        <!-- Rendered dynamically -->
-      </div>
     </div>
   </div>
 
