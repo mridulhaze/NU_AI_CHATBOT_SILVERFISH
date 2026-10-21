@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Query
 
-from backend.core.security import get_current_user_required, require_roles, Role
+from backend.core.security import get_current_user_required, get_current_user_optional, require_roles, Role
 from backend.models.schemas import (
     TokenAdminDetail,
     TokenAssignRequest,
@@ -741,4 +741,49 @@ def delete_academic_static(entry_id: int, user: dict = Depends(get_current_user_
     if not deleted:
         raise HTTPException(status_code=404, detail="Entry not found.")
     return {"status": "success", "message": f"Deleted entry {entry_id}."}
+
+
+# --- Admin FAQ Question & Answer Input Management Endpoints ---
+from backend.services.faq_service import get_faq_service
+
+class AdminCreateFAQRequest(BaseModel):
+    question: str
+    answer: str
+    category: Optional[str] = "সাধারণ তথ্য"
+    keywords: Optional[str] = ""
+    force: Optional[bool] = False
+
+@router.post("/faqs", summary="Add FAQ Question & Answer with Similarity Checking")
+def admin_add_faq_endpoint(
+    payload: AdminCreateFAQRequest,
+    user: dict = Depends(require_roles([Role.ADMIN, Role.SUPER_ADMIN]))
+):
+    faq_service = get_faq_service()
+    result = faq_service.add_faq_entry(
+        question=payload.question,
+        answer=payload.answer,
+        category=payload.category or "সাধারণ তথ্য",
+        keywords=payload.keywords or "",
+        force=bool(payload.force),
+        admin_user=user.get("username", "Admin")
+    )
+    if result["status"] == "error":
+        raise HTTPException(status_code=400, detail=result["message"])
+    return result
+
+@router.post("/faqs/check-similar", summary="Check if similar question exists before submission")
+def check_similar_faq_endpoint(
+    payload: Dict[str, Any],
+    user: Optional[dict] = Depends(get_current_user_optional)
+):
+    q = (payload.get("question") or "").strip()
+    if not q:
+        return {"has_similar": False}
+    faq_service = get_faq_service()
+    similar = faq_service.find_similar_faq(q, threshold=0.70)
+    return {
+        "has_similar": bool(similar),
+        "similar_faq": similar
+    }
+
 

@@ -5,6 +5,7 @@ Manages parsing, indexing, searching, liking, and top-ranking FAQs from FAQ/faq.
 
 import os
 import re
+import time
 import logging
 from pathlib import Path
 from typing import Optional, List, Dict, Any
@@ -187,6 +188,136 @@ class FAQService:
 
     def get_categories(self) -> List[Dict[str, Any]]:
         return self.sql_store.get_faq_categories()
+
+    def find_similar_faq(self, question: str, threshold: float = 0.70) -> Optional[Dict[str, Any]]:
+        """
+        Checks if a given question is identical or highly similar to an existing active FAQ.
+        Uses normalized token overlap and difflib SequenceMatcher.
+        Returns the most similar FAQ dictionary with a 'similarity' score [0.0 - 1.0], or None.
+        """
+        import difflib
+        q_clean = re.sub(r"[^\w\s\u0980-\u09FF]", " ", question.lower()).strip()
+        q_tokens = set(q_clean.split())
+        if not q_clean:
+            return None
+
+        best_match = None
+        best_score = 0.0
+
+        with self.sql_store._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, question, answer, category, likes_count FROM faq_entries WHERE is_active = 1")
+            rows = cursor.fetchall()
+
+            for row in rows:
+                existing_q = row["question"]
+                ex_clean = re.sub(r"[^\w\s\u0980-\u09FF]", " ", existing_q.lower()).strip()
+                if not ex_clean:
+                    continue
+
+                # Exact normalized match
+                if q_clean == ex_clean:
+                    res = dict(row)
+                    res["similarity"] = 1.0
+                    return res
+
+                # SequenceMatcher ratio
+                seq_ratio = difflib.SequenceMatcher(None, q_clean, ex_clean).ratio()
+
+                # Jaccard word token similarity
+                ex_tokens = set(ex_clean.split())
+                intersection = q_tokens.intersection(ex_tokens)
+                union = q_tokens.union(ex_tokens)
+                jaccard = (len(intersection) / len(union)) if union else 0.0
+
+                # Weighted combined score
+                score = max(seq_ratio, 0.5 * seq_ratio + 0.5 * jaccard)
+
+                if score > best_score:
+                    best_score = score
+                    best_match = dict(row)
+                    best_match["similarity"] = round(best_score, 3)
+
+        if best_match and best_score >= threshold:
+            return best_match
+        return None
+
+    def add_faq_entry(
+        self,
+        question: str,
+        answer: str,
+        category: str = "সাধারণ তথ্য",
+        keywords: Optional[str] = "",
+        force: bool = False,
+        admin_user: str = "Admin"
+    ) -> Dict[str, Any]:
+        """
+        Inserts a new verified FAQ into SQLite faq_entries.
+        Checks for duplicates or similar questions unless force=True.
+        Also indexes the new FAQ in ChromaDB vector store if available.
+        """
+        q_str = (question or "").strip()
+        a_str = (answer or "").strip()
+        c_str = clean_category_name(category)
+
+        if not q_str:
+            return {"status": "error", "message": "Question cannot be empty."}
+        if not a_str:
+            return {"status": "error", "message": "Answer cannot be empty."}
+
+        # Check for similar existing FAQ
+        if not force:
+            similar = self.find_similar_faq(q_str, threshold=0.72)
+            if similar:
+                return {
+                    "status": "similar_exists",
+                    "message": f"সদৃশ বা কাছাকাছি প্রশ্ন ডাটাবেজে ইতোমধ্যে বিদ্যমান রয়েছে ({int(similar['similarity']*100)}% মিল): '{similar['question']}'",
+                    "similar_faq": similar
+                }
+
+        # Generate tokens / keywords if empty
+        if not keywords:
+            tokens = [t for t in re.split(r"[\s,;()\"'.-]+", f"{q_str} {c_str}") if len(t) > 2]
+            kw_str = " ".join(dict.fromkeys(tokens))
+        else:
+            kw_str = keywords.strip()
+
+        source_key = f"admin_faq_{int(time.time())}_{abs(hash(q_str)) % 10000}"
+        source_hash = self.sql_store.compute_hash(f"{q_str}|{a_str}")
+
+        faq_id = self.sql_store.upsert_faq_record(
+            question=q_str,
+            answer=a_str,
+            category=c_str,
+            source_key=source_key,
+            keywords=kw_str,
+            source_file="Admin Entry Portal",
+            source_hash=source_hash,
+            is_active=1
+        )
+
+        # Index in vector store for AI Counselor retrieval
+        try:
+            from db.vector_store import get_vector_store
+            from langchain_core.documents import Document
+            vstore = get_vector_store()
+            if vstore:
+                doc = Document(
+                    page_content=f"প্রশ্ন: {q_str}\nউত্তর: {a_str}",
+                    metadata={"source": "admin_faq_entry", "category": c_str, "faq_id": str(faq_id)}
+                )
+                vstore.split_and_add_documents([doc])
+        except Exception as e:
+            logger.warning(f"Vector store indexing skipped for FAQ #{faq_id}: {e}")
+
+        logger.info(f"Admin FAQ added successfully! ID: #{faq_id}, Category: {c_str}")
+        return {
+            "status": "success",
+            "message": "প্রশ্নোত্তর সফলভাবে ডাটাবেজে যুক্ত ও ইনডেক্স করা হয়েছে!",
+            "faq_id": faq_id,
+            "question": q_str,
+            "category": c_str
+        }
 
 
 # Singleton factory

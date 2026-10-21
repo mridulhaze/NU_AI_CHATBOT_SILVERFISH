@@ -1040,3 +1040,43 @@ def test_t4_05_portal_link_authenticity_validation(index_html, chat_html):
     assert deprecated_domain not in chat_html, f"Deprecated domain {deprecated_domain} found in static/chat.html"
     assert deprecated_ip not in index_html, f"Deprecated IP {deprecated_ip} found in static/index.html"
     assert deprecated_ip not in chat_html, f"Deprecated IP {deprecated_ip} found in static/chat.html"
+
+
+def test_t4_06_admin_faq_input_form_and_chat_lighting_bars(index_soup, chat_soup, index_html, chat_html):
+    """
+    Scenario 6: Admin FAQ Input Form, Chat Lighting Bars & Realtime Chat Criteria
+    - Confirms #admin-faq-form and real-time similarity check box in index.html.
+    - Confirms slim lighting 'lite green' animated bar in Chat.
+    - Confirms slim lighting 'lite orange' animated bar at FAQ border.
+    - Confirms chat input criteria hint and Card 4 valid SVG structure in chat.html.
+    """
+    # 1. Admin FAQ Form Elements in index.html
+    faq_form = index_soup.find("form", id="admin-faq-form")
+    assert faq_form is not None, "Missing #admin-faq-form in static/index.html"
+    assert index_soup.find("textarea", id="admin-faq-question") is not None
+    assert index_soup.find("textarea", id="admin-faq-answer") is not None
+    assert index_soup.find("select", id="admin-faq-category") is not None
+    assert index_soup.find(id="admin-faq-sim-box") is not None
+    assert index_soup.find(id="admin-faq-force") is not None
+
+    # 2. Academic Static Hub in index.html
+    assert index_soup.find(id="tab-btn-academic-static") is not None
+    assert index_soup.find(id="tab-content-academic-static") is not None
+    assert index_soup.find(id="admin-academic-static-tbody") is not None
+
+    # 3. Chat Lighting Bars in chat.html
+    chat_bar = chat_soup.find(class_="chat-lighting-bar-green")
+    assert chat_bar is not None, "Missing .chat-lighting-bar-green in static/chat.html"
+    faq_bar = chat_soup.find(class_="faq-lighting-bar-orange")
+    assert faq_bar is not None, "Missing .faq-lighting-bar-orange in static/chat.html"
+
+    # 4. Realtime Chat Criteria hint element in chat.html
+    criteria_hint = chat_soup.find(id="chat-input-criteria-hint")
+    assert criteria_hint is not None, "Missing #chat-input-criteria-hint in static/chat.html"
+    assert "handleRealtimeChatCriteria" in chat_html, "Missing handleRealtimeChatCriteria function in chat.html"
+
+    # 5. Card 4 SVG Validity
+    pro_card = chat_soup.find("div", onclick=lambda v: v and "Professional" in v)
+    assert pro_card is not None, "Missing Professional card in static/chat.html"
+    assert pro_card.find("svg") is not None, "Card 4 (Professional) must have a valid <svg> tag wrapper"
+

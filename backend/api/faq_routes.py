@@ -116,3 +116,27 @@ def sync_faqs():
     faq_service = get_faq_service()
     res = faq_service.sync_from_file()
     return res
+
+
+class FaqCreateRequest(BaseModel):
+    question: str
+    answer: str
+    category: Optional[str] = "সাধারণ তথ্য"
+    keywords: Optional[str] = ""
+    force: Optional[bool] = False
+
+@faq_router.post("", summary="Add FAQ with duplicate & similarity check")
+def create_faq_endpoint(payload: FaqCreateRequest):
+    faq_service = get_faq_service()
+    result = faq_service.add_faq_entry(
+        question=payload.question,
+        answer=payload.answer,
+        category=payload.category or "সাধারণ তথ্য",
+        keywords=payload.keywords or "",
+        force=bool(payload.force),
+        admin_user="Public/Admin"
+    )
+    if result.get("status") == "error":
+        raise HTTPException(status_code=400, detail=result.get("message"))
+    return result
+

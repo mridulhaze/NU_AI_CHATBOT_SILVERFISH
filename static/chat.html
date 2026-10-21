@@ -151,24 +151,49 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
       cursor: pointer;
       transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), 
                   box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), 
                   border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+                  background-color 180ms ease,
                   padding 200ms ease;
       min-height: 78px;
       text-align: left;
       user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .apple-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: transparent;
+      transition: background-color 200ms ease;
     }
     .apple-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
       border-color: var(--hairline-hover);
     }
+    .apple-card:hover::before {
+      background: var(--accent);
+    }
     .apple-card:active {
       transform: scale(0.985);
     }
+    .card-tint-emerald .apple-card-icon-wrap { background: rgba(16, 185, 129, 0.12); color: #059669; }
+    .card-tint-teal .apple-card-icon-wrap { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
+    .card-tint-indigo .apple-card-icon-wrap { background: rgba(99, 102, 241, 0.12); color: #4f46e5; }
+    .card-tint-amber .apple-card-icon-wrap { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+    .card-tint-sky .apple-card-icon-wrap { background: rgba(14, 165, 233, 0.12); color: #0284c7; }
+    .card-tint-purple .apple-card-icon-wrap { background: rgba(168, 85, 247, 0.12); color: #9333ea; }
+    .card-tint-rose .apple-card-icon-wrap { background: rgba(244, 63, 94, 0.12); color: #e11d48; }
+    .card-tint-blue .apple-card-icon-wrap { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+    .card-tint-cyan .apple-card-icon-wrap { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
     .apple-card-icon-wrap {
       width: 40px;
       height: 40px;
@@ -574,6 +599,50 @@
         overflow-x: auto;
       }
     }
+
+    /* Slim Lighting Lite-Green Animated Bar for Chat */
+    .chat-lighting-bar-green {
+      height: 3.5px;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #10b981 0%, #34d399 25%, #6ee7b7 50%, #34d399 75%, #10b981 100%);
+      background-size: 200% 100%;
+      animation: liteGreenGlow 3s ease-in-out infinite;
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.7), 0 0 3px rgba(16, 185, 129, 0.9);
+    }
+    @keyframes liteGreenGlow {
+      0% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
+      50% { background-position: 100% 50%; opacity: 1; filter: brightness(1.3); }
+      100% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
+    }
+
+    /* Slim Lighting Lite-Orange Animated Bar for FAQ */
+    .faq-lighting-bar-orange {
+      height: 3.5px;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #f97316 0%, #fb923c 25%, #fdba74 50%, #fb923c 75%, #f97316 100%);
+      background-size: 200% 100%;
+      animation: liteOrangeGlow 3s ease-in-out infinite;
+      box-shadow: 0 0 12px rgba(251, 146, 60, 0.7), 0 0 3px rgba(249, 115, 22, 0.9);
+    }
+    @keyframes liteOrangeGlow {
+      0% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
+      50% { background-position: 100% 50%; opacity: 1; filter: brightness(1.3); }
+      100% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
+    }
+
+    #chat-section {
+      background: var(--surface);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-card);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    #faq-forum-panel {
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -654,6 +723,8 @@
     
     <!-- LEFT COLUMN: AI Chat Counselor & Interactive Menus (70% by default, 30% in FAQ mode) -->
     <section id="chat-section" onclick="handleChatSectionClick(event)" class="w-full flex flex-col justify-between min-h-[calc(100vh-130px)]">
+      <!-- Slim Lighting 'Lite Green' Animation Bar for Chat -->
+      <div class="chat-lighting-bar-green mb-3.5" title="AI Chat Counselor Active Channel"></div>
       
       <!-- State A: Welcome View (Apple Monochromatic 3x3 Grid) -->
       <div id="welcome-view" class="space-y-4">
@@ -677,7 +748,7 @@
         <div id="cards-3x3-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
           
           <!-- Card 1: Honours -->
-          <div onclick="handleExamCategoryClick('Honours')" class="apple-card">
+          <div onclick="handleExamCategoryClick('Honours')" class="apple-card card-tint-emerald">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -694,7 +765,7 @@
           </div>
 
           <!-- Card 2: Degree Pass -->
-          <div onclick="handleExamCategoryClick('Degree Pass')" class="apple-card">
+          <div onclick="handleExamCategoryClick('Degree Pass')" class="apple-card card-tint-teal">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
@@ -712,7 +783,7 @@
           </div>
 
           <!-- Card 3: Master's -->
-          <div onclick="handleExamCategoryClick('Master\'s')" class="apple-card">
+          <div onclick="handleExamCategoryClick('Master\'s')" class="apple-card card-tint-indigo">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -729,12 +800,13 @@
           </div>
 
           <!-- Card 4: Professional -->
-          <div onclick="handleExamCategoryClick('Professional')" class="apple-card">
+          <div onclick="handleExamCategoryClick('Professional')" class="apple-card card-tint-amber">
             <div class="apple-card-icon-wrap">
-              <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
-              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              <path d="M10 12h4"/>
-            </svg>
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                <path d="M10 12h4"/>
+              </svg>
             </div>
             <div class="flex-1 min-w-0">
               <div class="apple-card-title">প্রফেশনাল পরীক্ষা</div>
@@ -746,7 +818,7 @@
           </div>
 
           <!-- Card 5: Honours Admission -->
-          <div onclick="sendQuickQuestion('অনার্স ১ম বর্ষের ভর্তি বিজ্ঞপ্তি ও নিয়মাবলি')" class="apple-card">
+          <div onclick="sendQuickQuestion('অনার্স ১ম বর্ষের ভর্তি বিজ্ঞপ্তি ও নিয়মাবলি')" class="apple-card card-tint-sky">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
@@ -767,7 +839,7 @@
           </div>
 
           <!-- Card 6: Routine -->
-          <div onclick="sendQuickQuestion('সর্বশেষ পরীক্ষার রুটিন ও নোটিশ')" class="apple-card">
+          <div onclick="sendQuickQuestion('সর্বশেষ পরীক্ষার রুটিন ও নোটিশ')" class="apple-card card-tint-purple">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
@@ -789,7 +861,7 @@
           </div>
 
           <!-- Card 7: Certificate -->
-          <div onclick="sendQuickQuestion('অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?')" class="apple-card">
+          <div onclick="sendQuickQuestion('অনলাইনে মূল সার্টিফিকেট উত্তোলনের নিয়ম ও ফি কত?')" class="apple-card card-tint-rose">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/>
@@ -808,7 +880,7 @@
           </div>
 
           <!-- Card 8: EMS Form Fillup -->
-          <div onclick="sendQuickQuestion('ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি')" class="apple-card">
+          <div onclick="sendQuickQuestion('ডিগ্রি ও অনার্স ফরম পূরণের নিয়মাবলি')" class="apple-card card-tint-blue">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m18 5-2.4 2.4"/>
@@ -826,7 +898,7 @@
           </div>
 
           <!-- Card 9: TC Transfer Certificate -->
-          <div onclick="sendQuickQuestion('কলেজ ছাড়পত্র (TC) নেওয়ার উপায় কি?')" class="apple-card">
+          <div onclick="sendQuickQuestion('কলেজ ছাড়পত্র (TC) নেওয়ার উপায় কি?')" class="apple-card card-tint-cyan">
             <div class="apple-card-icon-wrap">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
@@ -868,6 +940,9 @@
           </div>
         </div>
 
+        <!-- Realtime Input Criteria Hint -->
+        <div id="chat-input-criteria-hint" class="hidden text-xs pb-1 flex items-center gap-1.5 transition-all"></div>
+
         <!-- Floating Input Bar -->
         <div class="apple-input-bar">
           <input 
@@ -876,6 +951,7 @@
             placeholder="আপনার প্রশ্নটি এখানে বাংলায় বা ইংরেজিতে লিখুন... (যেমন: অনার্স পরীক্ষার তথ্য)" 
             class="flex-1 bg-transparent text-[14px] sm:text-[15px] text-[var(--text)] focus:outline-none placeholder:text-[var(--text-secondary)]"
             onfocus="setSplitMode('chat')"
+            oninput="handleRealtimeChatCriteria(this.value)"
             onkeydown="if(event.key === 'Enter') handleSend();"
           />
           <button 
@@ -902,6 +978,8 @@
 
     <!-- RIGHT COLUMN: Integrated Professional FAQ Forum (30% by default, 70% in FAQ mode) -->
     <aside id="faq-forum-panel" class="w-full flex flex-col apple-faq-panel">
+      <!-- Slim Lighting 'Lite Orange' Animation Bar for FAQ -->
+      <div class="faq-lighting-bar-orange mb-3" title="Official Verified FAQ Knowledge Base"></div>
       
       <!-- Panel Header with Toggle Split Button (Apple Support Style) -->
       <div class="flex items-center justify-between pb-3.5 border-b border-[var(--hairline)]">
@@ -1223,6 +1301,39 @@
       handleSend();
     }
 
+    // Realtime chat criteria check
+    function handleRealtimeChatCriteria(val) {
+      const text = (val || "").trim();
+      const hintEl = document.getElementById("chat-input-criteria-hint");
+      if (!hintEl) return;
+      if (!text) {
+        hintEl.innerHTML = "";
+        hintEl.classList.add("hidden");
+        return;
+      }
+      hintEl.classList.remove("hidden");
+      const lower = text.toLowerCase();
+      if (/^NU-?\d{0,4}-?\d{0,6}$/i.test(text) || lower.includes("token") || text.includes("টোকেন")) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200"><span>🎫</span><span>টোকেন ট্র্যাকিং মোড সক্রিয়</span></span>`;
+      } else if (text.includes("ভর্তি") || lower.includes("admit") || lower.includes("admission") || text.includes("আবেদন")) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200"><span>🎓</span><span>ভর্তি বিষয়ক তথ্য সহায়িকা</span></span>`;
+      } else if (text.includes("রুটিন") || lower.includes("routine") || text.includes("পরীক্ষা") || lower.includes("exam") || text.includes("ফরম")) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200"><span>📅</span><span>পরীক্ষা ও সময়সূচি সংক্রান্ত বিষয়</span></span>`;
+      } else if (text.includes("রেজাল্ট") || lower.includes("result") || text.includes("ফলাফল") || text.includes("মার্কশিট") || text.includes("নম্বরপত্র")) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200"><span>📊</span><span>ফলাফল ও মার্কশিট সংক্রান্ত বিষয়</span></span>`;
+      } else if (text.includes("সার্টিফিকেট") || text.includes("সনদ") || lower.includes("certificate") || text.includes("উত্তোলন") || text.includes("সংশোধন")) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200"><span>📜</span><span>সার্টিফিকেট ও অনলাইন স্টুডেন্ট সেবা</span></span>`;
+      } else if (text.includes("টিসি") || lower.includes("tc") || text.includes("ছাড়পত্র") || lower.includes("transfer")) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-200"><span>🏛️</span><span>কলেজ ছাড়পত্র (TC) সেবা</span></span>`;
+      } else if (text.includes("ফি") || text.includes("টাকা") || lower.includes("fee") || lower.includes("payment") || text.includes("সোনালী")) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200"><span>💳</span><span>ফি ও সোনালী সেবা পরিশোধ তথ্য</span></span>`;
+      } else if (text.length > 300) {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200"><span>⚠️</span><span>দীর্ঘ প্রশ্ন (${text.length} অক্ষর) • সংক্ষিপ্ত প্রশ্ন দ্রুততম উত্তর পেতে সাহায্য করে</span></span>`;
+      } else {
+        hintEl.innerHTML = `<span class="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500"><span>💬</span><span>এআই কাউন্সেলর প্রস্তুত • সেন্ড করতে Enter চাপুন (${text.length} অক্ষর)</span></span>`;
+      }
+    }
+
     // Markdown Parser
     function formatMarkdown(text) {
       if (!text) return "";
@@ -1287,6 +1398,7 @@
       showConversationView();
 
       input.value = "";
+      handleRealtimeChatCriteria("");
       input.disabled = true;
       btn.disabled = true;
 

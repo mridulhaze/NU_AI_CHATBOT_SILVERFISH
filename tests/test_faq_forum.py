@@ -135,3 +135,143 @@ def test_top_liked_faqs(client):
     # Verify descending ordering
     for i in range(len(items) - 1):
         assert items[i]["likes_count"] >= items[i + 1]["likes_count"]
+
+
+def test_faq_addition_and_similarity_detection(client, faq_service):
+    """
+    Tests FAQ Question & Answer Input Form backend flow:
+    - Insert new FAQ into SQLite faq_entries.
+    - Similarity detection prevents duplicate insertion when similar question exists.
+    - Force insertion overrides similarity warning.
+    - Querying returns the newly added FAQ.
+    """
+    import time
+    import sqlite3
+
+    # Clean up any leftover test entries from previous runs
+    with sqlite3.connect(faq_service.sql_store.db_path) as conn:
+        conn.execute("DELETE FROM faq_entries WHERE question LIKE '%[আইডি-%' OR question LIKE '%[টেস্ট-%'")
+        conn.commit()
+
+    run_id = str(int(time.time()))
+    unique_q = f"পদার্থবিজ্ঞান ব্যবহারিক পরীক্ষার বিশেষ নিয়মাবলী ২০২৬ কি? [আইডি-{run_id}]"
+    unique_a = "পদার্থবিজ্ঞান ব্যবহারিক পরীক্ষার জন্য প্রয়োজনীয় নির্দেশনা ও সময়সূচী সংশ্লিষ্ট বিভাগীয় নোটিশে প্রকাশিত হয়েছে।"
+    category = "পরীক্ষা সংক্রান্ত"
+
+    # 1. Insert unique FAQ
+    res = client.post("/api/v1/faqs", json={
+        "question": unique_q,
+        "answer": unique_a,
+        "category": category,
+        "force": False
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["faq_id"] > 0
+    faq_id = data["faq_id"]
+
+    # 2. Try inserting a very similar question without force -> must trigger similar_exists
+    similar_q = f"পদার্থবিজ্ঞান ব্যবহারিক পরীক্ষার বিশেষ নিয়মাবলী ২০২৬ কি হবে? [আইডি-{run_id}]"
+    res_sim = client.post("/api/v1/faqs", json={
+        "question": similar_q,
+        "answer": "একই তথ্য...",
+        "category": category,
+        "force": False
+    })
+    assert res_sim.status_code == 200
+    sim_data = res_sim.json()
+    assert sim_data["status"] == "similar_exists"
+    assert "similar_faq" in sim_data
+    assert sim_data["similar_faq"]["similarity"] >= 0.70
+
+    # 3. Force insertion of the similar question -> must succeed
+    res_force = client.post("/api/v1/faqs", json={
+        "question": similar_q,
+        "answer": "একই তথ্য বিকল্প বর্ণনা...",
+        "category": category,
+        "force": True
+    })
+    assert res_force.status_code == 200
+    assert res_force.json()["status"] == "success"
+
+    # 4. Search API returns the newly created FAQ
+    search_res = client.get(f"/api/v1/faqs?search=পদার্থবিজ্ঞান&limit=5")
+    assert search_res.status_code == 200
+    found_items = search_res.json()["items"]
+    assert any("২০২৬" in it["question"] for it in found_items)
+
+    # 5. Validation error on empty question
+    bad_res = client.post("/api/v1/faqs", json={
+        "question": "",
+        "answer": "Some answer",
+        "category": category
+    })
+    assert bad_res.status_code == 400
+
+    # Teardown cleanup
+    with sqlite3.connect(faq_service.sql_store.db_path) as conn:
+        conn.execute("DELETE FROM faq_entries WHERE question LIKE '%[আইডি-%' OR question LIKE '%[টেস্ট-%'")
+        conn.commit()
+
+
+def test_admin_faq_routes_with_auth(client, faq_service):
+    """
+    Tests /api/v1/admin/faqs and /api/v1/admin/faqs/check-similar endpoints:
+    - Verifies role-based access control.
+    - Verifies check-similar returns similarity preview.
+    - Verifies insertion and idempotence.
+    """
+    import time
+    import sqlite3
+    from backend.core.security import create_jwt_token, Role
+
+    admin_token = create_jwt_token({"sub": "admin_tester", "role": Role.SUPER_ADMIN, "desk": "Central"})
+    solver_token = create_jwt_token({"sub": "solver_tester", "role": Role.SOLVER, "desk": "ICT Support Team"})
+    headers_admin = {"Authorization": f"Bearer {admin_token}"}
+    headers_solver = {"Authorization": f"Bearer {solver_token}"}
+
+    # 1. Unauthenticated request to /api/v1/admin/faqs is rejected
+    res_no_auth = client.post("/api/v1/admin/faqs", json={
+        "question": "টেস্ট প্রশ্ন?",
+        "answer": "টেস্ট উত্তর"
+    })
+    assert res_no_auth.status_code in [401, 403]
+
+    # 2. Solver role (not admin) is rejected
+    res_solver = client.post("/api/v1/admin/faqs", json={
+        "question": "টেস্ট প্রশ্ন?",
+        "answer": "টেস্ট উত্তর"
+    }, headers=headers_solver)
+    assert res_solver.status_code == 403
+
+    # 3. check-similar endpoint preview
+    res_sim = client.post("/api/v1/admin/faqs/check-similar", json={
+        "question": "সার্টিফিকেট তোলার নিয়ম কি?"
+    })
+    assert res_sim.status_code == 200
+    sim_data = res_sim.json()
+    assert "has_similar" in sim_data
+
+    # 4. Admin successfully adds FAQ
+    run_id = str(int(time.time()))
+    new_q = f"২০২৬ সালের পরীক্ষার সংশোধিত মূল্যায়ন নীতিমালা কী? [টেস্ট-{run_id}]"
+    res_add = client.post("/api/v1/admin/faqs", json={
+        "question": new_q,
+        "answer": "সংশোধিত নীতিমালা অনুযায়ী মূল্যায়ন সরাসরি কেন্দ্রীয় পোর্টালে সম্পন্ন হবে।",
+        "category": "পরীক্ষা সংক্রান্ত",
+        "keywords": "মূল্যায়ন, নীতিমালা, ২০২৬",
+        "force": False
+    }, headers=headers_admin)
+    assert res_add.status_code == 200
+    add_data = res_add.json()
+    assert add_data["status"] == "success"
+    assert add_data["faq_id"] > 0
+
+    # 5. Clean up
+    with sqlite3.connect(faq_service.sql_store.db_path) as conn:
+        conn.execute("DELETE FROM faq_entries WHERE question LIKE '%[টেস্ট-%'")
+        conn.commit()
+
+
+
