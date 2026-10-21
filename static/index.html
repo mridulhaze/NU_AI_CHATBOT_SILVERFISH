@@ -2285,103 +2285,85 @@
             </div>
           </div>
 
-          <!-- 2. Academic Program Sub-Navigation Bar matching Screenshot -->
-          <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-2xs flex items-center gap-2 overflow-x-auto text-xs font-bold">
-            <button id="subtab-academic-honours" onclick="switchAcademicSubTab('Honours')" class="py-2 px-4 rounded-xl bg-slate-900 text-white flex items-center gap-2 shadow-xs cursor-pointer transition font-bold">
-              <span>🎓</span>
-              <span>Honours (অনার্স)</span>
-            </button>
-            <button id="subtab-academic-degree" onclick="switchAcademicSubTab('Degree Pass')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium">
-              <span>📜</span>
-              <span>Degree Pass (ডিগ্রী পাস)</span>
-            </button>
-            <button id="subtab-academic-masters" onclick="switchAcademicSubTab('Master\'s')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium">
-              <span>📚</span>
-              <span>Master's (মাস্টার্স)</span>
-            </button>
-            <button id="subtab-academic-pro" onclick="switchAcademicSubTab('Professional')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium">
-              <span>💼</span>
-              <span>Professional (প্রফেশনাল)</span>
-            </button>
-            <button id="subtab-academic-links" onclick="switchAcademicSubTab('Portal Links')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium">
-              <span>🔗</span>
-              <span>Result Portals Links</span>
-            </button>
-          </div>
+          <!-- 2. Academic Program Sub-Navigation & Filter Control Bar (Unified Top Bar) -->
+          <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+            <!-- Row 1: Academic Program Navigation Tabs & Fast Navigation -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2 overflow-x-auto text-xs font-bold py-0.5 max-w-full">
+                <button id="subtab-academic-honours" onclick="switchAcademicSubTab('Honours')" class="py-2 px-4 rounded-xl bg-slate-900 text-white flex items-center gap-2 shadow-xs cursor-pointer transition font-bold shrink-0">
+                  <span>🎓</span>
+                  <span>Honours (অনার্স)</span>
+                </button>
+                <button id="subtab-academic-degree" onclick="switchAcademicSubTab('Degree Pass')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium shrink-0">
+                  <span>📜</span>
+                  <span>Degree Pass (ডিগ্রী পাস)</span>
+                </button>
+                <button id="subtab-academic-masters" onclick="switchAcademicSubTab('Master\'s')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium shrink-0">
+                  <span>📚</span>
+                  <span>Master's (মাস্টার্স)</span>
+                </button>
+                <button id="subtab-academic-pro" onclick="switchAcademicSubTab('Professional')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium shrink-0">
+                  <span>💼</span>
+                  <span>Professional (প্রফেশনাল)</span>
+                </button>
+                <button id="subtab-academic-links" onclick="switchAcademicSubTab('Portal Links')" class="py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 cursor-pointer transition font-medium shrink-0">
+                  <span>🔗</span>
+                  <span>Result Portals Links</span>
+                </button>
+              </div>
 
-          <!-- 3. Two-Column Structured High-Density Grid Layout -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-            
-            <!-- Left Column: Filter Sidebar & Quick Navigators (lg:col-span-3) -->
-            <div class="lg:col-span-3 space-y-4">
-              <!-- Filter Controls Card -->
-              <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs space-y-3.5 text-xs">
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Filter Select:</label>
-                  <select id="static-filter-program" onchange="filterAcademicRecords()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:border-blue-600">
-                    <option value="ALL">All Programs (সকল)</option>
-                    <option value="Honours">Honours (অনার্স)</option>
-                    <option value="Degree Pass">Degree Pass (ডিগ্রি পাস)</option>
-                    <option value="Master's">Master's (মাস্টার্স)</option>
-                    <option value="Professional">Professional (প্রফেশনাল)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Multi Select (Filter by Year):</label>
-                  <input id="static-filter-year" oninput="filterAcademicRecords()" type="text" placeholder="e.g. 2024" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600 font-semibold" />
-                </div>
-
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Search Keywords:</label>
-                  <input id="static-filter-search" oninput="filterAcademicRecords()" type="text" placeholder="Search by remarks, part, routine..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600" />
-                </div>
-
-                <div class="pt-2 border-t border-slate-100 space-y-1.5">
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Program Categories</span>
-                  <button type="button" onclick="switchAcademicSubTab('Honours')" class="w-full text-left py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
-                    <span>🎓</span>
-                    <span>Honours (অনার্স)</span>
-                  </button>
-                  <button type="button" onclick="switchAcademicSubTab('Degree Pass')" class="w-full text-left py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
-                    <span>📜</span>
-                    <span>Degree Pass (ডিগ্রী পাস)</span>
-                  </button>
-                  <button type="button" onclick="switchAcademicSubTab('Master\'s')" class="w-full text-left py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
-                    <span>📚</span>
-                    <span>Master's (মাস্টার্স)</span>
-                  </button>
-                  <button type="button" onclick="switchAcademicSubTab('Professional')" class="w-full text-left py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
-                    <span>💼</span>
-                    <span>Professional (প্রফেশনাল)</span>
-                  </button>
-                  <button type="button" onclick="switchAcademicSubTab('Portal Links')" class="w-full text-left py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
-                    <span>🔗</span>
-                    <span>Result Portals Links</span>
-                  </button>
-                </div>
-
-                <div class="pt-2 border-t border-slate-100 space-y-1.5">
-                  <a href="#entry-portal-section" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer">
-                    <span class="text-amber-600">⚙️</span>
-                    <span>Configure Configuration</span>
-                  </a>
-                  <a href="#academic-schedule-table-section" class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer">
-                    <span class="text-blue-600">📊</span>
-                    <span>Result Data</span>
-                  </a>
-                  <button type="button" onclick="switchAcademicSubTab('Portal Links')" class="w-full flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer">
-                    <span class="text-emerald-600">🔗</span>
-                    <span>Result Portals Links</span>
-                  </button>
-                </div>
+              <!-- Quick Section Jumps -->
+              <div class="flex items-center gap-2 text-xs shrink-0">
+                <a href="#academic-schedule-table-section" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold transition cursor-pointer">
+                  <span>📊</span>
+                  <span>Schedule List</span>
+                </a>
+                <a href="#entry-portal-section" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold transition cursor-pointer">
+                  <span>✏️</span>
+                  <span>Entry Form</span>
+                </a>
               </div>
             </div>
 
-            <!-- Right Column: Tables & Entry Portal (lg:col-span-9) -->
-            <div class="lg:col-span-9 space-y-5">
-              
-              <!-- Card 1: Static Schedule Configuration Table -->
+            <!-- Row 2: Unified Filter Controls Bar (Moved from former left red box) -->
+            <div class="flex flex-wrap items-center gap-3 pt-0.5 text-xs">
+              <div class="flex items-center gap-1.5 text-slate-600 font-bold text-[11px] whitespace-nowrap">
+                <span>🔍 Filter &amp; Search:</span>
+              </div>
+
+              <!-- Filter Select: Program -->
+              <div class="min-w-[170px] flex-1 sm:flex-initial">
+                <select id="static-filter-program" onchange="filterAcademicRecords()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:border-blue-600 focus:bg-white transition cursor-pointer">
+                  <option value="ALL">All Programs (সকল)</option>
+                  <option value="Honours">Honours (অনার্স)</option>
+                  <option value="Degree Pass">Degree Pass (ডিগ্রি পাস)</option>
+                  <option value="Master's">Master's (মাস্টার্স)</option>
+                  <option value="Professional">Professional (প্রফেশনাল)</option>
+                </select>
+              </div>
+
+              <!-- Multi Select (Filter by Year) -->
+              <div class="min-w-[130px] flex-1 sm:flex-initial">
+                <input id="static-filter-year" oninput="filterAcademicRecords()" type="text" placeholder="Filter by Year (2024)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:border-blue-600 focus:bg-white transition" />
+              </div>
+
+              <!-- Search Keywords -->
+              <div class="min-w-[220px] flex-1">
+                <input id="static-filter-search" oninput="filterAcademicRecords()" type="text" placeholder="Search keywords (routine, remarks, part...)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:bg-white transition" />
+              </div>
+
+              <!-- Reset / Clear Filters -->
+              <button type="button" onclick="clearAcademicFilters()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer" title="Reset Filters">
+                <span>✕</span>
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Full-Width Workspace Layout: Tables & Entry Portal -->
+          <div class="space-y-5 w-full">
+            
+            <!-- Card 1: Static Schedule Configuration Table -->
               <div id="academic-schedule-table-section" class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3.5">
                 <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-3">
                   <div class="flex items-center gap-2">
@@ -2735,8 +2717,6 @@
                   </div>
                 </form>
               </div>
-
-            </div>
           </div>
         </div>
 
@@ -6919,6 +6899,11 @@
 
     function switchAcademicSubTab(prog) {
       currentAcademicProgram = prog;
+      const progFilter = document.getElementById("static-filter-program");
+      if (progFilter && prog !== "Portal Links") {
+        progFilter.value = prog;
+        filterAcademicRecords();
+      }
       
       const subButtons = {
         "Honours": document.getElementById("subtab-academic-honours"),
@@ -7234,6 +7219,16 @@
       } catch(err) {
         console.error("loadAcademicStaticList error:", err);
       }
+    }
+
+        function clearAcademicFilters() {
+      const prog = document.getElementById("static-filter-program");
+      const year = document.getElementById("static-filter-year");
+      const search = document.getElementById("static-filter-search");
+      if (prog) prog.value = "ALL";
+      if (year) year.value = "";
+      if (search) search.value = "";
+      filterAcademicRecords();
     }
 
     function filterAcademicRecords() {
