@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -542,6 +542,112 @@
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
+    :root {
+      --bg: #F5F5F7;
+      --surface: #FFFFFF;
+      --surface-subtle: #FAFAFA;
+      --text: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --text-tertiary: #86868B;
+      --hairline: rgba(0, 0, 0, 0.08);
+      --hairline-subtle: rgba(0, 0, 0, 0.04);
+      --accent: #1D1D1F;
+      --accent-hover: #000000;
+      --focus-ring: rgba(0, 113, 227, 0.4);
+    }
+
+    [data-theme="dark"] {
+      --bg: #1C1C1E;
+      --surface: #2C2C2E;
+      --surface-subtle: #242426;
+      --text: #F5F5F7;
+      --text-secondary: #98989D;
+      --text-tertiary: #86868B;
+      --hairline: rgba(255, 255, 255, 0.10);
+      --hairline-subtle: rgba(255, 255, 255, 0.06);
+      --accent: #F5F5F7;
+      --accent-hover: #FFFFFF;
+      --focus-ring: rgba(0, 113, 227, 0.6);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #1C1C1E;
+        --surface: #2C2C2E;
+        --surface-subtle: #242426;
+        --text: #F5F5F7;
+        --text-secondary: #98989D;
+        --hairline: rgba(255, 255, 255, 0.10);
+        --hairline-subtle: rgba(255, 255, 255, 0.06);
+        --accent: #F5F5F7;
+        --accent-hover: #FFFFFF;
+        --focus-ring: rgba(0, 113, 227, 0.6);
+      }
+    }
+
+    /* Monochromatic Dark Mode Adaptations */
+    [data-theme="dark"] body {
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    [data-theme="dark"] #admin-drawer-panel { background: #2C2C2E; color: #F5F5F7; border-color: rgba(255,255,255,0.10); }
+
+    [data-theme="dark"] #admin-drawer-panel > div:first-child {
+      background: #242426 !important;
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+
+    [data-theme="dark"] #admin-drawer-panel .bg-\[\#FAFAFA\] {
+      background-color: #242426 !important;
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+
+    [data-theme="dark"] #admin-drawer-panel .bg-\[\#FFFFFF\],
+    [data-theme="dark"] #admin-drawer-panel .bg-white {
+      background-color: #2C2C2E !important;
+      color: #F5F5F7 !important;
+    }
+
+    [data-theme="dark"] #admin-drawer-panel .bg-\[\#F5F5F7\] {
+      background-color: #1C1C1E !important;
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+
+    [data-theme="dark"] #admin-drawer-panel .text-\[\#1D1D1F\] {
+      color: #F5F5F7 !important;
+    }
+
+    [data-theme="dark"] #admin-drawer-panel .text-\[\#6E6E73\] {
+      color: #98989D !important;
+    }
+
+    [data-theme="dark"] #admin-drawer-panel textarea,
+    [data-theme="dark"] #admin-drawer-panel input,
+    [data-theme="dark"] #admin-drawer-panel select {
+      background-color: #1C1C1E !important;
+      color: #F5F5F7 !important;
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+
+    [data-theme="dark"] table thead,
+    [data-theme="dark"] table thead th {
+      background-color: #242426 !important;
+      color: #F5F5F7 !important;
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+
+    [data-theme="dark"] table,
+    [data-theme="dark"] table th,
+    [data-theme="dark"] table td {
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea {
+      border-color: rgba(255, 255, 255, 0.10);
+    }
     body {
       font-family: 'Hind Siliguri', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
@@ -1627,54 +1733,54 @@
         <!-- Tab Content: Token Support Center -->
         <div id="tab-content-tokens" class="space-y-4">
           <!-- Filters Toolbar -->
-          <div class="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="bg-white p-3 rounded-xl border border-[rgba(0,0,0,0.08)] flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
             <div class="flex flex-wrap items-center gap-2 flex-1">
-              <input id="admin-token-search" type="text" placeholder="Search Token ID, student name, problem, reg no..." class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-600 w-64" />
+              <input id="admin-token-search" type="text" onkeyup="if(event.key==='Enter') loadAdminTokens()" placeholder="Search Token ID, student name, problem, reg no..." class="bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg px-3 py-1.5 text-xs text-[#1D1D1F] placeholder-[#86868B] focus:bg-white focus:outline-none focus:border-[#1D1D1F] w-64 transition" />
               
-              <select id="admin-token-status-filter" class="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:bg-white focus:outline-none">
+              <select id="admin-token-status-filter" onchange="loadAdminTokens()" class="bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg px-2.5 py-1.5 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#1D1D1F] transition">
                 <option value="ALL">All Statuses</option>
-                <option value="PENDING">🟡 PENDING</option>
-                <option value="ASSIGNED">🟣 ASSIGNED</option>
-                <option value="PROCESSING">🔵 PROCESSING</option>
-                <option value="SOLVED">🟢 SOLVED</option>
-                <option value="CLOSED">⚫ CLOSED</option>
-                <option value="REJECTED">🔴 REJECTED</option>
+                <option value="PENDING">Pending</option>
+                <option value="ASSIGNED">Assigned</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="SOLVED">Solved</option>
+                <option value="CLOSED">Closed</option>
+                <option value="REJECTED">Rejected</option>
                 <option value="TRASH" id="opt-trash-filter" class="text-rose-700 font-bold">🗑️ Trash / Deleted (রিসাইকেল বিন)</option>
               </select>
 
-              <select id="admin-token-service-filter" class="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:bg-white focus:outline-none">
+              <select id="admin-token-service-filter" onchange="loadAdminTokens()" class="bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg px-2.5 py-1.5 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#1D1D1F] transition">
                 <option value="ALL">All Services</option>
               </select>
 
-              <button onclick="loadAdminTokens()" class="bg-slate-800 hover:bg-slate-900 text-white font-medium px-3 py-1.5 rounded-lg transition">Filter</button>
-              <button onclick="loadAdminTokens()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center gap-1">
+              <button onclick="loadAdminTokens()" class="bg-[#1D1D1F] hover:bg-black text-white font-medium px-3.5 py-1.5 rounded-lg transition">Filter</button>
+              <button onclick="loadAdminTokens()" class="bg-[#F5F5F7] hover:bg-slate-200 text-[#1D1D1F] font-medium px-3 py-1.5 rounded-lg border border-[rgba(0,0,0,0.08)] transition flex items-center gap-1.5">
                 <span>🔄</span>
                 <span>Refresh</span>
               </button>
             </div>
 
-            <button onclick="openTokenModal()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-3 py-1.5 rounded-lg transition shadow-2xs">
-              + New Token
+            <button onclick="openTokenModal()" class="bg-[#1D1D1F] hover:bg-black text-white font-medium px-3.5 py-1.5 rounded-lg transition shadow-2xs flex items-center gap-1">
+              <span>+</span>
+              <span>New Token</span>
             </button>
           </div>
 
-          <!-- Tokens Table -->
-          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+          <!-- Tokens High-Density Data Table -->
+          <div class="bg-white rounded-xl border border-[rgba(0,0,0,0.08)] overflow-hidden shadow-2xs">
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 font-semibold">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-[#FAFAFA] text-[#6E6E73] border-b border-[rgba(0,0,0,0.08)] font-medium text-[11px] uppercase tracking-wider select-none">
                   <tr>
-                    <th class="p-3">Token ID</th>
-                    <th class="p-3">Service</th>
-                    <th class="p-3">Problem Summary</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3">Solver</th>
-                    <th class="p-3">Created Date</th>
-                    <th class="p-3 text-right">Action</th>
+                    <th class="py-3 px-4">Token ID & Time</th>
+                    <th class="py-3 px-4">Student Info</th>
+                    <th class="py-3 px-4">Service & Desk</th>
+                    <th class="py-3 px-4">Problem</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="admin-tokens-tbody" class="divide-y divide-slate-100 text-slate-700">
-                  <tr><td colspan="7" class="p-6 text-center text-slate-400">Loading support tokens...</td></tr>
+                <tbody id="admin-tokens-tbody" class="divide-y divide-[rgba(0,0,0,0.04)] text-[#1D1D1F]">
+                  <tr><td colspan="6" class="p-8 text-center text-[#6E6E73] font-medium">Loading support tokens...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -2968,173 +3074,160 @@
   </div>
 
 
-  <!-- Admin Manage Single Token Modal (Exact Layout Match with Screenshot) -->
-  <div id="admin-manage-token-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-[60] hidden flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+  <!-- Admin & Solver Manage Token Slide-Over Drawer -->
+  <div id="admin-manage-token-modal" class="fixed inset-0 z-[60] hidden overflow-hidden">
+    <!-- Backdrop overlay for smooth dismissal when clicking outside -->
+    <div id="admin-drawer-backdrop" onclick="closeAdminManageTokenModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300"></div>
+
+    <!-- Fixed right-side panel -->
+    <div id="admin-drawer-panel" class="fixed top-0 right-0 h-full w-full max-w-xl bg-white border-l border-[rgba(0,0,0,0.08)] shadow-2xl transform translate-x-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-[60] flex flex-col">
       
-      <!-- Top Header matching screenshot -->
-      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900 text-white shrink-0">
+      <!-- Drawer Header -->
+      <div class="px-6 py-4 border-b border-[rgba(0,0,0,0.08)] flex items-center justify-between bg-[#FAFAFA] shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-sm shadow-xs">NU</div>
+          <div class="w-8 h-8 rounded-lg bg-[#1D1D1F] text-white flex items-center justify-center font-bold text-xs tracking-wider shadow-xs">NU</div>
           <div>
-            <h3 class="text-sm font-bold text-white">Manage Support Token: <span id="adm-token-id" class="font-mono text-amber-400">NU-2026-000098</span></h3>
-            <p class="text-[11px] text-slate-400">Assign solvers, update operational statuses, and record verified resolutions</p>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-semibold text-[#1D1D1F]">Token <span id="adm-token-id" class="font-mono font-bold">--</span></h3>
+              <span id="adm-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-900 border border-amber-500/20">PENDING</span>
+            </div>
+            <p class="text-[11px] text-[#6E6E73]" id="adm-service">Service Category</p>
           </div>
         </div>
-        <button onclick="closeAdminManageTokenModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition">✕</button>
+        <button type="button" onclick="closeAdminManageTokenModal()" class="text-[#6E6E73] hover:text-[#1D1D1F] p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer" title="Close Drawer (Esc)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
 
-      <div class="p-6 space-y-4 text-xs overflow-y-auto bg-slate-50/50">
+      <!-- Scrollable Drawer Body -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6 text-xs text-[#1D1D1F] bg-[#FFFFFF]">
         
-        <!-- Card 1: Student & Problem Context -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-          <h4 class="font-bold text-slate-900 text-xs">Student & Problem Context</h4>
-          
-          <div class="bg-slate-50/80 p-3 rounded-xl border border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+        <!-- Section 1: Student & Problem context -->
+        <section class="space-y-3">
+          <h4 class="text-[11px] font-bold uppercase tracking-wider text-[#6E6E73] flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#1D1D1F]"></span>
+            <span>Student & Service Context</span>
+          </h4>
+          <div class="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-[#F5F5F7] border border-[rgba(0,0,0,0.06)] text-[11px]">
             <div>
-              <span class="text-slate-400 block text-[10px]">Student Name:</span>
-              <strong id="adm-user-name" class="text-slate-900 text-xs font-bold">N/A</strong>
+              <span class="text-[#6E6E73] block text-[10px] font-medium">Student Name:</span>
+              <strong id="adm-user-name" class="text-[#1D1D1F] font-semibold text-xs">N/A</strong>
             </div>
             <div>
-              <span class="text-slate-400 block text-[10px]">Phone:</span>
-              <strong id="adm-user-phone" class="text-slate-900 text-xs font-bold">N/A</strong>
+              <span class="text-[#6E6E73] block text-[10px] font-medium">Phone Number:</span>
+              <strong id="adm-user-phone" class="text-[#1D1D1F] font-semibold text-xs">N/A</strong>
             </div>
             <div>
-              <span class="text-slate-400 block text-[10px]">Registration No:</span>
-              <strong id="adm-reg-no" class="text-slate-900 text-xs font-bold">N/A</strong>
+              <span class="text-[#6E6E73] block text-[10px] font-medium">Registration No:</span>
+              <strong id="adm-reg-no" class="text-[#1D1D1F] font-semibold text-xs">N/A</strong>
             </div>
             <div>
-              <span class="text-slate-400 block text-[10px]">Service:</span>
-              <span id="adm-service" class="text-slate-900 font-bold">EMS (Exam Management System) (EMS)</span>
-            </div>
-            <div>
-              <span class="text-slate-400 block text-[10px]">Created Date:</span>
-              <span id="adm-date" class="text-slate-700 font-medium">2026-08-20 13:53:25</span>
-            </div>
-            <div>
-              <span class="text-slate-400 block text-[10px]">Current Status:</span>
-              <span id="adm-status-badge" class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">SOLVED</span>
+              <span class="text-[#6E6E73] block text-[10px] font-medium">Submitted Date:</span>
+              <span id="adm-date" class="text-[#6E6E73] font-medium">--</span>
             </div>
           </div>
 
           <div>
-            <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block mb-1.5">STUDENT PROBLEM DESCRIPTION:</span>
-            <div id="adm-problem" class="bg-slate-50/90 p-3 rounded-xl border border-slate-200 text-slate-800 text-xs leading-relaxed min-h-[48px]">
-              seems shutdown
-            </div>
+            <span class="text-[#6E6E73] text-[10px] font-bold uppercase tracking-wider block mb-1.5">Problem Description:</span>
+            <div id="adm-problem" class="p-3.5 rounded-xl bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] text-[#1D1D1F] leading-relaxed min-h-[48px]"></div>
           </div>
-        </div>
+        </section>
 
-        <!-- Card 2: Action & Solver Controls -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-          
-          <!-- Admin Only Assignment & Status Section -->
+        <!-- Section 2: Desk Controls -->
+        <section class="space-y-4 pt-4 border-t border-[rgba(0,0,0,0.08)]">
+          <!-- Admin Controls Panel (Admin Only) -->
           <div id="adm-admin-controls-panel" class="space-y-3">
-            <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-purple-600"></span>
-              <span>Administrator Assignment & Status Controls (Admin Only)</span>
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-[#6E6E73] flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              <span>Administrative Desk Routing (Admin Only)</span>
             </h4>
-            
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block font-semibold text-slate-700 mb-1 text-[11px]">Assign Solver / Department Desk</label>
-                <select id="adm-solver-select" onchange="submitAssignToken()" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-slate-800">
+                <label class="block text-[11px] font-medium text-[#6E6E73] mb-1">Assign Solver / Department</label>
+                <select id="adm-solver-select" onchange="submitAssignToken()" class="w-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg p-2.5 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#1D1D1F] transition">
                   <option value="">-- Select Solver / Department --</option>
                 </select>
               </div>
-
               <div>
-                <label class="block font-semibold text-slate-700 mb-1 text-[11px]">Update Status</label>
+                <label class="block text-[11px] font-medium text-[#6E6E73] mb-1">Update Status</label>
                 <div class="flex gap-1.5">
-                  <select id="adm-status-select" class="flex-1 bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-slate-800">
-                    <option value="PROCESSING">🔵 PROCESSING</option>
-                    <option value="SOLVED">🟢 SOLVED</option>
-                    <option value="CLOSED">⚫ CLOSED</option>
-                    <option value="REJECTED">🔴 REJECTED</option>
-                    <option value="PENDING">🟡 PENDING</option>
-                    <option value="ASSIGNED">🟣 ASSIGNED</option>
+                  <select id="adm-status-select" class="flex-1 bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg p-2.5 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#1D1D1F] transition">
+                    <option value="PROCESSING">Processing</option>
+                    <option value="SOLVED">Solved</option>
+                    <option value="CLOSED">Closed</option>
+                    <option value="REJECTED">Rejected</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="ASSIGNED">Assigned</option>
                   </select>
-                  <button onclick="submitStatusUpdate()" class="bg-slate-900 hover:bg-black text-white font-bold px-4 py-2.5 rounded-xl transition shadow-2xs">Update</button>
+                  <button type="button" onclick="submitStatusUpdate()" class="bg-[#1D1D1F] hover:bg-black text-white text-xs font-medium px-3.5 py-2.5 rounded-lg transition">Update</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Solver Read-Only Assignment Banner -->
-          <div id="solver-assignment-notice" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs">
+          <!-- Solver Assignment Banner (Solver Only) -->
+          <div id="solver-assignment-notice" class="hidden p-3.5 rounded-xl bg-[#F5F5F7] border border-[rgba(0,0,0,0.06)] flex items-center justify-between">
             <div>
-              <span class="text-slate-500 block text-[10px] font-bold uppercase">Assigned To Desk:</span>
-              <strong id="solver-desk-name-display" class="text-slate-800 font-bold">Department Solver</strong>
+              <span class="text-[10px] text-[#6E6E73] block uppercase font-bold">Assigned Department Desk:</span>
+              <strong id="solver-desk-name-display" class="text-xs text-[#1D1D1F] font-semibold">Department Desk</strong>
             </div>
-            <span class="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg font-medium">
-              🔒 Re-assignment is managed only by Administrator
+            <span class="text-[10px] text-[#6E6E73] bg-white border border-[rgba(0,0,0,0.08)] px-2.5 py-1 rounded-md font-medium">
+              🔒 Re-assignment managed by Admin
             </span>
           </div>
 
-          <!-- Primary Action 1: Resolution & Solve Box -->
-          <div class="pt-3 border-t border-slate-100 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <label class="font-bold text-emerald-950 text-xs flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span>Action 1: Record Official Resolution / সমাধান বার্তা (Mark Solved):</span>
-              </label>
-              <span class="text-[10px] text-slate-400">Publicly visible when student checks Token ID</span>
-            </div>
-
-            <!-- Resolution Template Quick Chips -->
-            <div class="flex flex-wrap gap-1.5">
-              <button type="button" onclick="setAdminSolveTemplate('সোনালী সেবার পেমেন্ট ট্রানজেকশন যাচাই করে ডাটাবেজে পেমেন্ট সিনক্রোনাইজেশন সম্পন্ন করা হয়েছে এবং স্ট্যাটাস Paid করা হয়েছে।')" class="text-[10px] bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-1 rounded-lg transition font-medium">
-                💳 পেমেন্ট সিনক্রোনাইজেশন
-              </button>
-              <button type="button" onclick="setAdminSolveTemplate('ইএমএস (EMS) পোর্টালে শিক্ষার্থীর তথ্য ও পাসওয়ার্ড রিসেট করে সক্রিয় করা হয়েছে। নতুন পাসওয়ার্ড দিয়ে লগইন করুন।')" class="text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-300 px-2.5 py-1 rounded-lg transition font-medium">
-                💻 ইএমএস পাসওয়ার্ড রিসেট
-              </button>
-              <button type="button" onclick="setAdminSolveTemplate('মূল সনদপত্র যাচাই ও প্রিন্ট সম্পন্ন হয়েছে। জাতীয় বিশ্ববিদ্যালয়ের সনদপত্র শাখা হতে মূল কপি সংগ্রহ করার জন্য অনুরোধ করা হলো।')" class="text-[10px] bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg transition font-medium">
-                📜 সনদপত্র প্রস্তুত
-              </button>
-              <button type="button" onclick="setAdminSolveTemplate('উত্তরপত্র পুনঃনিরীক্ষণ বোর্ড কর্তৃক নিরীক্ষা সম্পন্ন হয়েছে এবং ফলাফল ডাটাবেজে হালনাগাদ করা হয়েছে।')" class="text-[10px] bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 px-2.5 py-1 rounded-lg transition font-medium">
-                🔍 পুনর্নিরীক্ষণ সম্পন্ন
-              </button>
-            </div>
-
-            <textarea id="adm-solve-message" rows="3" placeholder="শিক্ষার্থীর সমস্যার সুনির্দিষ্ট সমাধান বিবরণ লিখুন..." class="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-emerald-600 resize-none leading-relaxed font-normal"></textarea>
+          <!-- Section 3: Desk Action Controls -->
+          <!-- Action 1: Solve -->
+          <div class="space-y-2.5 pt-3">
+            <label class="text-[11px] font-bold uppercase tracking-wider text-[#1D1D1F] flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Action 1: Record Official Resolution (Mark Solved)</span>
+            </label>
             
+            <!-- Quick resolution chips -->
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="setAdminSolveTemplate('সোনালী সেবার পেমেন্ট ট্রানজেকশন যাচাই করে ডাটাবেজে পেমেন্ট সিনক্রোনাইজেশন সম্পন্ন করা হয়েছে এবং স্ট্যাটাস Paid করা হয়েছে।')" class="text-[10px] bg-[#F5F5F7] hover:bg-slate-200 text-[#1D1D1F] border border-[rgba(0,0,0,0.08)] px-2.5 py-1 rounded-md transition">💳 পেমেন্ট সিনক্রোনাইজেশন</button>
+              <button type="button" onclick="setAdminSolveTemplate('ইএমএস (EMS) পোর্টালে শিক্ষার্থীর তথ্য ও পাসওয়ার্ড রিসেট করে সক্রিয় করা হয়েছে। নতুন পাসওয়ার্ড দিয়ে লগইন করুন।')" class="text-[10px] bg-[#F5F5F7] hover:bg-slate-200 text-[#1D1D1F] border border-[rgba(0,0,0,0.08)] px-2.5 py-1 rounded-md transition">💻 ইএমএস রিসেট</button>
+              <button type="button" onclick="setAdminSolveTemplate('মূল সনদপত্র যাচাই ও প্রিন্ট সম্পন্ন হয়েছে। জাতীয় বিশ্ববিদ্যালয়ের সনদপত্র শাখা হতে মূল কপি সংগ্রহ করার জন্য অনুরোধ করা হলো।')" class="text-[10px] bg-[#F5F5F7] hover:bg-slate-200 text-[#1D1D1F] border border-[rgba(0,0,0,0.08)] px-2.5 py-1 rounded-md transition">📜 সনদ প্রস্তুত</button>
+              <button type="button" onclick="setAdminSolveTemplate('উত্তরপত্র পুনঃনিরীক্ষণ বোর্ড কর্তৃক নিরীক্ষা সম্পন্ন হয়েছে এবং ফলাফল ডাটাবেজে হালনাগাদ করা হয়েছে।')" class="text-[10px] bg-[#F5F5F7] hover:bg-slate-200 text-[#1D1D1F] border border-[rgba(0,0,0,0.08)] px-2.5 py-1 rounded-md transition">🔍 পুনর্নিরীক্ষণ সম্পন্ন</button>
+            </div>
+
+            <textarea id="adm-solve-message" rows="3" placeholder="Write official student resolution message / শিক্ষার্থীর সমস্যার সুনির্দিষ্ট সমাধান বিবরণ লিখুন..." class="w-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg p-3 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#1D1D1F] resize-none leading-relaxed transition"></textarea>
+
             <div class="flex items-center justify-between pt-1">
-              <span class="text-emerald-800 text-[10px] font-medium">✓ Solution will mark token as SOLVED and auto-index into AI secondary knowledge.</span>
-              <button onclick="submitSolveToken()" class="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-5 py-2.5 rounded-xl transition shadow-xs flex items-center gap-1.5">
-                <span>✓ Save Resolution & Mark Solved</span>
+              <span class="text-[10px] text-[#6E6E73]">Visible publicly on Student Status Check</span>
+              <button type="button" onclick="submitSolveToken()" class="bg-[#1D1D1F] hover:bg-black text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow-xs">
+                <span>✓ Mark Solved</span>
               </button>
             </div>
           </div>
 
-          <!-- Primary Action 2: Solver Send Back to Admin (Not Solved / দিকনির্দেশনার জন্য ফেরত) -->
-          <div class="pt-3 border-t border-rose-100 bg-rose-50/40 p-3 rounded-xl border space-y-2.5">
-            <div class="flex items-center justify-between">
-              <label class="font-bold text-rose-950 text-xs flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                <span>Action 2: Send Back to Admin (Not Solved / দিকনির্দেশনার জন্য ফেরত পাঠান):</span>
-              </label>
-              <span class="text-[10px] text-rose-700 font-medium">যদি সমাধান সম্ভব না হয় বা অ্যাডমিনের নির্দেশনা দরকার হয়</span>
-            </div>
-
+          <!-- Action 2: Solver Return to Admin (Not Solved) -->
+          <div class="space-y-2 pt-3 border-t border-[rgba(0,0,0,0.06)]">
+            <label class="text-[11px] font-bold uppercase tracking-wider text-[#6E6E73] flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+              <span>Action 2: Send Back to Admin (Not Solved / দিকনির্দেশনার জন্য ফেরত)</span>
+            </label>
             <div class="flex gap-2">
-              <input id="solver-return-reason-input" type="text" placeholder="ফেরত পাঠানোর কারণ বা দিকনির্দেশনা চেয়ে নোট লিখুন (e.g. অতিরিক্ত তথ্যের জন্য রেজিস্ট্রারের অনুমোদন প্রয়োজন)..." class="flex-1 bg-white border border-rose-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-500" />
-              <button onclick="submitReturnToAdmin()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5 shrink-0">
-                <span>↩️ Send Back to Admin</span>
+              <input id="solver-return-reason-input" type="text" placeholder="নোট বা কারণ লিখুন (e.g. অতিরিক্ত তথ্যের জন্য রেজিস্ট্রারের অনুমোদন প্রয়োজন)..." class="flex-1 bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg p-2.5 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-rose-500 transition" />
+              <button type="button" onclick="submitReturnToAdmin()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition shrink-0">
+                <span>↩️ Send Back</span>
               </button>
             </div>
           </div>
+        </section>
 
-        </div>
-
-        <!-- Card 3: Internal Admin Notes (Private) -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
-          <h4 class="font-bold text-slate-900 text-xs">Internal Admin Notes (Private)</h4>
+        <!-- Section 4: Internal Admin Notes (Private) -->
+        <section class="space-y-2 pt-4 border-t border-[rgba(0,0,0,0.08)]">
+          <h4 class="text-[11px] font-bold uppercase tracking-wider text-[#6E6E73] flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+            <span>Internal Administrative Notes (Private)</span>
+          </h4>
           <div class="flex gap-2">
-            <input id="adm-note-input" type="text" placeholder="Add internal administrative note..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-slate-800" />
-            <button onclick="saveAdminNoteOnly()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-4 py-2 rounded-xl transition">Save Note</button>
+            <input id="adm-note-input" type="text" placeholder="Private internal note..." class="flex-1 bg-[#FAFAFA] border border-[rgba(0,0,0,0.1)] rounded-lg p-2.5 text-xs text-[#1D1D1F] focus:bg-white focus:outline-none focus:border-[#1D1D1F] transition" />
+            <button type="button" onclick="saveAdminNoteOnly()" class="bg-[#F5F5F7] hover:bg-slate-200 text-[#1D1D1F] border border-[rgba(0,0,0,0.08)] text-xs font-medium px-4 py-2 rounded-lg transition">Save Note</button>
           </div>
-        </div>
+        </section>
 
       </div>
     </div>
@@ -4927,6 +5020,8 @@
       const tabTokensBtn = document.getElementById("tab-btn-tokens");
       const tabSitemapBtn = document.getElementById("tab-btn-sitemap");
       const tabAIEngineBtn = document.getElementById("tab-btn-ai-engine");
+      const tabQAKnowledgeBtn = document.getElementById("tab-btn-qa-knowledge");
+      const tabAcademicStaticBtn = document.getElementById("tab-btn-academic-static");
       const tabUsersBtn = document.getElementById("tab-btn-users");
       const tabLogsBtn = document.getElementById("tab-btn-logs");
       const tabBackupsBtn = document.getElementById("tab-btn-backups");
@@ -4934,6 +5029,8 @@
       if (tabTokensBtn) tabTokensBtn.style.display = "flex";
       if (tabSitemapBtn) tabSitemapBtn.style.display = isAdmin ? "flex" : "none";
       if (tabAIEngineBtn) tabAIEngineBtn.style.display = isAdmin ? "flex" : "none";
+      if (tabQAKnowledgeBtn) tabQAKnowledgeBtn.style.display = isAdmin ? "flex" : "none";
+      if (tabAcademicStaticBtn) tabAcademicStaticBtn.style.display = isAdmin ? "flex" : "none";
       if (tabUsersBtn) tabUsersBtn.style.display = isAdmin ? "flex" : "none";
       if (tabLogsBtn) tabLogsBtn.style.display = isAdmin ? "flex" : "none";
       if (tabBackupsBtn) tabBackupsBtn.style.display = isAdmin ? "flex" : "none";
@@ -5122,6 +5219,23 @@
     }
 
     // --- Admin Dashboard & Token Management Functions ---
+    function getMonochromeStatusBadge(status) {
+      const map = {
+        "PENDING": { bg: "bg-amber-500/10", text: "text-amber-900", dot: "bg-amber-500", label: "Pending" },
+        "ASSIGNED": { bg: "bg-indigo-500/10", text: "text-indigo-900", dot: "bg-indigo-500", label: "Assigned" },
+        "PROCESSING": { bg: "bg-blue-500/10", text: "text-blue-900", dot: "bg-blue-500", label: "Processing" },
+        "SOLVED": { bg: "bg-emerald-500/10", text: "text-emerald-900", dot: "bg-emerald-600", label: "Solved" },
+        "CLOSED": { bg: "bg-slate-500/10", text: "text-slate-800", dot: "bg-slate-400", label: "Closed" },
+        "REJECTED": { bg: "bg-rose-500/10", text: "text-rose-900", dot: "bg-rose-500", label: "Rejected" },
+        "TRASH": { bg: "bg-rose-500/10", text: "text-rose-900", dot: "bg-rose-600", label: "Trash" }
+      };
+      const s = map[status] || { bg: "bg-slate-500/10", text: "text-slate-700", dot: "bg-slate-400", label: status };
+      return `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${s.bg} ${s.text} border border-[rgba(0,0,0,0.04)]">
+        <span class="w-1.5 h-1.5 rounded-full ${s.dot}"></span>
+        <span>${s.label}</span>
+      </span>`;
+    }
+
     async function loadAdminTokens() {
       const tbody = document.getElementById("admin-tokens-tbody");
       const search = document.getElementById("admin-token-search").value.trim();
@@ -5153,42 +5267,58 @@
 
         if (!data.tokens || data.tokens.length === 0) {
           const deptNotice = (isSolver && user.department) ? ` for your assigned department (${escapeHTML(user.department)})` : '';
-          tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium">No support tokens found${deptNotice}.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-[#6E6E73] font-medium">No support tokens found${deptNotice}.</td></tr>`;
           return;
         }
 
         tbody.innerHTML = data.tokens.map(t => {
-          const statusColors = {
-            "PENDING": "bg-amber-100 text-amber-800",
-            "ASSIGNED": "bg-purple-100 text-purple-800",
-            "PROCESSING": "bg-blue-100 text-blue-800",
-            "SOLVED": "bg-emerald-100 text-emerald-800",
-            "CLOSED": "bg-slate-100 text-slate-800",
-            "REJECTED": "bg-rose-100 text-rose-800"
-          };
-          const badgeClass = statusColors[t.status] || "bg-slate-100 text-slate-700";
+          const statusBadgeHtml = getMonochromeStatusBadge(t.status);
+          const studentName = escapeHTML(t.user_name || 'N/A');
+          const studentPhone = escapeHTML(t.user_phone || '');
+          const regNo = escapeHTML(t.registration_no || '');
+          const serviceType = escapeHTML(t.service_type || 'General');
+          const solverName = escapeHTML(t.solver_name || 'Unassigned Desk');
+          const problemText = escapeHTML(t.problem || '');
+          const tokenId = escapeHTML(t.token_id);
+          const createdDate = escapeHTML(t.created_date || '');
 
           return `
-            <tr class="hover:bg-slate-50 transition">
-              <td class="p-3 font-mono font-bold text-slate-900">${escapeHTML(t.token_id)}</td>
-              <td class="p-3 font-semibold text-slate-800">${escapeHTML(t.service_type)}</td>
-              <td class="p-3 max-w-xs truncate" title="${escapeHTML(t.problem)}">${escapeHTML(t.problem)}</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${escapeHTML(t.status)}</span></td>
-              <td class="p-3 text-slate-600">${escapeHTML(t.solver_name || 'Unassigned')}</td>
-              <td class="p-3 text-slate-400">${escapeHTML(t.created_date || '')}</td>
-              <td class="p-3 text-right">
+            <tr onclick="openAdminManageToken('${tokenId}')" class="hover:bg-[#F5F5F7]/80 transition cursor-pointer group border-b border-[rgba(0,0,0,0.04)]">
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="font-mono font-semibold text-[#1D1D1F] block text-xs group-hover:text-black">${tokenId}</span>
+                <span class="text-[11px] text-[#6E6E73] block mt-0.5">${createdDate}</span>
+              </td>
+              <td class="py-3 px-4">
+                <span class="font-medium text-[#1D1D1F] block text-xs">${studentName}</span>
+                <span class="text-[11px] text-[#6E6E73] block mt-0.5">${studentPhone ? studentPhone + ' · ' : ''}Reg: ${regNo || 'N/A'}</span>
+              </td>
+              <td class="py-3 px-4">
+                <span class="font-medium text-[#1D1D1F] block text-xs">${serviceType}</span>
+                <span class="inline-flex items-center gap-1 text-[11px] text-[#6E6E73] mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full ${t.solver_name ? 'bg-indigo-500' : 'bg-slate-300'}"></span>
+                  <span>${solverName}</span>
+                </span>
+              </td>
+              <td class="py-3 px-4 max-w-xs">
+                <div class="truncate text-xs text-[#1D1D1F]" title="${problemText}">${problemText}</div>
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                ${statusBadgeHtml}
+              </td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
                 <div class="flex items-center justify-end gap-1.5">
                   ${t.is_deleted ? `
-                    <button onclick="restoreAdminToken('${escapeHTML(t.token_id)}')" class="bg-emerald-700 hover:bg-emerald-800 text-white px-2.5 py-1 rounded-md text-[11px] font-bold transition flex items-center gap-1 shadow-2xs" title="Restore Token">
+                    <button type="button" onclick="event.stopPropagation(); restoreAdminToken('${tokenId}')" class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-md transition shadow-2xs" title="Restore Token">
                       <span>♻️</span>
                       <span>Restore</span>
                     </button>
                   ` : `
-                    <button onclick="openAdminManageToken('${escapeHTML(t.token_id)}')" class="bg-slate-800 hover:bg-slate-900 text-white px-2.5 py-1 rounded-md text-[11px] font-medium transition">
-                      Manage
+                    <button type="button" onclick="event.stopPropagation(); openAdminManageToken('${tokenId}')" class="inline-flex items-center gap-1 text-[11px] font-medium text-[#1D1D1F] hover:text-black bg-[#F5F5F7] hover:bg-slate-200 border border-[rgba(0,0,0,0.08)] px-2.5 py-1 rounded-md transition" title="Inspect & Manage Token">
+                      <span>Manage</span>
+                      <svg class="w-3 h-3 text-[#6E6E73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </button>
                     ${(user && user.role === 'SUPER_ADMIN') ? `
-                      <button onclick="deleteAdminToken('${escapeHTML(t.token_id)}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 p-1 rounded-md text-[11px] font-bold transition" title="Move Token to Trash">
+                      <button type="button" onclick="event.stopPropagation(); deleteAdminToken('${tokenId}')" class="text-[11px] text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 p-1 rounded-md transition ml-1" title="Move Token to Trash">
                         🗑️
                       </button>
                     ` : ''}
@@ -5199,7 +5329,7 @@
           `;
         }).join("");
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-rose-600">Error loading tokens: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-600">Error loading tokens: ${err.message}</td></tr>`;
       }
     }
 
@@ -5207,38 +5337,57 @@
       currentAdminSelectedTokenId = tokenId;
       await loadSolversList();
       const modal = document.getElementById("admin-manage-token-modal");
-      modal.classList.remove("hidden");
+      const drawer = document.getElementById("admin-drawer-panel");
+      if (modal) modal.classList.remove("hidden");
+      if (drawer) {
+        requestAnimationFrame(() => {
+          drawer.classList.remove("translate-x-full");
+        });
+      }
 
       try {
         const res = await fetch(`${API_BASE}/api/token/admin/${tokenId}`);
         const t = await res.json();
 
-        document.getElementById("adm-token-id").innerText = t.token_id;
-        document.getElementById("adm-user-name").innerText = t.user_name || "N/A";
-        document.getElementById("adm-user-phone").innerText = t.user_phone || "N/A";
-        document.getElementById("adm-reg-no").innerText = t.registration_no || "N/A";
-        document.getElementById("adm-service").innerText = `${t.service_name} (${t.service_type})`;
-        document.getElementById("adm-date").innerText = t.created_date;
-        document.getElementById("adm-problem").innerText = t.problem;
-        document.getElementById("adm-solve-message").value = t.solve_message || "";
-        document.getElementById("adm-note-input").value = t.admin_note || "";
+        const tokenEl = document.getElementById("adm-token-id");
+        if (tokenEl) tokenEl.innerText = t.token_id || tokenId;
+        const nameEl = document.getElementById("adm-user-name");
+        if (nameEl) nameEl.innerText = t.user_name || "N/A";
+        const phoneEl = document.getElementById("adm-user-phone");
+        if (phoneEl) phoneEl.innerText = t.user_phone || "N/A";
+        const regEl = document.getElementById("adm-reg-no");
+        if (regEl) regEl.innerText = t.registration_no || "N/A";
+        const serviceEl = document.getElementById("adm-service");
+        if (serviceEl) serviceEl.innerText = `${t.service_name || t.service_type || 'General'} (${t.service_type || ''})`;
+        const dateEl = document.getElementById("adm-date");
+        if (dateEl) dateEl.innerText = t.created_date || "--";
+        const probEl = document.getElementById("adm-problem");
+        if (probEl) probEl.innerText = t.problem || "No description provided.";
+        const solveMsgEl = document.getElementById("adm-solve-message");
+        if (solveMsgEl) solveMsgEl.value = t.solve_message || "";
+        const noteEl = document.getElementById("adm-note-input");
+        if (noteEl) noteEl.value = t.admin_note || "";
 
         const badge = document.getElementById("adm-status-badge");
-        badge.innerText = t.status;
-        const statusColors = {
-          "PENDING": "bg-amber-100 text-amber-800",
-          "ASSIGNED": "bg-purple-100 text-purple-800",
-          "PROCESSING": "bg-blue-100 text-blue-800",
-          "SOLVED": "bg-emerald-100 text-emerald-800",
-          "CLOSED": "bg-slate-100 text-slate-800",
-          "REJECTED": "bg-rose-100 text-rose-800"
-        };
-        badge.className = `px-2.5 py-0.5 rounded text-[10px] font-bold ${statusColors[t.status] || 'bg-amber-100 text-amber-800'}`;
+        if (badge) {
+          badge.innerText = t.status || "PENDING";
+          const statusBadgeMap = {
+            "PENDING": "bg-amber-500/10 text-amber-900 border border-amber-500/20",
+            "ASSIGNED": "bg-indigo-500/10 text-indigo-900 border border-indigo-500/20",
+            "PROCESSING": "bg-blue-500/10 text-blue-900 border border-blue-500/20",
+            "SOLVED": "bg-emerald-500/10 text-emerald-900 border border-emerald-500/20",
+            "CLOSED": "bg-slate-500/10 text-slate-800 border border-slate-500/20",
+            "REJECTED": "bg-rose-500/10 text-rose-900 border border-rose-500/20"
+          };
+          badge.className = `px-2.5 py-0.5 rounded-full text-[10px] font-medium ${statusBadgeMap[t.status] || 'bg-slate-500/10 text-slate-700'}`;
+        }
 
         if (t.solver_id) {
-          document.getElementById("adm-solver-select").value = t.solver_id;
+          const solverSelect = document.getElementById("adm-solver-select");
+          if (solverSelect) solverSelect.value = t.solver_id;
         }
-        document.getElementById("adm-status-select").value = t.status || "PROCESSING";
+        const statusSelect = document.getElementById("adm-status-select");
+        if (statusSelect) statusSelect.value = t.status || "PROCESSING";
 
         // Role-based control display in Token modal
         const user = getAdminUser();
@@ -5256,7 +5405,7 @@
           if (adminCtrlPanel) adminCtrlPanel.classList.add("hidden");
           if (solverNotice) {
             solverNotice.classList.remove("hidden");
-            if (solverDeskDisplay) solverDeskDisplay.innerText = t.solver_name || "Assigned Department Desk";
+            if (solverDeskDisplay) solverDeskDisplay.innerText = t.solver_name || (user && user.department) || "Assigned Department Desk";
           }
         }
 
@@ -5278,7 +5427,7 @@
       try {
         const token = getAdminAuthToken();
         const user = getAdminUser();
-        const res = await fetch(`${API_BASE}/api/token/admin/${currentAdminSelectedTokenId}/return-to-admin`, {
+        const res = await fetch(`${API_BASE}/api/v1/admin/tokens/${currentAdminSelectedTokenId}/return-to-admin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -5303,9 +5452,29 @@
     }
 
     function closeAdminManageTokenModal() {
-      document.getElementById("admin-manage-token-modal").classList.add("hidden");
-      currentAdminSelectedTokenId = null;
+      const drawer = document.getElementById("admin-drawer-panel");
+      const modal = document.getElementById("admin-manage-token-modal");
+      if (drawer) {
+        drawer.classList.add("translate-x-full");
+        setTimeout(() => {
+          if (modal) modal.classList.add("hidden");
+          currentAdminSelectedTokenId = null;
+        }, 300);
+      } else {
+        if (modal) modal.classList.add("hidden");
+        currentAdminSelectedTokenId = null;
+      }
     }
+
+    // Escape key listener for slide-over drawer
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        const modal = document.getElementById("admin-manage-token-modal");
+        if (modal && !modal.classList.contains("hidden")) {
+          closeAdminManageTokenModal();
+        }
+      }
+    });
 
     async function submitAssignToken() {
       if (!currentAdminSelectedTokenId) return;

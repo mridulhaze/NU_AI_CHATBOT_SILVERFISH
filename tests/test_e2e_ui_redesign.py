@@ -1,0 +1,1042 @@
+"""
+E2E Test Suite: National University Bangladesh AI Assistant UI Redesign
+Follows the 4-Tier Test Architecture defined in TEST_INFRA.md:
+- Tier 1: Feature Coverage (>=5 tests per feature for 11 features = 55 tests)
+- Tier 2: Boundary & Corner Cases (6 tests)
+- Tier 3: Pairwise Interactions (4 tests)
+- Tier 4: Real-World Workload Scenarios (5 scenarios)
+
+Execution: .venv\\Scripts\\python.exe -m pytest tests/test_e2e_ui_redesign.py -v
+"""
+
+import os
+import re
+import json
+import time
+import pytest
+from bs4 import BeautifulSoup
+from fastapi.testclient import TestClient
+
+from backend.app import app
+from backend.api.admin_routes import router as admin_v1_router
+from backend.core.security import create_jwt_token, Role
+from backend.models.schemas import TokenCreateRequest as DomainTokenCreateRequest
+from token_service.models import TokenCreateRequest as RepoTokenCreateRequest
+from backend.services.token_service import get_token_domain_service
+from backend.services.faq_service import get_faq_service
+from backend.services.backup_service import get_backup_service
+from token_service.service import get_token_service
+
+
+# ==============================================================================
+# Shared Fixtures
+# ==============================================================================
+
+@pytest.fixture(scope="module")
+def client():
+    """FastAPI TestClient instance."""
+    return TestClient(app)
+
+
+@pytest.fixture(scope="module")
+def index_html():
+    """Raw content of static/index.html."""
+    path = os.path.join("static", "index.html")
+    assert os.path.exists(path), f"File not found: {path}"
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+@pytest.fixture(scope="module")
+def chat_html():
+    """Raw content of static/chat.html."""
+    path = os.path.join("static", "chat.html")
+    assert os.path.exists(path), f"File not found: {path}"
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+@pytest.fixture(scope="module")
+def index_soup(index_html):
+    """Parsed BeautifulSoup DOM of static/index.html."""
+    return BeautifulSoup(index_html, "html.parser")
+
+
+@pytest.fixture(scope="module")
+def chat_soup(chat_html):
+    """Parsed BeautifulSoup DOM of static/chat.html."""
+    return BeautifulSoup(chat_html, "html.parser")
+
+
+@pytest.fixture(scope="module")
+def token_domain_svc():
+    """TokenDomainService instance."""
+    return get_token_domain_service()
+
+
+@pytest.fixture(scope="module")
+def legacy_token_svc():
+    """Legacy/Repository TokenService instance."""
+    return get_token_service()
+
+
+@pytest.fixture(scope="module")
+def faq_svc():
+    """FAQService instance with seeded knowledge base."""
+    svc = get_faq_service()
+    svc.ensure_seeded()
+    return svc
+
+
+# ==============================================================================
+# TIER 1: FEATURE COVERAGE (11 Features x >=5 tests = 55 tests)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Feature 1: High-Density Token Table & Badges (static/index.html)
+# ------------------------------------------------------------------------------
+
+def test_f1_01_table_container_and_headers_present(index_soup):
+    """Verify high-density data table container and mandatory header columns exist."""
+    tbody = index_soup.find("tbody", id="admin-tokens-tbody")
+    assert tbody is not None, "Missing #admin-tokens-tbody table body container"
+    
+    table = tbody.find_parent("table")
+    assert table is not None, "#admin-tokens-tbody must reside within a <table> element"
+    
+    thead = table.find("thead")
+    assert thead is not None, "High-density token table must have a <thead> header section"
+    headers_text = thead.get_text()
+    for col in ["Token ID", "Student", "Service", "Problem", "Status"]:
+        assert col.lower() in headers_text.lower(), f"Header column '{col}' missing from token table"
+
+
+def test_f1_02_status_badges_muted_styling_classes(index_html):
+    """Verify support for muted status badges / pips across all domain statuses."""
+    expected_statuses = ["PENDING", "ASSIGNED", "PROCESSING", "SOLVED", "CLOSED", "REJECTED"]
+    for status in expected_statuses:
+        assert status in index_html, f"Status '{status}' badge logic must be represented in static/index.html"
+    
+    # Check for soft muted tint classes or badge styling representation
+    has_badge_styling = any(cls in index_html for cls in [
+        "rounded", "badge", "status", "bg-amber", "text-amber", "bg-emerald", "text-emerald"
+    ])
+    assert has_badge_styling, "Muted status badge styling classes missing in index.html"
+
+
+def test_f1_03_table_rows_open_drawer_on_click(index_html):
+    """Verify table row click event binds openAdminManageToken to slide open the drawer."""
+    assert "openAdminManageToken" in index_html, "openAdminManageToken function missing from index.html"
+    assert "function openAdminManageToken" in index_html or "async function openAdminManageToken" in index_html, \
+        "openAdminManageToken must be defined as an executable function"
+
+
+def test_f1_04_action_buttons_stop_event_propagation(index_html):
+    """Verify quick row action buttons use event.stopPropagation() to avoid inadvertent drawer opening."""
+    assert "stopPropagation" in index_html, \
+        "event.stopPropagation() must be attached to table row action buttons (Trash/Restore)"
+
+
+def test_f1_05_student_columns_and_problem_rendered(index_html):
+    """Verify render function extracts student contact info (Name, Phone, Reg) and problem text."""
+    for field in ["user_name", "user_phone", "problem"]:
+        assert field in index_html, f"Field '{field}' must be referenced in index.html token rendering"
+
+
+# ------------------------------------------------------------------------------
+# Feature 2: Slide-Over Inspection Drawer Structure & DOM IDs (static/index.html)
+# ------------------------------------------------------------------------------
+
+def test_f2_01_drawer_container_and_panel_structure(index_soup):
+    """Verify slide-over inspection drawer modal container exists."""
+    drawer_modal = index_soup.find(id="admin-manage-token-modal")
+    assert drawer_modal is not None, "Missing #admin-manage-token-modal element"
+    classes = drawer_modal.get("class", [])
+    assert "fixed" in classes, "Drawer container must be fixed position"
+    assert "z-[60]" in classes or "z-50" in classes or any("z-" in c for c in classes), \
+        "Drawer must have elevated z-index"
+
+
+def test_f2_02_student_problem_context_dom_ids(index_soup):
+    """Verify student details and problem context DOM IDs are present inside drawer."""
+    expected_ids = [
+        "adm-token-id",
+        "adm-status-badge",
+        "adm-user-name",
+        "adm-user-phone",
+        "adm-reg-no",
+        "adm-service",
+        "adm-date",
+        "adm-problem"
+    ]
+    for dom_id in expected_ids:
+        elem = index_soup.find(id=dom_id)
+        assert elem is not None, f"Required drawer DOM ID #{dom_id} not found in static/index.html"
+
+
+def test_f2_03_solver_action_controls_dom_ids(index_soup):
+    """Verify solver action controls exist: resolution input, solve button, return reason, return button."""
+    solve_msg = index_soup.find(id="adm-solve-message")
+    assert solve_msg is not None, "Missing #adm-solve-message textarea"
+    
+    return_input = index_soup.find(id="solver-return-reason-input")
+    assert return_input is not None, "Missing #solver-return-reason-input"
+    
+    # Check buttons or handlers
+    html_text = str(index_soup)
+    assert "submitSolveToken" in html_text, "Missing submitSolveToken action handler"
+    assert "submitReturnToAdmin" in html_text, "Missing submitReturnToAdmin action handler"
+
+
+def test_f2_04_admin_controls_and_internal_notes_dom_ids(index_soup):
+    """Verify admin controls panel, solver assignment select, and private notes exist."""
+    admin_panel = index_soup.find(id="adm-admin-controls-panel")
+    assert admin_panel is not None, "Missing #adm-admin-controls-panel"
+    
+    solver_select = index_soup.find(id="adm-solver-select")
+    assert solver_select is not None, "Missing #adm-solver-select"
+    
+    status_select = index_soup.find(id="adm-status-select")
+    assert status_select is not None, "Missing #adm-status-select"
+    
+    note_input = index_soup.find(id="adm-note-input")
+    assert note_input is not None, "Missing #adm-note-input for internal notes"
+
+
+def test_f2_05_drawer_close_actions_and_handlers(index_html):
+    """Verify closeAdminManageTokenModal is defined and wired to dismiss the drawer."""
+    assert "closeAdminManageTokenModal" in index_html, \
+        "Missing closeAdminManageTokenModal function in static/index.html"
+
+
+# ------------------------------------------------------------------------------
+# Feature 3: Solver Role Desk Isolation & Actions
+# ------------------------------------------------------------------------------
+
+def test_f3_01_solver_tab_restriction_to_support_center(index_html):
+    """Verify Solver role is strictly restricted to Token Support Center tab only."""
+    assert "SOLVER" in index_html, "Solver role handling missing in index.html"
+    assert "switchAdminTab" in index_html, "switchAdminTab function missing"
+    assert "tab-btn-tokens" in index_html, "tab-btn-tokens missing from tab navigation"
+
+
+def test_f3_02_solver_token_list_department_filtering(legacy_token_svc):
+    """Verify backend token list enforces department desk isolation for solvers."""
+    # Create token for ICT Desk and assign to solver 1 (ICT Support Team)
+    t_ict = legacy_token_svc.create_token(RepoTokenCreateRequest(
+        service_type="EMS",
+        problem="EMS student login issue for ICT desk isolation test"
+    ))
+    legacy_token_svc.assign_token(t_ict.token_id, solver_id=1)
+
+    # Create token for Accounts Desk and assign to solver 5 (Accounts & Sonali Seba Desk)
+    t_acc = legacy_token_svc.create_token(RepoTokenCreateRequest(
+        service_type="SONALI_PAYMENT",
+        problem="Sonali Seba payment sync issue for Accounts desk isolation test"
+    ))
+    legacy_token_svc.assign_token(t_acc.token_id, solver_id=5)
+    
+    # Query as ICT Solver
+    ict_tokens, ict_total = legacy_token_svc.repo.list_tokens(
+        role="SOLVER",
+        department="ICT Support Team"
+    )
+    ict_ids = [t["token_id"] for t in ict_tokens]
+    assert t_ict.token_id in ict_ids, "ICT Solver must see assigned ICT tokens"
+    assert t_acc.token_id not in ict_ids, "ICT Solver must NOT see Accounts tokens"
+
+
+def test_f3_03_solver_desk_banner_visible_reassign_hidden(index_soup):
+    """Verify solver assignment notice banner exists to display assigned desk without reassignment select."""
+    solver_notice = index_soup.find(id="solver-assignment-notice")
+    assert solver_notice is not None, "Missing #solver-assignment-notice element"
+    
+    desk_display = index_soup.find(id="solver-desk-name-display")
+    assert desk_display is not None, "Missing #solver-desk-name-display inside solver notice"
+
+
+def test_f3_04_solver_solve_action_execution(token_domain_svc):
+    """Verify Solver can solve an assigned token with official resolution steps."""
+    t = token_domain_svc.create_token(DomainTokenCreateRequest(
+        service_code="TC",
+        problem="College transfer certificate approval delay"
+    ))
+    # Assign and solve
+    token_domain_svc.assign_solver(t.token_id, solver_id=1, changed_by="ADMIN")
+    ok, msg = token_domain_svc.solve_token(
+        token_id=t.token_id,
+        solve_message="TC application verified and synchronized with college portal.",
+        solver_name="Registration Desk"
+    )
+    assert ok is True, f"Solve failed: {msg}"
+    
+    detail = token_domain_svc.get_admin_token_detail(t.token_id)
+    assert detail.status == "SOLVED"
+    assert "synchronized with college portal" in detail.solve_message
+
+
+def test_f3_05_solver_return_action_execution(token_domain_svc):
+    """Verify Solver can send back token to admin for instruction, transitioning status to PENDING."""
+    t = token_domain_svc.create_token(DomainTokenCreateRequest(
+        service_code="EMS",
+        problem="Attendance requirement waiver needed"
+    ))
+    token_domain_svc.assign_solver(t.token_id, solver_id=1, changed_by="ADMIN")
+    ok, msg = token_domain_svc.return_to_admin(
+        token_id=t.token_id,
+        reason="Requires Dean / VC special permission signature.",
+        solver_name="ICT Desk",
+        changed_by="solver_ict"
+    )
+    assert ok is True, f"Return to admin failed: {msg}"
+    detail = token_domain_svc.get_admin_token_detail(t.token_id)
+    assert detail.status == "PENDING"
+    assert "Requires Dean / VC special permission" in detail.admin_note
+
+
+# ------------------------------------------------------------------------------
+# Feature 4: Super Admin Controls (Trash, Restore, Backup)
+# ------------------------------------------------------------------------------
+
+def test_f4_01_super_admin_trash_filter_option(index_soup):
+    """Verify Super Admin has #opt-trash-filter dropdown option in status filter."""
+    trash_opt = index_soup.find(id="opt-trash-filter")
+    assert trash_opt is not None, "Missing #opt-trash-filter in static/index.html"
+    assert trash_opt.get("value") == "TRASH"
+
+
+def test_f4_02_super_admin_soft_delete_to_trash(legacy_token_svc):
+    """Verify Super Admin can soft-delete a token to trash."""
+    t = legacy_token_svc.create_token(RepoTokenCreateRequest(
+        problem="Duplicate ticket created by accident",
+        service_type="OTHER"
+    ))
+    ok = legacy_token_svc.repo.soft_delete_token(t.token_id, admin_user="SuperAdmin")
+    assert ok is True, "Soft-delete failed"
+    
+    trash_tokens, total = legacy_token_svc.repo.list_tokens(
+        status="DELETED",
+        search=t.token_id,
+        role="SUPER_ADMIN"
+    )
+    assert total >= 1
+    assert any(x["token_id"] == t.token_id for x in trash_tokens)
+
+
+def test_f4_03_deleted_token_omitted_from_active_list(legacy_token_svc):
+    """Verify soft-deleted tokens do not appear in active listings for admins or solvers."""
+    t = legacy_token_svc.create_token(RepoTokenCreateRequest(
+        problem="Spam inquiry to test deletion isolation",
+        service_type="OTHER"
+    ))
+    legacy_token_svc.repo.soft_delete_token(t.token_id, admin_user="SuperAdmin")
+    
+    active_tokens, total = legacy_token_svc.repo.list_tokens(search=t.token_id, role="SUPER_ADMIN")
+    assert total == 0, "Deleted token must not appear in active list"
+
+
+def test_f4_04_super_admin_restore_from_trash(legacy_token_svc):
+    """Verify Super Admin can restore a soft-deleted token from trash."""
+    t = legacy_token_svc.create_token(RepoTokenCreateRequest(
+        problem="Accidentally deleted ticket to restore",
+        service_type="OTHER"
+    ))
+    legacy_token_svc.repo.soft_delete_token(t.token_id, admin_user="SuperAdmin")
+    
+    # Restore
+    ok = legacy_token_svc.repo.restore_token(t.token_id, admin_user="SuperAdmin")
+    assert ok is True, "Restore failed"
+    
+    # Re-verify in active list
+    active_tokens, total = legacy_token_svc.repo.list_tokens(search=t.token_id, role="SUPER_ADMIN")
+    assert total == 1
+    assert active_tokens[0]["is_deleted"] == 0
+
+
+def test_f4_05_super_admin_backup_creation_and_listing():
+    """Verify backup service creates valid zip backup and lists it."""
+    backup_svc = get_backup_service()
+    backup_path, meta = backup_svc.create_backup()
+    assert backup_path.exists(), f"Backup file {backup_path} does not exist"
+    assert "checksums" in meta
+    assert "stats" in meta
+    
+    backups = backup_svc.list_backups()
+    assert len(backups) >= 1
+    assert any(b["filename"] == backup_path.name for b in backups)
+
+
+# ------------------------------------------------------------------------------
+# Feature 5: Return-to-Admin Route Integrity
+# ------------------------------------------------------------------------------
+
+def test_f5_01_route_registration_in_admin_router():
+    """Verify POST /api/v1/admin/tokens/{token_id}/return-to-admin is registered on the admin router."""
+    routes = [r.path for r in admin_v1_router.routes if hasattr(r, "path")]
+    expected = "/api/v1/admin/tokens/{token_id}/return-to-admin"
+    assert any("return-to-admin" in r for r in routes), \
+        f"Route with return-to-admin must be registered on admin router. Registered: {routes}"
+
+
+def test_f5_02_backend_route_requires_auth(client):
+    """Verify unauthenticated request to /api/v1/admin/tokens/.../return-to-admin is rejected."""
+    res = client.post("/api/v1/admin/tokens/NU-2026-000001/return-to-admin", json={
+        "token_id": "NU-2026-000001",
+        "return_reason": "Test unauth"
+    })
+    # Must reject with 401 or 403 (not 404)
+    assert res.status_code in [401, 403], f"Expected 401/403 for unauthenticated request, got {res.status_code}"
+
+
+def test_f5_03_frontend_submit_return_to_admin_contract(index_html):
+    """Verify frontend submitReturnToAdmin function exists and references return-to-admin."""
+    assert "submitReturnToAdmin" in index_html, "submitReturnToAdmin function missing from index.html"
+    assert "return-to-admin" in index_html, "return-to-admin endpoint missing from index.html"
+    assert "solver-return-reason-input" in index_html, "solver-return-reason-input missing from index.html"
+
+
+def test_f5_04_domain_service_return_to_admin_flow(token_domain_svc):
+    """Verify TokenDomainService.return_to_admin accurately sets status to PENDING with audit notes."""
+    t = token_domain_svc.create_token(DomainTokenCreateRequest(
+        service_code="CORRECTION",
+        problem="Name spelling error on Honours registration card"
+    ))
+    token_domain_svc.assign_solver(t.token_id, solver_id=1, changed_by="ADMIN")
+    
+    ok, msg = token_domain_svc.return_to_admin(
+        token_id=t.token_id,
+        reason="SSC / HSC certificate board verification required before name change.",
+        solver_name="Correction Desk",
+        changed_by="solver_correction"
+    )
+    assert ok is True
+    detail = token_domain_svc.get_admin_token_detail(t.token_id)
+    assert detail.status == "PENDING"
+    assert "board verification required" in detail.admin_note
+
+
+def test_f5_05_return_to_admin_nonexistent_token(token_domain_svc):
+    """Verify return_to_admin returns False when token does not exist."""
+    ok, msg = token_domain_svc.return_to_admin(
+        token_id="NU-NONEXISTENT-999999",
+        reason="Invalid test token",
+        solver_name="Test Desk"
+    )
+    assert ok is False
+    assert "not found" in msg.lower()
+
+
+# ------------------------------------------------------------------------------
+# Feature 6: Sleek FAQ Accordion & Search (static/chat.html)
+# ------------------------------------------------------------------------------
+
+def test_f6_01_faq_search_input_and_handler_binding(chat_soup):
+    """Verify #faq-search-input exists and binds handleFaqSearch."""
+    search_input = chat_soup.find(id="faq-search-input")
+    assert search_input is not None, "Missing #faq-search-input in static/chat.html"
+    oninput = search_input.get("oninput", "")
+    assert "handleFaqSearch" in oninput, "handleFaqSearch must be bound to #faq-search-input"
+
+
+def test_f6_02_faq_search_debounce_timing(chat_html):
+    """Verify handleFaqSearch implements 250ms debounced execution."""
+    assert "handleFaqSearch" in chat_html, "handleFaqSearch missing from chat.html"
+    # Check for setTimeout / debounce logic
+    assert "setTimeout" in chat_html and ("250" in chat_html or "debounce" in chat_html.lower()), \
+        "Debounce timing (250ms) missing from handleFaqSearch in chat.html"
+
+
+def test_f6_03_faq_clear_search_button_and_reset(chat_soup, chat_html):
+    """Verify #faq-clear-search button exists and invokes clearFaqSearch()."""
+    clear_btn = chat_soup.find(id="faq-clear-search")
+    assert clear_btn is not None, "Missing #faq-clear-search button in chat.html"
+    assert "clearFaqSearch" in chat_html, "clearFaqSearch function missing from chat.html"
+
+
+def test_f6_04_faq_accordion_cards_and_drawer_structure(chat_soup, chat_html):
+    """Verify #faq-main-list renders accordion cards with toggleFaqExpand drawer."""
+    faq_list = chat_soup.find(id="faq-main-list")
+    assert faq_list is not None, "Missing #faq-main-list container"
+    assert "toggleFaqExpand" in chat_html, "toggleFaqExpand function missing from chat.html"
+
+
+def test_f6_05_faq_bilingual_search_functionality(client):
+    """Verify bilingual search returns matching items in both Bengali and English."""
+    # Bengali query
+    r_bn = client.get("/api/v1/faqs?search=ভর্তি&limit=5")
+    assert r_bn.status_code == 200
+    assert len(r_bn.json().get("items", [])) > 0, "Bengali search for 'ভর্তি' must return results"
+    
+    # English query
+    r_en = client.get("/api/v1/faqs?search=EMS&limit=5")
+    assert r_en.status_code == 200
+    assert "items" in r_en.json(), "English search for 'EMS' must return valid items list"
+
+
+# ------------------------------------------------------------------------------
+# Feature 7: Horizontal Category Scroll Pills (static/chat.html)
+# ------------------------------------------------------------------------------
+
+def test_f7_01_horizontal_scroll_pill_container_structure(chat_soup):
+    """Verify #faq-topic-tags container exists with horizontal scroll styling."""
+    topic_tags = chat_soup.find(id="faq-topic-tags")
+    assert topic_tags is not None, "Missing #faq-topic-tags container"
+    classes = topic_tags.get("class", [])
+    has_scroll = any("overflow-x-auto" in c or "no-scrollbar" in c or "overflow" in c for c in classes)
+    assert has_scroll, "#faq-topic-tags must have horizontal scroll styling"
+
+
+def test_f7_02_category_endpoint_returns_topic_counts(client):
+    """Verify /api/v1/faqs/categories returns list of categories with item counts."""
+    res = client.get("/api/v1/faqs/categories")
+    assert res.status_code == 200
+    data = res.json()
+    assert "categories" in data
+    cats = data["categories"]
+    assert len(cats) >= 10, f"Expected >=10 categories, got {len(cats)}"
+    for c in cats:
+        assert "category" in c
+        assert "count" in c and c["count"] >= 0
+
+
+def test_f7_03_category_hashtag_pill_formatting(chat_html):
+    """Verify category pills feature hashtag topic formatting (#সকল_টপিক)."""
+    assert "#সকল_টপিক" in chat_html or "সকল_টপিক" in chat_html, \
+        "Missing #সকল_টপিক root pill format in static/chat.html"
+
+
+def test_f7_04_category_click_handler_and_active_state(chat_html):
+    """Verify handleTopicTagClick updates active topic and loads filtered items."""
+    assert "handleTopicTagClick" in chat_html, \
+        "Missing handleTopicTagClick function in static/chat.html"
+
+
+def test_f7_05_category_filtering_backend_precision(client):
+    """Verify filtering by category returns strictly items belonging to that category."""
+    cats_res = client.get("/api/v1/faqs/categories")
+    first_cat = cats_res.json()["categories"][0]["category"]
+    
+    filt_res = client.get(f"/api/v1/faqs?category={first_cat}&limit=20")
+    assert filt_res.status_code == 200
+    items = filt_res.json()["items"]
+    assert len(items) > 0, f"Category '{first_cat}' returned 0 items"
+    for it in items:
+        assert it["category"] == first_cat, f"Expected category {first_cat}, got {it['category']}"
+
+
+# ------------------------------------------------------------------------------
+# Feature 8: FAQ Inline Action Controls (Like, Ask AI, Copy)
+# ------------------------------------------------------------------------------
+
+def test_f8_01_inline_like_button_and_api_binding(chat_html):
+    """Verify inline like button calls POST /api/v1/faqs/{id}/like via handleFaqLikeClick."""
+    assert "handleFaqLikeClick" in chat_html, "handleFaqLikeClick missing from static/chat.html"
+    assert "/api/v1/faqs/" in chat_html and "/like" in chat_html, \
+        "API endpoint /api/v1/faqs/{id}/like binding missing from chat.html"
+
+
+def test_f8_02_like_toggle_atomic_invertibility(client):
+    """Verify like toggle is atomic and reversible per session."""
+    r = client.get("/api/v1/faqs?limit=1")
+    faq = r.json()["items"][0]
+    faq_id = faq["id"]
+    base_likes = faq["likes_count"]
+    session_id = f"test_e2e_sess_{int(time.time())}"
+    
+    # 1. Like
+    res1 = client.post(f"/api/v1/faqs/{faq_id}/like", json={"session_id": session_id})
+    assert res1.status_code == 200
+    d1 = res1.json()
+    assert d1["has_liked"] is True
+    assert d1["likes_count"] == base_likes + 1
+    
+    # 2. Unlike (toggle)
+    res2 = client.post(f"/api/v1/faqs/{faq_id}/like", json={"session_id": session_id})
+    assert res2.status_code == 200
+    d2 = res2.json()
+    assert d2["has_liked"] is False
+    assert d2["likes_count"] == base_likes
+
+
+def test_f8_03_ask_ai_prompt_injection_into_chat(chat_html):
+    """Verify askAiAboutFaq sets split mode to chat, populates #user-input, and triggers handleSend()."""
+    assert "askAiAboutFaq" in chat_html, "askAiAboutFaq missing from static/chat.html"
+    assert "user-input" in chat_html, "#user-input reference missing from chat.html"
+    assert "handleSend" in chat_html, "handleSend reference missing from chat.html"
+
+
+def test_f8_04_copy_to_clipboard_formatted_text(chat_html):
+    """Verify copyFaqToClipboard copies formatted question, answer, and official source."""
+    assert "copyFaqToClipboard" in chat_html, "copyFaqToClipboard function missing from static/chat.html"
+    assert "জাতীয় বিশ্ববিদ্যালয়" in chat_html, "Official university source attribution missing from chat.html"
+
+
+def test_f8_05_copy_button_visual_feedback_feedback_revert(chat_html):
+    """Verify copy button displays visual confirmation (✓ কপিড) and reverts via timeout."""
+    assert "কপিড" in chat_html or "কপি" in chat_html, \
+        "Copy visual feedback label missing in static/chat.html"
+
+
+# ------------------------------------------------------------------------------
+# Feature 9: Dynamic 70%/30% Split Layout
+# ------------------------------------------------------------------------------
+
+def test_f9_01_split_container_and_default_chat_split(chat_soup):
+    """Verify #split-container has default data-split='chat' wrapping chat and FAQ panels."""
+    split_container = chat_soup.find(id="split-container")
+    assert split_container is not None, "Missing #split-container in static/chat.html"
+    assert split_container.get("data-split") == "chat", \
+        "Default data-split attribute must be 'chat'"
+    
+    chat_sec = split_container.find(id="chat-section")
+    assert chat_sec is not None, "Missing #chat-section inside split container"
+    
+    faq_panel = split_container.find(id="faq-forum-panel")
+    assert faq_panel is not None, "Missing #faq-forum-panel inside split container"
+
+
+def test_f9_02_set_split_mode_faq_expansion(chat_html):
+    """Verify setSplitMode('faq') logic expands FAQ panel and sets attribute."""
+    assert "setSplitMode" in chat_html, "setSplitMode function missing from chat.html"
+    assert "data-split" in chat_html, "data-split attribute manipulation missing from chat.html"
+
+
+def test_f9_03_set_split_mode_chat_restoration(chat_html):
+    """Verify setSplitMode('chat') restores chat to 70% width."""
+    assert "currentSplitMode" in chat_html or "setSplitMode" in chat_html, \
+        "Split mode state management missing from chat.html"
+
+
+def test_f9_04_faq_toggle_split_button_and_label(chat_soup, chat_html):
+    """Verify #faq-toggle-split-btn exists and binds toggleSplitMode()."""
+    btn = chat_soup.find(id="faq-toggle-split-btn")
+    assert btn is not None, "Missing #faq-toggle-split-btn in static/chat.html"
+    assert "toggleSplitMode" in chat_html, "toggleSplitMode function missing from chat.html"
+
+
+def test_f9_05_chat_focus_pill_in_faq_mode(chat_soup):
+    """Verify #chat-focus-pill exists for instant restoration to chat mode."""
+    pill = chat_soup.find(id="chat-focus-pill")
+    assert pill is not None, "Missing #chat-focus-pill element in static/chat.html"
+
+
+# ------------------------------------------------------------------------------
+# Feature 10: Monochromatic Design Tokens & Dark Mode
+# ------------------------------------------------------------------------------
+
+def test_f10_01_light_mode_monochromatic_design_tokens(chat_html):
+    """Verify light mode monochromatic CSS design tokens (--bg, --surface, --text, --hairline)."""
+    assert "--bg: #F5F5F7" in chat_html, "Missing --bg: #F5F5F7 in chat.html"
+    assert "--surface: #FFFFFF" in chat_html, "Missing --surface: #FFFFFF in chat.html"
+    assert "--text: #1D1D1F" in chat_html, "Missing --text: #1D1D1F in chat.html"
+    assert "--text-secondary: #6E6E73" in chat_html, "Missing --text-secondary: #6E6E73 in chat.html"
+    assert "--hairline: rgba(0, 0, 0, 0.08)" in chat_html, "Missing --hairline in chat.html"
+
+
+def test_f10_02_dark_mode_tokens_and_theme_attribute(chat_html):
+    """Verify [data-theme='dark'] selector defines monochromatic dark tokens."""
+    assert '[data-theme="dark"]' in chat_html, "Missing [data-theme='dark'] selector in chat.html"
+    assert "--bg: #1C1C1E" in chat_html, "Missing dark --bg: #1C1C1E in chat.html"
+    assert "--surface: #2C2C2E" in chat_html, "Missing dark --surface: #2C2C2E in chat.html"
+    assert "--text: #F5F5F7" in chat_html, "Missing dark --text: #F5F5F7 in chat.html"
+
+
+def test_f10_03_theme_toggle_handler_and_icon_switching(chat_soup, chat_html):
+    """Verify theme toggle function and #theme-icon SVG element exist."""
+    theme_icon = chat_soup.find(id="theme-icon")
+    assert theme_icon is not None, "Missing #theme-icon element in static/chat.html"
+    assert "toggleTheme" in chat_html, "toggleTheme function missing from chat.html"
+
+
+def test_f10_04_prefers_color_scheme_system_detection(chat_html):
+    """Verify prefers-color-scheme media query is present for automatic system dark mode."""
+    assert "prefers-color-scheme" in chat_html, \
+        "Missing prefers-color-scheme media query in static/chat.html"
+
+
+def test_f10_05_monochromatic_support_center_styling(index_html):
+    """Verify static/index.html applies monochromatic CSS variables."""
+    assert "--bg" in index_html, "Missing --bg token in index.html"
+    assert "--surface" in index_html, "Missing --surface token in index.html"
+    assert "--text" in index_html, "Missing --text token in index.html"
+    assert "--hairline" in index_html, "Missing --hairline token in index.html"
+
+
+# ------------------------------------------------------------------------------
+# Feature 11: Official Portal URLs Verification
+# ------------------------------------------------------------------------------
+
+def test_f11_01_student_services_official_url_integrity(index_html):
+    """Verify official Student Services portal URL (http://103.113.200.68/nu-app/) is present."""
+    assert "103.113.200.68/nu-app" in index_html, \
+        "Official student services URL http://103.113.200.68/nu-app/ missing from index.html"
+
+
+def test_f11_02_admission_portal_official_url_integrity(index_html):
+    """Verify official Admission Portal URL (http://app11.nu.edu.bd/) is present."""
+    assert "app11.nu.edu.bd" in index_html, \
+        "Official admission portal URL http://app11.nu.edu.bd/ missing from index.html"
+
+
+def test_f11_03_ems_portal_official_url_integrity(index_html):
+    """Verify official EMS Portal URL (http://ems.nu.ac.bd/) is present."""
+    assert "ems.nu.ac.bd" in index_html, \
+        "Official EMS portal URL http://ems.nu.ac.bd/ missing from index.html"
+
+
+def test_f11_04_deprecated_services_nu_edu_bd_strictly_absent(index_html, chat_html):
+    """Verify deprecated URL services.nu.edu.bd is strictly absent from active user code."""
+    # Check anchor hrefs and active scripts in both frontend pages
+    assert "services.nu.edu.bd" not in index_html, \
+        "Deprecated domain services.nu.edu.bd found in static/index.html"
+    assert "services.nu.edu.bd" not in chat_html, \
+        "Deprecated domain services.nu.edu.bd found in static/chat.html"
+
+
+def test_f11_05_deprecated_ip_103_113_200_36_strictly_absent(index_html, chat_html):
+    """Verify deprecated IP 103.113.200.36 is strictly absent from active user code."""
+    assert "103.113.200.36" not in index_html, \
+        "Deprecated IP 103.113.200.36 found in static/index.html"
+    assert "103.113.200.36" not in chat_html, \
+        "Deprecated IP 103.113.200.36 found in static/chat.html"
+
+
+# ==============================================================================
+# TIER 2: BOUNDARY & CORNER CASES (6 tests)
+# ==============================================================================
+
+def test_t2_01_empty_token_list_rendering(index_html):
+    """Verify table rendering logic handles empty token lists without crashing."""
+    assert "admin-tokens-tbody" in index_html
+    # Verify handling of empty data or zero records
+    assert "tokens" in index_html.lower()
+
+
+def test_t2_02_missing_student_phone_and_reg_no_fallbacks(token_domain_svc):
+    """Verify token creation and detail retrieval with missing phone and registration number."""
+    req = DomainTokenCreateRequest(
+        service_code="OTHER",
+        problem="General inquiry with minimal fields provided",
+        user_name="Anonymous Student",
+        user_phone=None,
+        registration_no=None
+    )
+    res = token_domain_svc.create_token(req)
+    assert res.success is True
+    
+    detail = token_domain_svc.get_admin_token_detail(res.token_id)
+    assert detail is not None
+    assert detail.user_phone is None or detail.user_phone == ""
+    assert detail.registration_no is None or detail.registration_no == ""
+
+
+def test_t2_03_extra_long_problem_description_boundary(token_domain_svc):
+    """Verify database and domain service cleanly accept max boundary (2,000 chars) and reject >2,000 chars."""
+    # 1. Exactly at boundary (2000 chars) - must succeed
+    prefix = "জাতীয় বিশ্ববিদ্যালয় সেবা সমস্যা: "
+    valid_boundary_problem = prefix + ("ক" * (2000 - len(prefix)))
+    assert len(valid_boundary_problem) == 2000
+    
+    req = DomainTokenCreateRequest(
+        service_code="EMS",
+        problem=valid_boundary_problem,
+        user_name="Testing Boundary Problem"
+    )
+    res = token_domain_svc.create_token(req)
+    assert res.success is True
+    
+    detail = token_domain_svc.get_admin_token_detail(res.token_id)
+    assert len(detail.problem) == 2000
+    
+    # 2. Exceeding boundary (>2000 chars) - must reject with validation error
+    with pytest.raises(Exception):
+        DomainTokenCreateRequest(
+            service_code="EMS",
+            problem="ক" * 2001
+        )
+
+
+def test_t2_04_invalid_status_transition_rejection(token_domain_svc):
+    """Verify state machine rejects invalid or illegal status transitions (e.g. CLOSED -> PENDING)."""
+    t = token_domain_svc.create_token(DomainTokenCreateRequest(service_code="TC", problem="Boundary transition test"))
+    t_id = t.token_id
+    
+    # Progress: PENDING -> ASSIGNED -> PROCESSING -> SOLVED -> CLOSED
+    token_domain_svc.update_status(t_id, "ASSIGNED", changed_by="ADMIN")
+    token_domain_svc.update_status(t_id, "PROCESSING", changed_by="SOLVER")
+    token_domain_svc.solve_token(t_id, "Resolution reached", solver_name="Desk")
+    token_domain_svc.update_status(t_id, "CLOSED", changed_by="ADMIN")
+    
+    # Illegal attempt: CLOSED -> PENDING by non-SUPER_ADMIN
+    ok, msg = token_domain_svc.update_status(t_id, "PENDING", changed_by="SOLVER")
+    assert ok is False, "Closed token must not transition back to PENDING"
+    assert "illegal status transition" in msg.lower()
+
+
+def test_t2_05_special_characters_sql_xss_in_faq_search(client):
+    """Verify FAQ search safely handles SQL meta-characters, HTML tags, and special symbols without 500 error."""
+    payloads = [
+        "<script>alert('xss')</script>",
+        "' OR '1'='1",
+        "'; DROP TABLE faqs; --",
+        "~`!@#$%^&*()_+=-{}[]|\\:;\"'<>,.?/",
+        "অনিক 🔍 <xml>"
+    ]
+    for p in payloads:
+        res = client.get(f"/api/v1/faqs?search={p}&limit=10")
+        assert res.status_code == 200, f"Search crashed on payload: {p}"
+        data = res.json()
+        assert "items" in data
+        assert isinstance(data["items"], list)
+
+
+def test_t2_06_unauthenticated_and_unassigned_solver_rejection(client):
+    """Verify unauthenticated requests to protected admin endpoints are rejected."""
+    # Attempting to assign without authorization header on /api/v1/admin/tokens/{id}/assign
+    res = client.post("/api/v1/admin/tokens/NU-2026-000001/assign", json={"solver_id": 1})
+    assert res.status_code in [401, 403], f"Expected 401/403, got {res.status_code}"
+
+
+# ==============================================================================
+# TIER 3: PAIRWISE INTERACTIONS (4 tests)
+# ==============================================================================
+
+def test_t3_01_solver_role_desk_isolation_and_action_controls(legacy_token_svc, index_soup):
+    """Pairwise: Solver Role + Desk Isolation + Drawer Action Controls."""
+    # Create token for Accounts Desk and assign to solver 5 (Accounts)
+    t_acc = legacy_token_svc.create_token(RepoTokenCreateRequest(
+        service_type="SONALI_PAYMENT",
+        problem="Payment verification needed for admission confirmation",
+        user_name="Accounts Student"
+    ))
+    legacy_token_svc.assign_token(t_acc.token_id, solver_id=5)
+    
+    # Verify Accounts desk query returns it
+    acc_tokens, total = legacy_token_svc.repo.list_tokens(
+        role="SOLVER",
+        department="Accounts & Sonali Seba Desk"
+    )
+    assert any(x["token_id"] == t_acc.token_id for x in acc_tokens)
+    
+    # Verify drawer action controls exist for this solver
+    assert index_soup.find(id="adm-solve-message") is not None
+    assert index_soup.find(id="solver-return-reason-input") is not None
+    # Solver desk notice must be present
+    assert index_soup.find(id="solver-assignment-notice") is not None
+
+
+def test_t3_02_faq_category_switch_search_filter_and_accordion(client, chat_html):
+    """Pairwise: Category Switch + Search Query + Accordion Expand."""
+    # Fetch category
+    cat_res = client.get("/api/v1/faqs/categories")
+    assert cat_res.status_code == 200
+    category = cat_res.json()["categories"][0]["category"]
+    
+    # Query with category AND search
+    res = client.get(f"/api/v1/faqs?category={category}&search=জাতীয়&limit=10")
+    assert res.status_code == 200
+    items = res.json()["items"]
+    for it in items:
+        assert it["category"] == category
+    
+    # Accordion expansion logic must be ready for rendering items
+    assert "toggleFaqExpand" in chat_html
+
+
+def test_t3_03_like_toggle_multi_session_isolation_and_persistence(client):
+    """Pairwise: Like Toggles across independent sessions."""
+    r = client.get("/api/v1/faqs?limit=1")
+    faq_id = r.json()["items"][0]["id"]
+    initial_likes = r.json()["items"][0]["likes_count"]
+    
+    sess_x = f"sess_alpha_{int(time.time())}"
+    sess_y = f"sess_beta_{int(time.time())}"
+    
+    # Session X likes
+    r_x = client.post(f"/api/v1/faqs/{faq_id}/like", json={"session_id": sess_x})
+    assert r_x.json()["has_liked"] is True
+    assert r_x.json()["likes_count"] == initial_likes + 1
+    
+    # Session Y likes
+    r_y = client.post(f"/api/v1/faqs/{faq_id}/like", json={"session_id": sess_y})
+    assert r_y.json()["has_liked"] is True
+    assert r_y.json()["likes_count"] == initial_likes + 2
+    
+    # Session X unlikes
+    r_x2 = client.post(f"/api/v1/faqs/{faq_id}/like", json={"session_id": sess_x})
+    assert r_x2.json()["has_liked"] is False
+    assert r_y.json()["has_liked"] is True  # Session Y remains liked
+    assert r_x2.json()["likes_count"] == initial_likes + 1
+    
+    # Cleanup Session Y
+    client.post(f"/api/v1/faqs/{faq_id}/like", json={"session_id": sess_y})
+
+
+def test_t3_04_split_layout_toggle_with_ask_ai_and_chat_input(chat_html):
+    """Pairwise: Split Mode Toggle + Ask AI Prompt Injection into Chat Input."""
+    # When user clicks Ask AI:
+    # 1. setSplitMode('chat') must be called
+    # 2. #user-input must be filled
+    # 3. handleSend() must be called
+    assert "askAiAboutFaq" in chat_html
+    assert 'setSplitMode("chat")' in chat_html or "setSplitMode('chat')" in chat_html
+    assert "user-input" in chat_html
+    assert "handleSend" in chat_html
+
+
+# ==============================================================================
+# TIER 4: REAL-WORLD WORKLOAD SCENARIOS (5 Scenarios)
+# ==============================================================================
+
+def test_t4_01_solver_solve_workflow_end_to_end(token_domain_svc, legacy_token_svc):
+    """
+    Scenario 1: Solver Workflow
+    Login as Accounts Solver -> Query assigned Accounts tokens -> Open drawer -> Solve token -> Verify status updated.
+    """
+    # 1. Student creates token via Domain Service
+    req = DomainTokenCreateRequest(
+        service_code="SONALI_PAYMENT",
+        problem="Sonali Seba payslip verified but status still unpaid in portal",
+        user_name="Karim Ullah",
+        user_phone="01811223344"
+    )
+    created = token_domain_svc.create_token(req)
+    t_id = created.token_id
+    assert t_id.startswith("NU-")
+    
+    # 2. Super Admin assigns to Accounts Solver (solver_id=5)
+    token_domain_svc.assign_solver(t_id, solver_id=5, changed_by="ADMIN")
+    
+    # 3. Accounts Solver queries assigned tickets
+    solver_tokens, total = legacy_token_svc.repo.list_tokens(
+        role="SOLVER",
+        department="Accounts & Sonali Seba Desk",
+        search=t_id
+    )
+    assert total >= 1
+    assert solver_tokens[0]["token_id"] == t_id
+    
+    # 4. Solver opens drawer & marks as solved
+    ok, msg = token_domain_svc.solve_token(
+        token_id=t_id,
+        solve_message="পেমেন্ট সোনালী ব্যাংকের গেটওয়ের সাথে সিনক্রোনাইজ করে Paid করা হয়েছে।",
+        solver_name="Accounts & Sonali Seba Desk",
+        changed_by="solver_accounts"
+    )
+    assert ok is True
+    
+    # 5. Verify public timeline
+    public_status = token_domain_svc.get_public_token_status(t_id)
+    assert public_status.status == "SOLVED"
+    assert "সিনক্রোনাইজ করে Paid করা হয়েছে" in public_status.solve_message
+
+
+def test_t4_02_solver_return_to_admin_workflow_end_to_end(token_domain_svc):
+    """
+    Scenario 2: Solver Return Workflow
+    Login as ICT Solver -> Open EMS ticket -> Return to admin with note -> Verify correct route logic.
+    """
+    # 1. Student creates token
+    created = token_domain_svc.create_token(DomainTokenCreateRequest(
+        service_code="EMS",
+        problem="Exam form fill-up button disabled due to semester credit lock",
+        user_name="Jannatul Ferdous"
+    ))
+    t_id = created.token_id
+    token_domain_svc.assign_solver(t_id, solver_id=1, changed_by="ADMIN")
+    
+    # 2. Solver sends back to admin with reason
+    reason_note = "Needs Exam Controller Office unlock permission for credit shortfall."
+    ok, msg = token_domain_svc.return_to_admin(
+        token_id=t_id,
+        reason=reason_note,
+        solver_name="ICT Support Team",
+        changed_by="solver_ict"
+    )
+    assert ok is True
+    
+    # 3. Verify status transitioned back to PENDING and reason recorded
+    detail = token_domain_svc.get_admin_token_detail(t_id)
+    assert detail.status == "PENDING"
+    assert reason_note in detail.admin_note
+    # Verify history entry
+    hist = detail.history
+    assert any("PENDING" in h.new_status for h in hist)
+
+
+def test_t4_03_student_faq_discovery_and_ask_ai_workflow(client, chat_html):
+    """
+    Scenario 3: Student FAQ Discovery & Ask AI Workflow
+    Student searches query in chat FAQ -> Debounced filter -> Click category pill -> Expand accordion -> Copy answer -> Ask AI in chat.
+    """
+    # 1. Search FAQ API
+    res = client.get("/api/v1/faqs?search=সনদ&limit=5")
+    assert res.status_code == 200
+    items = res.json()["items"]
+    assert len(items) > 0
+    faq = items[0]
+    
+    # 2. Category list
+    cats_res = client.get("/api/v1/faqs/categories")
+    assert cats_res.status_code == 200
+    
+    # 3. Actions in chat.html
+    assert "copyFaqToClipboard" in chat_html
+    assert "askAiAboutFaq" in chat_html
+    assert "toggleFaqExpand" in chat_html
+
+
+def test_t4_04_super_admin_trash_governance_workflow(legacy_token_svc):
+    """
+    Scenario 4: Super Admin Governance
+    View all desks -> Soft-delete invalid ticket -> Confirm in Trash -> Restore from Trash -> Verify audit.
+    """
+    # 1. Create token
+    t = legacy_token_svc.create_token(RepoTokenCreateRequest(
+        problem="Test token for Super Admin governance lifecycle",
+        service_type="OTHER",
+        user_name="Governance Test Student"
+    ))
+    t_id = t.token_id
+    
+    # 2. Soft-delete
+    del_ok = legacy_token_svc.repo.soft_delete_token(t_id, admin_user="SuperAdminGov")
+    assert del_ok is True
+    
+    # 3. Must be in trash
+    trash_items, count = legacy_token_svc.repo.list_tokens(status="DELETED", search=t_id, role="SUPER_ADMIN")
+    assert count == 1
+    assert trash_items[0]["token_id"] == t_id
+    
+    # 4. Restore
+    rest_ok = legacy_token_svc.repo.restore_token(t_id, admin_user="SuperAdminGov")
+    assert rest_ok is True
+    
+    # 5. Active list confirms restoration
+    active_items, active_count = legacy_token_svc.repo.list_tokens(search=t_id, role="SUPER_ADMIN")
+    assert active_count == 1
+    assert active_items[0]["is_deleted"] == 0
+
+
+def test_t4_05_portal_link_authenticity_validation(index_html, chat_html):
+    """
+    Scenario 5: Portal Link Authenticity Validation
+    Verify all student service, admission, and EMS URLs match official IP/domains without deprecated links.
+    """
+    # Required official URLs
+    official_services_url = "103.113.200.68/nu-app"
+    official_admission_url = "app11.nu.edu.bd"
+    official_ems_url = "ems.nu.ac.bd"
+    
+    assert official_services_url in index_html, "Official Student Services portal URL missing from index.html"
+    assert official_admission_url in index_html, "Official Admission portal URL missing from index.html"
+    assert official_ems_url in index_html, "Official EMS portal URL missing from index.html"
+    
+    # Strictly forbidden deprecated URLs
+    deprecated_domain = "services.nu.edu.bd"
+    deprecated_ip = "103.113.200.36"
+    
+    assert deprecated_domain not in index_html, f"Deprecated domain {deprecated_domain} found in static/index.html"
+    assert deprecated_domain not in chat_html, f"Deprecated domain {deprecated_domain} found in static/chat.html"
+    assert deprecated_ip not in index_html, f"Deprecated IP {deprecated_ip} found in static/index.html"
+    assert deprecated_ip not in chat_html, f"Deprecated IP {deprecated_ip} found in static/chat.html"

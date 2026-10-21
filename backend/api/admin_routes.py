@@ -168,9 +168,10 @@ def return_token_to_admin_endpoint(
 ):
     service = get_token_domain_service()
     solver_name = payload.solver_name or user.get("full_name") or user.get("username")
+    reason = payload.reason or payload.return_reason or "Returned to admin"
     ok, msg = service.return_to_admin(
         token_id=token_id.strip().upper(),
-        reason=payload.reason,
+        reason=reason,
         solver_name=solver_name,
         changed_by=user.get("username", "SOLVER")
     )
@@ -181,7 +182,7 @@ def return_token_to_admin_endpoint(
 @router.post("/tokens/{token_id}/solve")
 def solve_token_endpoint(
     token_id: str,
-    payload: TokenSolveRequest, TokenReturnRequest,
+    payload: TokenSolveRequest,
     user: dict = Depends(require_roles([Role.SOLVER, Role.ADMIN, Role.SUPER_ADMIN]))
 ):
     service = get_token_domain_service()

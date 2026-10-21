@@ -158,8 +158,10 @@ class TokenStatusUpdateRequest(BaseModel):
     admin_note: Optional[str] = None
 
 class TokenReturnRequest(BaseModel):
-    token_id: str
-    return_reason: str = Field(..., min_length=3, description="Reason for sending back to admin")
+    token_id: Optional[str] = None
+    reason: Optional[str] = None
+    return_reason: Optional[str] = None
+    solver_name: Optional[str] = None
 
 # --- Many-to-Many Q&A Knowledge Schemas ---
 class QAKnowledgeCreateRequest(BaseModel):
