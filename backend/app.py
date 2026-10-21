@@ -17,7 +17,7 @@ from .rate_limiter import rate_limiter
 from .rag_engine import get_rag_engine
 from db.sql_store import get_sql_store
 from db.vector_store import get_vector_store
-from crawler.scheduler import start_scheduler, stop_scheduler, run_full_crawl, get_crawler_status
+from crawler.scheduler import start_scheduler, stop_scheduler, run_full_crawl, get_crawler_status, sync_recent_notices
 from crawler.deep_crawler_bridge import run_deep_crawler, get_deep_crawler_status
 from enrichment.worker import get_enrichment_worker
 from token_service import init_token_database, token_router
@@ -280,6 +280,15 @@ async def admin_trigger_crawl(background_tasks: BackgroundTasks, payload: Option
     
     background_tasks.add_task(run_full_crawl)
     return {"status": "started", "message": "Full polite crawl initiated in background."}
+
+@app.post("/api/admin/update-recent-notices")
+def app_update_recent_notices(payload: Optional[Dict[str, Any]] = None):
+    crawler_status = get_crawler_status()
+    if crawler_status.get("is_running"):
+        return JSONResponse(status_code=409, content={"status": "busy", "message": "Crawler or synchronizer is already running."})
+    max_rows = payload.get("max_rows", 80) if payload else 80
+    return sync_recent_notices(max_rows=max_rows)
+
 
 # --- Deep Crawler (nu_site_crawler_project) Routes ---
 @app.get("/api/admin/deep-crawl-status")

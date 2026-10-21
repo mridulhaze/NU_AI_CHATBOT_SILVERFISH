@@ -104,7 +104,7 @@ def parse_notice_date(date_str: str, title_str: str = "", url_str: str = "") -> 
             except ValueError:
                 pass
 
-    # Extract date from pub_date in URL: e.g. pub_date_23082026 or pub_date_06.01.2016
+    # Extract date from pub_date or filename in URL: e.g. pub_date_23082026, 19-10-2026, 20_10_2026
     if url_str:
         m_url = re.search(r"pub_date_(\d{2})(\d{2})(\d{4})", url_str)
         if m_url:
@@ -116,6 +116,20 @@ def parse_notice_date(date_str: str, title_str: str = "", url_str: str = "") -> 
         m_url_dot = re.search(r"pub_date_(\d{2})\.(\d{2})\.(\d{4})", url_str)
         if m_url_dot:
             d, m, y = int(m_url_dot.group(1)), int(m_url_dot.group(2)), int(m_url_dot.group(3))
+            try:
+                return datetime(y, m, d)
+            except ValueError:
+                pass
+        m_filename_dmy = re.search(r"[_\-](\d{1,2})[-_](\d{1,2})[-_](20\d{2})", url_str)
+        if m_filename_dmy:
+            d, m, y = int(m_filename_dmy.group(1)), int(m_filename_dmy.group(2)), int(m_filename_dmy.group(3))
+            try:
+                return datetime(y, m, d)
+            except ValueError:
+                pass
+        m_filename_ymd = re.search(r"[_\-](20\d{2})[-_](\d{1,2})[-_](\d{1,2})", url_str)
+        if m_filename_ymd:
+            y, m, d = int(m_filename_ymd.group(1)), int(m_filename_ymd.group(2)), int(m_filename_ymd.group(3))
             try:
                 return datetime(y, m, d)
             except ValueError:
@@ -738,7 +752,7 @@ class NoticeFilterService:
                     SELECT id, title, url, pdf_url, category, published_date, content_hash, raw_text, scraped_at 
                     FROM notices 
                     WHERE ({subj_clause}){action_clause}{year_clause}{sem_clause}
-                    ORDER BY date_iso DESC, id DESC LIMIT ?
+                    ORDER BY COALESCE(date_iso, '') DESC, id DESC LIMIT ?
                 """
                 cursor.execute(query_sql, params + [limit * 10])
                 rows = cursor.fetchall()
@@ -768,7 +782,7 @@ class NoticeFilterService:
                         SELECT id, title, url, pdf_url, category, published_date, content_hash, raw_text, scraped_at 
                         FROM notices 
                         WHERE ({subj_clause})
-                        ORDER BY date_iso DESC, id DESC LIMIT ?
+                        ORDER BY COALESCE(date_iso, '') DESC, id DESC LIMIT ?
                     """
                     cursor.execute(relax_sql, relax_params + [limit * 10])
                     relax_rows = cursor.fetchall()
@@ -792,7 +806,7 @@ class NoticeFilterService:
                 cursor.execute("""
                     SELECT id, title, url, pdf_url, category, published_date, content_hash, raw_text, scraped_at 
                     FROM notices 
-                    ORDER BY date_iso DESC, id DESC LIMIT ?
+                    ORDER BY COALESCE(date_iso, '') DESC, id DESC LIMIT ?
                 """, (limit * 5,))
                 rows = cursor.fetchall()
                 results = []

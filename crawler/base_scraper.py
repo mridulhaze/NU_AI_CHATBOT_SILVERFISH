@@ -29,7 +29,8 @@ class BaseScraper:
                 time.sleep(self.delay)
                 response = self.session.get(url, timeout=self.timeout, verify=False)
                 response.raise_for_status()
-                response.encoding = response.apparent_encoding or "utf-8"
+                # National University servers serve UTF-8. Avoid apparent_encoding guessing MacCyrillic.
+                response.encoding = "utf-8"
                 return response.text
             except Exception as e:
                 logger.warning(f"Error fetching {url} (attempt {attempt + 1}): {e}")

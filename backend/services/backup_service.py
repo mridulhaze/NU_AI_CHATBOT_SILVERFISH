@@ -183,10 +183,20 @@ class BackupService:
                 extract_temp.mkdir(parents=True, exist_ok=True)
                 zf.extractall(extract_temp)
 
+                def _safe_replace_db(src_file: Path, dest_file: Path):
+                    try:
+                        shutil.copy2(src_file, dest_file)
+                    except Exception:
+                        s_c = sqlite3.connect(src_file)
+                        d_c = sqlite3.connect(dest_file)
+                        s_c.backup(d_c)
+                        s_c.close()
+                        d_c.close()
+
                 if (extract_temp / "nu_tokens.db").exists():
-                    shutil.copy2(extract_temp / "nu_tokens.db", TOKENS_DB_PATH)
+                    _safe_replace_db(extract_temp / "nu_tokens.db", TOKENS_DB_PATH)
                 if (extract_temp / "nu_assistant.db").exists():
-                    shutil.copy2(extract_temp / "nu_assistant.db", ASSISTANT_DB_PATH)
+                    _safe_replace_db(extract_temp / "nu_assistant.db", ASSISTANT_DB_PATH)
 
                 # 4. Verify integrity of newly restored databases
                 tokens_ok = True

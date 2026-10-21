@@ -716,14 +716,14 @@ Compose a structured, formatted markdown response in Bengali (বাংলা):
 * ⏳ **সম্ভাব্য সমাধানের তারিখ:** **{est_date or '২-৩ কার্যদিবস'}**
 --------------------------------
 
-আপনার সমস্যাটি জাতীয় বিশ্ববিদ্যালয়ের সংশ্লিষ্ট কর্মকর্তা/ডেস্কে সফলভাবে পাঠানো হয়েছে। আপনি যেকোনো সময় এই টোকেন নম্বর দিয়ে চ্যাটবটে স্ট্যাটাস দেখতে পারবেন।"""
+আপনার সমস্যাটি জাতীয় বিশ্ববিদ্যালয়ের সংশ্লিষ্ট কর্মকর্তা/ডেস্কে সফলভাবে পাঠানো হয়েছে। মনে রাখবেন, আপনি যেকোনো সময় এই টোকেন নম্বর দিয়ে চ্যাটবটে স্ট্যাটাস দেখতে পারবেন।"""
                     return ChatResponse(
                         reply=confirm_reply,
                         sources=[],
                         citations=[],
                         suggested_chips=[f"📋 Check {t_id}", "🎫 নতুন টোকেন", "📄 সাম্প্রতিক নোটিশ"],
                         confidence=1.0,
-                        intent="token_service_update",
+                        intent="token_attached",
                         language=lang,
                         is_fallback=False
                     )

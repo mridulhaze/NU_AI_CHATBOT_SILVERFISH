@@ -65,34 +65,69 @@ class SQLStore:
                 except Exception:
                     pass
 
+                # Ensure date_iso column and index exist
+                try:
+                    conn.execute("ALTER TABLE notices ADD COLUMN date_iso TEXT;")
+                    conn.commit()
+                except Exception:
+                    pass
+                try:
+                    conn.execute("CREATE INDEX IF NOT EXISTS idx_notices_date_iso ON notices(date_iso DESC, id DESC);")
+                    conn.commit()
+                except Exception:
+                    pass
+
+                # Backfill date_iso if missing
+                try:
+                    rows_missing = conn.execute("SELECT id, title, published_date, url FROM notices WHERE date_iso IS NULL OR date_iso = '' LIMIT 1000").fetchall()
+                    if rows_missing:
+                        from backend.services.notice_service import parse_notice_date
+                        updates = []
+                        for r in rows_missing:
+                            dt = parse_notice_date(r["published_date"], r["title"], r["url"])
+                            updates.append((dt.strftime("%Y-%m-%d"), r["id"]))
+                        conn.executemany("UPDATE notices SET date_iso = ? WHERE id = ?", updates)
+                        conn.commit()
+                except Exception:
+                    pass
+
     @staticmethod
     def compute_hash(text: str) -> str:
         return hashlib.md5(text.strip().encode("utf-8")).hexdigest()
 
     # --- Notices CRUD ---
-    def upsert_notice(self, title: str, url: str, pdf_url: Optional[str], category: str, published_date: str, raw_text: str) -> bool:
+    def upsert_notice(self, title: str, url: str, pdf_url: Optional[str], category: str, published_date: str, raw_text: str, date_iso: Optional[str] = None) -> bool:
         """
         Inserts or updates a notice if content has changed.
         Returns True if new/updated, False if unchanged.
+        Automatically calculates date_iso if omitted.
         """
         content_hash = self.compute_hash(f"{title}|{published_date}|{raw_text}")
+        if not date_iso:
+            try:
+                from backend.services.notice_service import parse_notice_date
+                dt = parse_notice_date(published_date, title, url)
+                date_iso = dt.strftime("%Y-%m-%d")
+            except Exception:
+                date_iso = datetime.now().strftime("%Y-%m-%d")
+
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT content_hash FROM notices WHERE url = ?", (url,))
+            cursor.execute("SELECT content_hash, date_iso FROM notices WHERE url = ?", (url,))
             row = cursor.fetchone()
             if row:
-                if row["content_hash"] == content_hash:
+                if row["content_hash"] == content_hash and row["date_iso"] == date_iso:
                     return False  # No change
                 cursor.execute("""
                     UPDATE notices
-                    SET title = ?, pdf_url = ?, category = ?, published_date = ?, content_hash = ?, raw_text = ?, scraped_at = CURRENT_TIMESTAMP
+                    SET title = ?, pdf_url = ?, category = ?, published_date = ?, date_iso = ?, content_hash = ?, raw_text = ?, scraped_at = CURRENT_TIMESTAMP
                     WHERE url = ?
-                """, (title, pdf_url, category, published_date, content_hash, raw_text, url))
+                """, (title, pdf_url, category, published_date, date_iso, content_hash, raw_text, url))
             else:
                 cursor.execute("""
-                    INSERT INTO notices (title, url, pdf_url, category, published_date, content_hash, raw_text)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (title, url, pdf_url, category, published_date, content_hash, raw_text))
+                    INSERT INTO notices (title, url, pdf_url, category, published_date, date_iso, content_hash, raw_text)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (title, url, pdf_url, category, published_date, date_iso, content_hash, raw_text))
             return True
 
     def get_recent_notices(self, limit: int = 15, category: Optional[str] = None) -> list[dict[str, Any]]:
@@ -100,10 +135,10 @@ class SQLStore:
             cursor = conn.cursor()
             if category:
                 cursor.execute("""
-                    SELECT * FROM notices WHERE category LIKE ? ORDER BY date_iso DESC, id DESC LIMIT ?
+                    SELECT * FROM notices WHERE category LIKE ? ORDER BY COALESCE(date_iso, '') DESC, id DESC LIMIT ?
                 """, (f"%{category}%", limit))
             else:
-                cursor.execute("SELECT * FROM notices ORDER BY date_iso DESC, id DESC LIMIT ?", (limit,))
+                cursor.execute("SELECT * FROM notices ORDER BY COALESCE(date_iso, '') DESC, id DESC LIMIT ?", (limit,))
             return [dict(row) for row in cursor.fetchall()]
 
     def search_notices(self, query_terms: list[str], limit: int = 10) -> list[dict[str, Any]]:
@@ -116,7 +151,7 @@ class SQLStore:
             for term in query_terms:
                 params.extend([f"%{term}%", f"%{term}%"])
             params.append(limit)
-            cursor.execute(f"SELECT * FROM notices WHERE {conditions} ORDER BY date_iso DESC, id DESC LIMIT ?", params)
+            cursor.execute(f"SELECT * FROM notices WHERE {conditions} ORDER BY COALESCE(date_iso, '') DESC, id DESC LIMIT ?", params)
             return [dict(row) for row in cursor.fetchall()]
 
     # --- Admission Info CRUD ---

@@ -242,14 +242,96 @@ def run_full_crawl() -> Dict[str, Any]:
         })
         return {"status": "failed", "error": str(e)}
 
+def sync_recent_notices(max_rows: int = 80) -> Dict[str, Any]:
+    """
+    Executes a fast, high-priority synchronization of recent notices & news from:
+    - https://www.nu.ac.bd/recent-news-notice.php
+    - https://www.nu.ac.bd/
+    - Examination & Admission boards
+    Inserts fresh notices into SQLite with date_iso and indexes into ChromaDB.
+    Can be run as an hourly cron job or called directly via 'Update Recent' admin button.
+    """
+    global _crawler_state
+    if _crawler_state["is_running"]:
+        return {"status": "busy", "message": "Crawler or synchronizer is already running."}
+
+    _crawler_state["is_running"] = True
+    _crawler_state["last_status"] = "running_recent_sync"
+    sql_store = get_sql_store()
+    vector_store = get_vector_store()
+    log_id = sql_store.start_crawl_log("Recent Notices & News Sync (Hourly Cron / Immediate)")
+
+    try:
+        scraper = NoticesScraper()
+        docs, pages_scraped, new_items, recent_items = scraper.scrape_recent_notices(max_rows=max_rows)
+        
+        chunks_count = 0
+        if docs:
+            chunks_count = vector_store.split_and_add_documents(docs)
+
+        latest_notice = recent_items[0] if recent_items else None
+
+        sql_store.finish_crawl_log(
+            log_id=log_id,
+            status="success",
+            pages_scraped=pages_scraped,
+            new_items=new_items,
+            errors=""
+        )
+
+        now_iso = datetime.now().isoformat()
+        _crawler_state.update({
+            "is_running": False,
+            "last_run": now_iso,
+            "last_status": "success",
+            "last_sync_type": "recent_notices",
+            "total_pages_scraped": _crawler_state.get("total_pages_scraped", 0) + pages_scraped,
+            "total_chunks_indexed": _crawler_state.get("total_chunks_indexed", 0) + chunks_count,
+            "latest_notice": latest_notice,
+            "errors": []
+        })
+
+        return {
+            "status": "success",
+            "message": "Recent notices and knowledge base updated successfully.",
+            "pages_scraped": pages_scraped,
+            "new_items": new_items,
+            "chunks_indexed": chunks_count,
+            "latest_notice": latest_notice,
+            "synced_at": now_iso
+        }
+    except Exception as e:
+        logger.error(f"Error during recent notices sync: {e}")
+        sql_store.finish_crawl_log(
+            log_id=log_id,
+            status="failed",
+            pages_scraped=0,
+            new_items=0,
+            errors=str(e)
+        )
+        _crawler_state.update({
+            "is_running": False,
+            "last_run": datetime.now().isoformat(),
+            "last_status": "failed",
+            "errors": [str(e)]
+        })
+        return {"status": "failed", "error": str(e)}
+
 def start_scheduler(crawl_interval_minutes: int = 60):
-    """Start periodic background crawler every 60 minutes."""
+    """Start periodic background crawler every 60 minutes (hourly cron)."""
     global _scheduler
     if _scheduler is None:
         _scheduler = BackgroundScheduler()
-        _scheduler.add_job(run_full_crawl, "interval", minutes=crawl_interval_minutes, id="nu_crawler_job")
+        # Hourly cron job syncing freshest notices and news from nu.ac.bd
+        _scheduler.add_job(
+            sync_recent_notices,
+            "interval",
+            minutes=crawl_interval_minutes,
+            id="nu_recent_sync_hourly_job",
+            replace_existing=True
+        )
         _scheduler.start()
-        logger.info(f"Background crawler scheduler started (every {crawl_interval_minutes} minutes).")
+        logger.info(f"Background hourly cron scheduler started (syncing every {crawl_interval_minutes} minutes).")
 
 def stop_scheduler():
     global _scheduler

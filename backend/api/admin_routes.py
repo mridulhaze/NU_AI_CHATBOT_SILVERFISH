@@ -787,3 +787,18 @@ def check_similar_faq_endpoint(
     }
 
 
+@router.post("/update-recent-notices", summary="Immediate sync of recent notices & knowledge base")
+def admin_update_recent_notices_endpoint(
+    payload: Optional[Dict[str, Any]] = None,
+    user: Optional[dict] = Depends(get_current_user_optional)
+):
+    from fastapi.responses import JSONResponse
+    from crawler.scheduler import sync_recent_notices, get_crawler_status
+    status = get_crawler_status()
+    if status.get("is_running"):
+        return JSONResponse(status_code=409, content={"status": "busy", "message": "Crawler or synchronizer is already running."})
+    max_rows = payload.get("max_rows", 80) if payload else 80
+    return sync_recent_notices(max_rows=max_rows)
+
+
+

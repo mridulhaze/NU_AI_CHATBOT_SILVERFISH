@@ -25,7 +25,7 @@ class Settings:
     STATIC_DIR: Path = BASE_DIR / "static"
     
     CRAWL_INTERVAL_HOURS: int = int(os.getenv("CRAWL_INTERVAL_HOURS", "1"))
-    CRAWL_INTERVAL_MINUTES: int = int(os.getenv("CRAWL_INTERVAL_MINUTES", "30"))
+    CRAWL_INTERVAL_MINUTES: int = int(os.getenv("CRAWL_INTERVAL_MINUTES", "60"))
     ENRICH_INTERVAL_HOURS: int = int(os.getenv("ENRICH_INTERVAL_HOURS", "1"))
     
     RATE_LIMIT_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_PER_MINUTE", "45"))

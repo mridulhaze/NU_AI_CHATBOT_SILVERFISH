@@ -3,8 +3,11 @@ National University AI Assistant - Preloaded Instant Response Engine
 Pre-compiled, rich responses with official links, citations, and interactive chips for zero-latency (<1ms) execution.
 """
 
+import re
 from typing import Optional, Dict, Any
 from backend.models.schemas import ChatResponse, SourceCitation
+
+TOKEN_ID_REGEX = re.compile(r'\b(NU-\d{4}-\d{6})\b', re.IGNORECASE)
 
 # Pre-compiled Citation Cards
 CITATIONS_ADMISSION = [
@@ -604,6 +607,9 @@ def get_preloaded_response(query: str) -> Optional[ChatResponse]:
     """
     Checks if a normalized query has a preloaded instant response (< 0.001s execution).
     """
+    if TOKEN_ID_REGEX.search(query):
+        return None
+
     normalized = query.lower().strip(" \t\n\r.?!,;:-_~`@#$%^&*()+=/\\|")
     if normalized in INSTANT_LOOKUP_MAP:
         return INSTANT_LOOKUP_MAP[normalized]

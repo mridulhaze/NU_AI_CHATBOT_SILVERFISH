@@ -7,10 +7,13 @@ CREATE TABLE IF NOT EXISTS notices (
     pdf_url TEXT,
     category TEXT DEFAULT 'General',
     published_date TEXT,
+    date_iso TEXT,
     content_hash TEXT,
     raw_text TEXT,
     scraped_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_notices_date_iso ON notices(date_iso DESC, id DESC);
 
 CREATE TABLE IF NOT EXISTS admission_info (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1126,6 +1126,10 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <button onclick="triggerUpdateRecentNotices()" id="btn-update-recent-header" class="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border border-emerald-500/50 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer" title="Sync freshest notices from nu.ac.bd/recent-news-notice.php immediately (হালনাগাদ নোটিশ সিঙ্ক)">
+            <span id="btn-update-recent-header-icon">⚡</span>
+            <span id="btn-update-recent-header-text">Update Recent</span>
+          </button>
           <button onclick="openDocumentaryModal()" class="text-xs bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-xs cursor-pointer" title="Complete System Architecture, Solver Roles & Operations Guide">
             <span>📖</span>
             <span class="hidden sm:inline">System Manual</span>
@@ -1779,10 +1783,14 @@
             <div class="flex items-center justify-between">
               <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Polite Background Scraper Status</h3>
               <div class="flex items-center gap-2">
+                <button onclick="triggerUpdateRecentNotices()" id="btn-update-recent-crawl" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg border border-emerald-500 transition flex items-center gap-1.5 shadow-xs cursor-pointer" title="Fetch freshest notices immediately from nu.ac.bd/recent-news-notice.php">
+                  <span id="btn-update-recent-crawl-icon">⚡</span>
+                  <span id="btn-update-recent-crawl-text">Update Recent Notices (হালনাগাদ নোটিশ সিঙ্ক)</span>
+                </button>
                 <button onclick="loadCrawlStatus()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center gap-1.5">
                   <span>🔄 Refresh Scrapers</span>
                 </button>
-                <button onclick="triggerCrawlJob()" id="btn-trigger-crawl" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
+                <button onclick="triggerCrawlJob()" id="btn-trigger-crawl" class="text-xs bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                   <span>Run Polite Crawl Now</span>
                 </button>
@@ -6294,6 +6302,66 @@
         setTimeout(loadCrawlStatus, 2000);
       } catch (e) {
         alert("Error triggering crawl: " + e.message);
+      }
+    }
+
+    async function triggerUpdateRecentNotices() {
+      const btnHeader = document.getElementById("btn-update-recent-header");
+      const btnHeaderText = document.getElementById("btn-update-recent-header-text");
+      const btnHeaderIcon = document.getElementById("btn-update-recent-header-icon");
+      const btnCrawl = document.getElementById("btn-update-recent-crawl");
+      const btnCrawlText = document.getElementById("btn-update-recent-crawl-text");
+
+      if (btnHeaderText) btnHeaderText.innerText = "সিঙ্ক হচ্ছে...";
+      if (btnHeaderIcon) {
+        btnHeaderIcon.innerText = "🔄";
+        btnHeaderIcon.classList.add("animate-spin");
+      }
+      if (btnHeader) btnHeader.disabled = true;
+      if (btnCrawlText) btnCrawlText.innerText = "🔄 সিঙ্ক হচ্ছে (Syncing)...";
+      if (btnCrawl) btnCrawl.disabled = true;
+
+      try {
+        if (typeof showToast === "function") showToast("⏳ জাতীয় বিশ্ববিদ্যালয়ের লাইভ নোটিশ সিঙ্ক শুরু হয়েছে...");
+        const token = localStorage.getItem("token") || localStorage.getItem("nu_token");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const res = await fetch(`${API_BASE}/api/v1/admin/update-recent-notices`, {
+          method: "POST",
+          headers: headers
+        });
+        const data = await res.json();
+        if (res.ok && data.status === "success") {
+          const latestTitle = data.latest_notice ? data.latest_notice.title : "";
+          const latestDate = data.latest_notice ? data.latest_notice.date : "";
+          if (typeof showToast === "function") showToast(`✅ নলেজ বেস সফলভাবে হালনাগাদ করা হয়েছে! (${data.new_items || 0} টি নতুন/হালনাগাদ আইটেম)`);
+          alert(`✅ জাতীয় বিশ্ববিদ্যালয় নোটিশ ও নলেজ বেস সফলভাবে হালনাগাদ হয়েছে!\n\n• সংগৃহীত পৃষ্ঠা: ${data.pages_scraped || 1}\n• নতুন/আপডেট নোটিশ: ${data.new_items || 0}\n• ভেক্টর চাঙ্ক যুক্ত: ${data.chunks_indexed || 0}\n• সর্বশেষ নোটিশ: ${latestTitle}\n• তারিখ: ${latestDate}`);
+        } else if (res.status === 409 || data.status === "busy") {
+          const msg = data.message || "Crawler is currently running.";
+          if (typeof showToast === "function") showToast(`⏳ ${msg}`);
+          alert(`ℹ️ সিঙ্ক স্থিতি: ${msg}`);
+        } else {
+          const msg = data.message || data.status || "Completed";
+          if (typeof showToast === "function") showToast(`ℹ️ সিঙ্ক ফলাফল: ${msg}`);
+          alert(`নোটিশ সিঙ্ক স্ট্যাটাস: ${msg}`);
+        }
+      } catch (err) {
+        console.error("Error updating recent notices:", err);
+        if (typeof showToast === "function") showToast("❌ নোটিশ সিঙ্ক করতে সমস্যা হয়েছে। নেটওয়ার্ক চেক করুন।");
+        alert("নোটিশ সিঙ্ক করার সময় ত্রুটি দেখা দিয়েছে: " + err.message);
+      } finally {
+        if (btnHeaderText) btnHeaderText.innerText = "Update Recent";
+        if (btnHeaderIcon) {
+          btnHeaderIcon.innerText = "⚡";
+          btnHeaderIcon.classList.remove("animate-spin");
+        }
+        if (btnHeader) btnHeader.disabled = false;
+        if (btnCrawlText) btnCrawlText.innerText = "Update Recent Notices (হালনাগাদ নোটিশ সিঙ্ক)";
+        if (btnCrawl) btnCrawl.disabled = false;
+        if (typeof loadCrawlStatus === "function") {
+          loadCrawlStatus();
+        }
       }
     }
 
