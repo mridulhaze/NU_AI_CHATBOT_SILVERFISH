@@ -971,7 +971,7 @@
       background: var(--surface);
       border: 1px solid var(--hairline);
       border-radius: var(--radius-card);
-      padding: 20px 22px;
+      padding: 12px 18px 16px 18px;
       box-shadow: var(--shadow-sm);
       position: relative;
     }
@@ -1097,15 +1097,15 @@
   </header>
 
   <!-- 2. Main Dual-Column Content Layout (Dynamic Split: 70% : 30% Toggle) -->
-  <main id="split-container" data-split="chat" class="split-layout flex-1 max-w-[1440px] w-full mx-auto px-3 sm:px-5 py-4 sm:py-5 flex flex-col lg:flex-row gap-5 items-stretch">
+  <main id="split-container" data-split="chat" class="split-layout flex-1 max-w-[1440px] w-full mx-auto px-3 sm:px-5 py-2.5 sm:py-3.5 flex flex-col lg:flex-row gap-5 items-start">
     
     <!-- LEFT COLUMN: AI Chat Counselor & Interactive Menus (70% by default, 30% in FAQ mode) -->
-    <section id="chat-section" onclick="handleChatSectionClick(event)" class="w-full flex flex-col justify-between">
+    <section id="chat-section" onclick="handleChatSectionClick(event)" class="w-full flex flex-col justify-start">
       <!-- Slim Lighting 'Lite Green' Animation Bar for Chat -->
-      <div class="chat-lighting-bar-green mb-3" title="AI Chat Counselor Active Channel"></div>
+      <div class="chat-lighting-bar-green mb-2" title="AI Chat Counselor Active Channel"></div>
       
       <!-- State A: Welcome View (Apple Monochromatic 3x3 Grid) -->
-      <div id="welcome-view" class="space-y-3.5 pb-3">
+      <div id="welcome-view" class="space-y-3 pb-2">
         
         <!-- Unified Single-Row Compact Header, Live Status & Timeline Bar -->
         <div class="ember-glance-bar py-2 px-3.5 flex items-center justify-between gap-2 flex-nowrap overflow-x-auto no-scrollbar">
@@ -1365,7 +1365,7 @@
       </div>
 
       <!-- Bottom Controls Wrapper (Constant at the screen bottom when chatting) -->
-      <div id="bottom-controls-bar" class="space-y-2.5 pt-3 pb-1 sticky bottom-0 z-30 bg-[var(--surface)]/95 backdrop-blur-md border-t border-[var(--hairline)]">
+      <div id="bottom-controls-bar" class="mt-auto space-y-2 pt-2.5 pb-1 sticky bottom-0 z-30 bg-[var(--surface)]/95 backdrop-blur-md border-t border-[var(--hairline)]">
         
         <!-- Category Chips Row (Monochromatic Pills, horizontally scrollable) -->
         <div class="relative">

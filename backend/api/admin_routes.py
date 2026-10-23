@@ -801,4 +801,273 @@ def admin_update_recent_notices_endpoint(
     return sync_recent_notices(max_rows=max_rows)
 
 
+# --- Google Gemini API Health Check & User Rate Limit Diagnostic Endpoints ---
+def perform_gemini_api_health_check(
+    live_test: bool = True,
+    custom_api_key: Optional[str] = None,
+    test_prompt: str = "Reply with OK"
+) -> Dict[str, Any]:
+    import time as _time
+    from google import genai
+    from google.genai import types
+    from backend.config import settings
+    from backend.rate_limiter import rate_limiter
+
+    raw_key = (custom_api_key if custom_api_key is not None else settings.GEMINI_API_KEY) or ""
+    api_key = raw_key.strip()
+    has_api_key = bool(api_key)
+    if len(api_key) >= 10:
+        masked_key = f"{api_key[:6]}...{api_key[-4:]}"
+    elif has_api_key:
+        masked_key = f"{api_key[:2]}***"
+    else:
+        masked_key = "Not Configured (Missing)"
+
+    candidate_models = []
+    for m in [settings.PRIMARY_MODEL] + list(settings.FALLBACK_MODELS) + ["gemini-2.5-flash", "gemini-2.0-flash"]:
+        if m and m not in candidate_models:
+            candidate_models.append(m)
+
+    gemini_status = "MISSING_KEY"
+    is_working = False
+    key_valid = False
+    quota_status = "UNCONFIGURED"
+    status_label = "API Key Not Configured (এপিআই কি নেই)"
+    active_working_model = None
+    sample_reply = None
+    error_detail = None
+    latency_ms = 0.0
+    tested_models = []
+
+    if has_api_key:
+        if not live_test:
+            gemini_status = "CONFIGURED"
+            key_valid = len(api_key) >= 20
+            is_working = key_valid
+            quota_status = "READY"
+            status_label = "Configured & Ready (কনফিগার করা আছে)"
+        else:
+            t_start = _time.time()
+            try:
+                client = genai.Client(api_key=api_key)
+                last_err_str = ""
+                for model_name in candidate_models[:4]:
+                    m_t0 = _time.time()
+                    try:
+                        resp = client.models.generate_content(
+                            model=model_name,
+                            contents=test_prompt or "Reply with OK",
+                            config=types.GenerateContentConfig(
+                                max_output_tokens=12,
+                                temperature=0.0,
+                            )
+                        )
+                        m_lat = round((_time.time() - m_t0) * 1000, 1)
+                        reply_text = (resp.text or "OK").strip()
+                        tested_models.append({
+                            "model": model_name,
+                            "status": "WORKING",
+                            "latency_ms": m_lat,
+                            "detail": reply_text[:40]
+                        })
+                        active_working_model = model_name
+                        sample_reply = reply_text[:80]
+                        latency_ms = m_lat
+                        is_working = True
+                        key_valid = True
+                        gemini_status = "HEALTHY"
+                        quota_status = "AVAILABLE"
+                        status_label = "Working & Valid (সচল ও বৈধ)"
+                        break
+                    except Exception as m_err:
+                        m_lat = round((_time.time() - m_t0) * 1000, 1)
+                        err_s = str(m_err)
+                        last_err_str = err_s
+                        upper_err = err_s.upper()
+                        if "API_KEY_INVALID" in upper_err or "INVALID_ARGUMENT" in upper_err and "API KEY" in upper_err or "401" in upper_err:
+                            tested_models.append({
+                                "model": model_name,
+                                "status": "INVALID_KEY",
+                                "latency_ms": m_lat,
+                                "detail": err_s[:120]
+                            })
+                            gemini_status = "INVALID_KEY"
+                            is_working = False
+                            key_valid = False
+                            quota_status = "UNAUTHORIZED"
+                            status_label = "Invalid API Key (অবৈধ এপিআই কি)"
+                            error_detail = err_s[:200]
+                            break
+                        elif "429" in upper_err or "RESOURCE_EXHAUSTED" in upper_err or "QUOTA" in upper_err:
+                            tested_models.append({
+                                "model": model_name,
+                                "status": "RATE_LIMITED",
+                                "latency_ms": m_lat,
+                                "detail": "Quota / Rate Limit Exceeded (429)"
+                            })
+                            key_valid = True
+                            gemini_status = "RATE_LIMITED"
+                            quota_status = "QUOTA_EXCEEDED"
+                            status_label = "Valid Key — Quota / Rate Limit Reached (লিমিট পূর্ণ)"
+                            error_detail = err_s[:200]
+                        else:
+                            tested_models.append({
+                                "model": model_name,
+                                "status": "ERROR",
+                                "latency_ms": m_lat,
+                                "detail": err_s[:120]
+                            })
+
+                if not latency_ms:
+                    latency_ms = round((_time.time() - t_start) * 1000, 1)
+
+                if not is_working and gemini_status not in ("INVALID_KEY", "RATE_LIMITED"):
+                    gemini_status = "DEGRADED"
+                    key_valid = len(api_key) >= 20
+                    quota_status = "MODEL_OR_NETWORK_ISSUE"
+                    status_label = "Degraded / Model Unavailable (সংযোগ বা মডেল ত্রুটি)"
+                    error_detail = last_err_str[:200]
+            except Exception as outer_e:
+                latency_ms = round((_time.time() - t_start) * 1000, 1)
+                gemini_status = "ERROR"
+                is_working = False
+                key_valid = False
+                quota_status = "ERROR"
+                status_label = "API Check Failed (যাচাই ব্যর্থ)"
+                error_detail = str(outer_e)[:200]
+
+    # User Rate Limiter Inspection
+    now_ts = _time.time()
+    window_start = now_ts - 60.0
+    per_ip_limit = int(getattr(rate_limiter, "limit", settings.RATE_LIMIT_PER_MINUTE))
+    active_ips = []
+    total_requests_last_min = 0
+    throttled_ips_count = 0
+
+    for ip, timestamps in list(rate_limiter.requests.items()):
+        valid_ts = [t for t in timestamps if t > window_start]
+        rate_limiter.requests[ip] = valid_ts
+        req_count = len(valid_ts)
+        if req_count > 0:
+            total_requests_last_min += req_count
+            is_throttled = per_ip_limit > 0 and req_count >= per_ip_limit
+            if is_throttled:
+                throttled_ips_count += 1
+            active_ips.append({
+                "ip": ip,
+                "requests_last_minute": req_count,
+                "requests_in_last_minute": req_count,
+                "limit_per_minute": per_ip_limit,
+                "remaining_requests": max(0, per_ip_limit - req_count) if per_ip_limit > 0 else 9999,
+                "usage_percent": round(min(100.0, (req_count / per_ip_limit) * 100.0), 1) if per_ip_limit > 0 else 0.0,
+                "is_rate_limited": is_throttled,
+                "is_throttled": is_throttled
+            })
+
+    active_ips.sort(key=lambda x: x["requests_last_minute"], reverse=True)
+    checked_at_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    return {
+        "status": "success",
+        "checked_at": checked_at_str,
+        "gemini_api": {
+            "status": gemini_status,
+            "status_label": status_label,
+            "message": status_label,
+            "checked_at": checked_at_str,
+            "is_working": is_working,
+            "key_valid": key_valid,
+            "has_api_key": has_api_key,
+            "masked_api_key": masked_key,
+            "key_length": len(api_key),
+            "quota_status": quota_status,
+            "primary_model": settings.PRIMARY_MODEL,
+            "active_working_model": active_working_model or settings.PRIMARY_MODEL,
+            "fallback_models": settings.FALLBACK_MODELS,
+            "embedding_model": settings.EMBEDDING_MODEL,
+            "latency_ms": latency_ms,
+            "sample_reply": sample_reply,
+            "error_detail": error_detail,
+            "tested_models": tested_models
+        },
+        "user_rate_limit": {
+            "limit_per_minute": per_ip_limit,
+            "env_default_limit": settings.RATE_LIMIT_PER_MINUTE,
+            "window_seconds": 60,
+            "active_users_count": len(active_ips),
+            "total_requests_last_minute": total_requests_last_min,
+            "throttled_users_count": throttled_ips_count,
+            "captcha_bypass_enabled": True,
+            "active_ips": active_ips[:25]
+        }
+    }
+
+
+@router.get("/api-health-check", summary="Check Google Gemini API validity, working status, and user rate limits")
+def admin_get_api_health_check(
+    live_test: bool = Query(True, description="Perform live probe to Google Gemini API"),
+    user: Optional[dict] = Depends(get_current_user_optional)
+):
+    return perform_gemini_api_health_check(live_test=live_test)
+
+
+@router.post("/api-health-check", summary="Run live Google Gemini API diagnostic check with optional custom key/prompt")
+def admin_post_api_health_check(
+    payload: Optional[Dict[str, Any]] = None,
+    user: Optional[dict] = Depends(get_current_user_optional)
+):
+    data = payload or {}
+    live_test = bool(data.get("live_test", True))
+    custom_key = data.get("custom_api_key") or data.get("api_key")
+    test_prompt = data.get("test_prompt") or "Reply with OK"
+    return perform_gemini_api_health_check(
+        live_test=live_test,
+        custom_api_key=custom_key,
+        test_prompt=test_prompt
+    )
+
+
+@router.post("/api-health-check/rate-limit", summary="Update user rate limit (RPM) or reset throttled user IPs")
+def admin_update_user_rate_limit(
+    payload: Dict[str, Any],
+    user: Optional[dict] = Depends(get_current_user_optional)
+):
+    from backend.rate_limiter import rate_limiter
+    action = (payload.get("action") or "").strip().lower()
+    reset_all = bool(payload.get("reset_all", False)) or (action == "reset_all")
+    new_limit = payload.get("limit_per_minute")
+    target_ip = (payload.get("ip") or "").strip()
+    messages = []
+
+    if reset_all:
+        rate_limiter.requests.clear()
+        messages.append("সকল ব্যবহারকারীর রেট লিমিট কাউন্টার রিসেট করা হয়েছে (All user rate limit counters cleared).")
+
+    if action == "reset_ip" and target_ip:
+        rate_limiter.reset_ip(target_ip)
+        messages.append(f"IP {target_ip} এর রেট লিমিট রিসেট করা হয়েছে।")
+
+    if new_limit is not None:
+        try:
+            val = int(new_limit)
+            if val < 1 or val > 10000:
+                raise ValueError("Limit must be between 1 and 10000")
+            rate_limiter.limit = val
+            messages.append(f"ব্যবহারকারীর প্রতি মিনিটের রিকোয়েস্ট লিমিট {val} RPM-এ উন্নীত করা হয়েছে।")
+        except ValueError as ve:
+            raise HTTPException(status_code=400, detail=str(ve))
+
+    if not messages:
+        raise HTTPException(status_code=400, detail="Provide 'limit_per_minute', 'reset_all', or 'action' ('reset_all' / 'reset_ip').")
+
+    snapshot = perform_gemini_api_health_check(live_test=False)
+    return {
+        "status": "success",
+        "message": " ".join(messages),
+        "limit_per_minute": rate_limiter.limit,
+        "user_rate_limit": snapshot["user_rate_limit"]
+    }
+
+
+
 

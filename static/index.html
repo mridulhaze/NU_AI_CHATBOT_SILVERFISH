@@ -1130,6 +1130,10 @@
             <span id="btn-update-recent-header-icon">⚡</span>
             <span id="btn-update-recent-header-text">Update Recent</span>
           </button>
+          <button onclick="switchAdminTab('api_health'); runAdminApiHealthCheck(true);" id="btn-api-health-header" class="text-xs bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white border border-rose-500/50 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer" title="Check Google Gemini API Key Validity, Working Status & User Rate Limits (এপিআই হেলথ চেক)">
+            <span id="btn-api-health-header-icon">🩺</span>
+            <span id="btn-api-health-header-text">API Health Check</span>
+          </button>
           <button onclick="openDocumentaryModal()" class="text-xs bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-xs cursor-pointer" title="Complete System Architecture, Solver Roles & Operations Guide">
             <span>📖</span>
             <span class="hidden sm:inline">System Manual</span>
@@ -1211,6 +1215,11 @@
             <button id="tab-btn-backups" onclick="switchAdminTab('backups')" onmouseenter="showGlobalTabTip('ডাটাবেজ ও সিস্টেমের পূর্ণাঙ্গ পোর্টেবল ব্যাকআপ ও রিস্টোর হাব')" onmouseleave="resetGlobalTabTip()" title="ডাটাবেজ ও সিস্টেমের পূর্ণাঙ্গ পোর্টেবল ব্যাকআপ ও রিস্টোর হাব (System Backup & Restore)" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
               <span>📦 Backup & Restore</span>
               <span class="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Portable</span>
+            </button>
+
+            <button id="tab-btn-api-health" onclick="switchAdminTab('api_health')" onmouseenter="showGlobalTabTip('গুগল জেমিনি এপিআই ভ্যালিডিটি চেক, কোটা ও ইউজার রেট লিমিট নিয়ন্ত্রণ (API Health Check)')" onmouseleave="resetGlobalTabTip()" title="Google Gemini API Validity, Working Status & User Rate Limits (API Health Check)" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>🩺 API Health Check</span>
+              <span id="api-health-tab-badge" class="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Gemini</span>
             </button>
           </div>
         </div>
@@ -2727,6 +2736,187 @@
                   </div>
                 </form>
               </div>
+
+        <!-- Tab Content: API Health Check & User Rate Limits -->
+        <div id="tab-content-api-health" class="space-y-5 hidden">
+          <!-- Top Banner & Live Diagnostic Action -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center text-xl shadow-xs shrink-0">🩺</div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-base font-extrabold text-slate-900">Google Gemini API Health Check &amp; User Limits</h3>
+                  <span id="api-health-overall-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-300">Checking...</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Verify Google Gemini API key validity, live model connectivity, quota limits, and per-user request rate limits (RPM).</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="runAdminApiHealthCheck(false)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 transition flex items-center gap-1.5 cursor-pointer">
+                <span>🔍</span>
+                <span>Quick Config Check</span>
+              </button>
+              <button type="button" id="btn-run-live-api-check" onclick="runAdminApiHealthCheck(true)" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                <span id="btn-run-live-api-check-icon">⚡</span>
+                <span id="btn-run-live-api-check-text">Run Live Gemini API Test</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Summary Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <span>API Key Validity</span>
+                <span>🔑</span>
+              </div>
+              <div id="api-health-kpi-validity" class="text-lg font-extrabold text-slate-900 mt-1.5">—</div>
+              <div id="api-health-kpi-masked-key" class="text-[11px] font-mono text-slate-500 mt-0.5 truncate">Key: Not checked</div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <span>Working Status &amp; Quota</span>
+                <span>🤖</span>
+              </div>
+              <div id="api-health-kpi-working" class="text-lg font-extrabold text-slate-900 mt-1.5">—</div>
+              <div id="api-health-kpi-quota" class="text-[11px] text-slate-500 mt-0.5 truncate">Quota: —</div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <span>Active Model &amp; Latency</span>
+                <span>⚡</span>
+              </div>
+              <div id="api-health-kpi-model" class="text-sm font-extrabold text-slate-900 mt-1.5 truncate">—</div>
+              <div id="api-health-kpi-latency" class="text-[11px] text-slate-500 mt-0.5">Latency: — ms</div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <span>User Limit (RPM)</span>
+                <span>👥</span>
+              </div>
+              <div id="api-health-kpi-user-limit" class="text-lg font-extrabold text-slate-900 mt-1.5">30 req/min</div>
+              <div id="api-health-kpi-active-users" class="text-[11px] text-slate-500 mt-0.5">Active Users (60s): 0</div>
+            </div>
+          </div>
+
+          <!-- Two-Column Grid: Left = Gemini API Diagnostic & Custom Key Tester | Right = User Rate Limit & Traffic Control -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- Left Column: Google Gemini API Live Diagnostic Details (7 cols) -->
+            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                    <span>🤖 Google Gemini API Diagnostic Report</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-500">Live verification of primary &amp; fallback Gemini models</p>
+                </div>
+                <span id="api-health-checked-at" class="text-[11px] font-mono text-slate-400">—</span>
+              </div>
+
+              <!-- Status Message Banner -->
+              <div id="api-health-message-box" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-700 space-y-1">
+                <div class="font-bold text-slate-900" id="api-health-status-title">Click "Run Live Gemini API Test" to verify API connectivity.</div>
+                <div id="api-health-sample-reply" class="text-[11px] text-slate-600 font-mono"></div>
+              </div>
+
+              <!-- Model Chain Status Table -->
+              <div>
+                <h5 class="text-xs font-bold text-slate-700 mb-2">Tested Gemini Models &amp; Fallback Chain</h5>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                  <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase">
+                        <th class="py-2 px-3">Model Name</th>
+                        <th class="py-2 px-3">Status</th>
+                        <th class="py-2 px-3">Latency</th>
+                        <th class="py-2 px-3">Details / Response</th>
+                      </tr>
+                    </thead>
+                    <tbody id="api-health-models-tbody" class="divide-y divide-slate-100">
+                      <tr>
+                        <td colspan="4" class="py-4 text-center text-slate-400 text-xs">No model test run yet.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Optional Custom API Key / Prompt Tester -->
+              <div class="pt-2 border-t border-slate-100">
+                <h5 class="text-xs font-bold text-slate-800 mb-2">🧪 Test Another Gemini API Key or Custom Prompt</h5>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Custom Gemini API Key (Optional)</label>
+                    <input type="password" id="api-health-custom-key-input" placeholder="Leave blank to test system .env key" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-600 bg-slate-50/60 font-mono" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Test Ping Prompt</label>
+                    <input type="text" id="api-health-custom-prompt-input" value="Reply with exact word: OK" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-600 bg-slate-50/60" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: User Rate Limit & Active User Traffic (5 cols) -->
+            <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                    <span>🛡️ User Rate Limit &amp; Quota Control</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-500">Manage per-user chat request limits (Requests Per Minute)</p>
+                </div>
+                <span id="api-health-throttled-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">0 Throttled</span>
+              </div>
+
+              <!-- Adjust Per-User Limit Form -->
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between">
+                  <label for="api-health-rpm-input" class="text-xs font-bold text-slate-800">Max Requests / Minute per User IP</label>
+                  <span class="text-[11px] font-semibold text-slate-500">Window: 60 sec</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="number" id="api-health-rpm-input" min="1" max="1000" value="30" class="w-28 px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-emerald-600" />
+                  <button type="button" onclick="updateAdminUserRateLimit()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition cursor-pointer">
+                    Update Limit
+                  </button>
+                  <button type="button" onclick="resetAdminUserRateLimits()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs px-3 py-2 rounded-xl transition cursor-pointer" title="Clear all user rate limit counters">
+                    Reset Counters
+                  </button>
+                </div>
+                <p id="api-health-rate-limit-msg" class="text-[11px] text-slate-500">Protects Gemini API quota from abuse by limiting requests per user per minute.</p>
+              </div>
+
+              <!-- Active Users Traffic Table -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <h5 class="text-xs font-bold text-slate-700">Active User Usage (Last 60 Seconds)</h5>
+                  <span id="api-health-total-req-badge" class="text-[11px] font-semibold text-slate-500">0 total requests</span>
+                </div>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl max-h-56">
+                  <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-600 uppercase">
+                        <th class="py-2 px-2.5">Client IP</th>
+                        <th class="py-2 px-2.5">Used / Limit</th>
+                        <th class="py-2 px-2.5">Remaining</th>
+                        <th class="py-2 px-2.5">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="api-health-users-tbody" class="divide-y divide-slate-100">
+                      <tr>
+                        <td colspan="4" class="py-4 text-center text-slate-400 text-xs">No active user requests in the last 60 seconds.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
           </div>
         </div>
 
@@ -4754,6 +4944,8 @@
       const tabUsersBtn = document.getElementById("tab-btn-users");
       const tabLogsBtn = document.getElementById("tab-btn-logs");
       const tabBackupsBtn = document.getElementById("tab-btn-backups");
+      const tabApiHealthBtn = document.getElementById("tab-btn-api-health");
+      const headerApiHealthBtn = document.getElementById("btn-api-health-header");
 
       if (tabTokensBtn) tabTokensBtn.style.display = "flex";
       if (tabSitemapBtn) tabSitemapBtn.style.display = isAdmin ? "flex" : "none";
@@ -4763,6 +4955,8 @@
       if (tabUsersBtn) tabUsersBtn.style.display = isAdmin ? "flex" : "none";
       if (tabLogsBtn) tabLogsBtn.style.display = isAdmin ? "flex" : "none";
       if (tabBackupsBtn) tabBackupsBtn.style.display = isAdmin ? "flex" : "none";
+      if (tabApiHealthBtn) tabApiHealthBtn.style.display = isAdmin ? "flex" : "none";
+      if (headerApiHealthBtn) headerApiHealthBtn.style.display = isAdmin ? "flex" : "none";
 
       document.getElementById("admin-modal").classList.remove("hidden");
       switchAdminTab("tokens");
@@ -5344,6 +5538,7 @@
       const tabUsers = document.getElementById("tab-content-users");
       const tabLogs = document.getElementById("tab-content-logs");
       const tabBackups = document.getElementById("tab-content-backups");
+      const tabApiHealth = document.getElementById("tab-content-api-health");
 
       const btnTokens = document.getElementById("tab-btn-tokens");
       const btnSitemap = document.getElementById("tab-btn-sitemap");
@@ -5353,12 +5548,13 @@
       const btnUsers = document.getElementById("tab-btn-users");
       const btnLogs = document.getElementById("tab-btn-logs");
       const btnBackups = document.getElementById("tab-btn-backups");
+      const btnApiHealth = document.getElementById("tab-btn-api-health");
 
       const inactiveTabClass = "py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 dark:hover:bg-neutral-700/60 text-slate-700 dark:text-neutral-300 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold text-xs";
       const getActiveTabClass = (colorBorder) => `py-2 px-3.5 rounded-xl bg-white dark:bg-neutral-800 text-slate-900 dark:text-white font-bold shadow-xs border border-slate-200/80 dark:border-neutral-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition text-xs`;
 
-      [tabTokens, tabSitemap, tabAIEngine, tabQAKnowledge, tabAcademicStatic, tabUsers, tabLogs, tabBackups].forEach(el => { if (el) el.classList.add("hidden"); });
-      [btnTokens, btnSitemap, btnAIEngine, btnQAKnowledge, btnAcademicStatic, btnUsers, btnLogs, btnBackups].forEach(el => {
+      [tabTokens, tabSitemap, tabAIEngine, tabQAKnowledge, tabAcademicStatic, tabUsers, tabLogs, tabBackups, tabApiHealth].forEach(el => { if (el) el.classList.add("hidden"); });
+      [btnTokens, btnSitemap, btnAIEngine, btnQAKnowledge, btnAcademicStatic, btnUsers, btnLogs, btnBackups, btnApiHealth].forEach(el => {
         if (el) el.className = inactiveTabClass;
       });
 
@@ -5395,6 +5591,300 @@
         if (tabBackups) tabBackups.classList.remove("hidden");
         if (btnBackups) btnBackups.className = getActiveTabClass("border-t-emerald-700 text-emerald-900");
         loadBackupList();
+      } else if (tab === "api_health") {
+        if (tabApiHealth) tabApiHealth.classList.remove("hidden");
+        if (btnApiHealth) btnApiHealth.className = getActiveTabClass("border-t-rose-700 text-rose-900");
+        runAdminApiHealthCheck(true);
+      }
+    }
+
+    // --- Google Gemini API Health Check & User Rate Limit Functions ---
+    async function runAdminApiHealthCheck(liveTest = true) {
+      const btnIcon = document.getElementById("btn-run-live-api-check-icon");
+      const btnText = document.getElementById("btn-run-live-api-check-text");
+      const overallBadge = document.getElementById("api-health-overall-badge");
+      const tabBadge = document.getElementById("api-health-tab-badge");
+      const statusTitle = document.getElementById("api-health-status-title");
+
+      if (btnIcon) btnIcon.textContent = "⏳";
+      if (btnText) btnText.textContent = liveTest ? "Testing Gemini API..." : "Checking Config...";
+      if (overallBadge) {
+        overallBadge.textContent = "Checking...";
+        overallBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200";
+      }
+      if (statusTitle) {
+        statusTitle.textContent = liveTest
+          ? "Running live ping to Google Gemini API models..."
+          : "Checking configured Gemini API key and user rate limits...";
+      }
+
+      const customKeyEl = document.getElementById("api-health-custom-key-input");
+      const customPromptEl = document.getElementById("api-health-custom-prompt-input");
+      const customKey = customKeyEl ? customKeyEl.value.trim() : "";
+      const customPrompt = customPromptEl ? customPromptEl.value.trim() : "Reply with exact word: OK";
+
+      try {
+        let res;
+        if (customKey) {
+          res = await fetch("/api/v1/admin/api-health-check", {
+            method: "POST",
+            headers: getAdminHeaders(),
+            body: JSON.stringify({
+              api_key: customKey,
+              test_prompt: customPrompt || "Reply with exact word: OK"
+            })
+          });
+        } else {
+          res = await fetch(`/api/v1/admin/api-health-check?live_test=${liveTest ? "true" : "false"}`, {
+            headers: getAdminHeaders()
+          });
+        }
+        const data = await res.json();
+        renderAdminApiHealthReport(data);
+      } catch (err) {
+        if (overallBadge) {
+          overallBadge.textContent = "Connection Error";
+          overallBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300";
+        }
+        if (statusTitle) {
+          statusTitle.textContent = "Failed to reach API Health Check endpoint: " + (err.message || err);
+        }
+      } finally {
+        if (btnIcon) btnIcon.textContent = "⚡";
+        if (btnText) btnText.textContent = "Run Live Gemini API Test";
+      }
+    }
+
+    function renderAdminApiHealthReport(data) {
+      if (!data) return;
+      const g = data.gemini_api || {};
+      const rl = data.user_rate_limit || {};
+
+      const overallBadge = document.getElementById("api-health-overall-badge");
+      const tabBadge = document.getElementById("api-health-tab-badge");
+      const kpiValidity = document.getElementById("api-health-kpi-validity");
+      const kpiMaskedKey = document.getElementById("api-health-kpi-masked-key");
+      const kpiWorking = document.getElementById("api-health-kpi-working");
+      const kpiQuota = document.getElementById("api-health-kpi-quota");
+      const kpiModel = document.getElementById("api-health-kpi-model");
+      const kpiLatency = document.getElementById("api-health-kpi-latency");
+      const kpiUserLimit = document.getElementById("api-health-kpi-user-limit");
+      const kpiActiveUsers = document.getElementById("api-health-kpi-active-users");
+      const checkedAtEl = document.getElementById("api-health-checked-at");
+      const msgBox = document.getElementById("api-health-message-box");
+      const statusTitle = document.getElementById("api-health-status-title");
+      const sampleReply = document.getElementById("api-health-sample-reply");
+      const modelsTbody = document.getElementById("api-health-models-tbody");
+
+      // Status styling
+      let badgeText = g.status || "UNKNOWN";
+      let badgeCls = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-300";
+      let msgBoxCls = "p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-700 space-y-1";
+
+      if (g.status === "HEALTHY") {
+        badgeText = "✅ Working & Valid";
+        badgeCls = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+        msgBoxCls = "p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/70 text-xs text-emerald-900 space-y-1";
+        if (tabBadge) {
+          tabBadge.textContent = "OK";
+          tabBadge.className = "bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold";
+        }
+      } else if (g.status === "RATE_LIMITED") {
+        badgeText = "⚠️ Quota / Rate Limited";
+        badgeCls = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        msgBoxCls = "p-3.5 rounded-xl border border-amber-200 bg-amber-50/80 text-xs text-amber-900 space-y-1";
+        if (tabBadge) {
+          tabBadge.textContent = "Limit";
+          tabBadge.className = "bg-amber-100 text-amber-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold";
+        }
+      } else if (g.status === "INVALID_KEY" || g.status === "MISSING_KEY" || g.status === "DEGRADED") {
+        badgeText = "❌ " + g.status.replace("_", " ");
+        badgeCls = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300";
+        msgBoxCls = "p-3.5 rounded-xl border border-rose-200 bg-rose-50/80 text-xs text-rose-900 space-y-1";
+        if (tabBadge) {
+          tabBadge.textContent = "Alert";
+          tabBadge.className = "bg-rose-100 text-rose-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold";
+        }
+      } else if (g.status === "CONFIGURED") {
+        badgeText = "🔑 Configured";
+        badgeCls = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-300";
+      }
+
+      if (overallBadge) {
+        overallBadge.textContent = badgeText;
+        overallBadge.className = badgeCls;
+      }
+      if (msgBox) msgBox.className = msgBoxCls;
+      if (statusTitle) statusTitle.textContent = g.message || "Diagnostic complete.";
+      if (sampleReply) {
+        sampleReply.textContent = g.sample_reply
+          ? `Live Model Reply: "${g.sample_reply}"`
+          : (g.error_detail ? `Error Details: ${g.error_detail}` : "");
+      }
+      if (checkedAtEl) checkedAtEl.textContent = g.checked_at ? `Checked: ${g.checked_at}` : "";
+
+      if (kpiValidity) {
+        if (g.key_valid === true) {
+          kpiValidity.innerHTML = `<span class="text-emerald-700">Valid Key ✓</span>`;
+        } else if (g.key_valid === false) {
+          kpiValidity.innerHTML = `<span class="text-rose-600">Invalid / Missing ✗</span>`;
+        } else {
+          kpiValidity.innerHTML = `<span class="text-blue-700">Format OK</span>`;
+        }
+      }
+      if (kpiMaskedKey) kpiMaskedKey.textContent = `Key: ${g.masked_api_key || "Not Set"}`;
+
+      if (kpiWorking) {
+        if (g.is_working) {
+          kpiWorking.innerHTML = `<span class="text-emerald-700">Working (Online)</span>`;
+        } else if (g.status === "CONFIGURED") {
+          kpiWorking.innerHTML = `<span class="text-blue-700">Ready to Test</span>`;
+        } else {
+          kpiWorking.innerHTML = `<span class="text-rose-600">Not Responding</span>`;
+        }
+      }
+      if (kpiQuota) kpiQuota.textContent = `Quota: ${g.quota_status || "UNKNOWN"}`;
+      if (kpiModel) kpiModel.textContent = g.active_working_model || g.primary_model || "—";
+      if (kpiLatency) kpiLatency.textContent = g.latency_ms != null ? `Latency: ${g.latency_ms} ms` : "Latency: — ms";
+
+      // Models table
+      if (modelsTbody) {
+        const models = Array.isArray(g.tested_models) ? g.tested_models : [];
+        if (models.length === 0) {
+          const allConfigured = [g.primary_model, ...(g.fallback_models || [])].filter(Boolean);
+          modelsTbody.innerHTML = allConfigured.map((m, idx) => `
+            <tr>
+              <td class="py-2 px-3 font-mono font-semibold text-slate-800">${m} ${idx === 0 ? '<span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded ml-1">Primary</span>' : ''}</td>
+              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">Configured</span></td>
+              <td class="py-2 px-3 text-slate-400">—</td>
+              <td class="py-2 px-3 text-slate-500">Click "Run Live Gemini API Test" to ping</td>
+            </tr>
+          `).join("");
+        } else {
+          modelsTbody.innerHTML = models.map((item) => {
+            let stCls = "bg-slate-100 text-slate-700";
+            if (item.status === "WORKING") stCls = "bg-emerald-100 text-emerald-800";
+            else if (item.status === "QUOTA_EXCEEDED") stCls = "bg-amber-100 text-amber-800";
+            else stCls = "bg-rose-100 text-rose-800";
+            const detail = item.reply_preview
+              ? `Reply: "${item.reply_preview}"`
+              : (item.error || "—");
+            return `
+              <tr>
+                <td class="py-2 px-3 font-mono font-bold text-slate-800">${item.model}</td>
+                <td class="py-2 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${stCls}">${item.status}</span></td>
+                <td class="py-2 px-3 font-mono text-slate-600">${item.latency_ms != null ? item.latency_ms + " ms" : "—"}</td>
+                <td class="py-2 px-3 text-slate-600 truncate max-w-xs" title="${detail.replace(/"/g, '&quot;')}">${detail}</td>
+              </tr>
+            `;
+          }).join("");
+        }
+      }
+
+      // Render User Rate Limit section
+      renderAdminUserRateLimitSection(rl);
+    }
+
+    function renderAdminUserRateLimitSection(rl) {
+      if (!rl) return;
+      const kpiUserLimit = document.getElementById("api-health-kpi-user-limit");
+      const kpiActiveUsers = document.getElementById("api-health-kpi-active-users");
+      const rpmInput = document.getElementById("api-health-rpm-input");
+      const throttledBadge = document.getElementById("api-health-throttled-badge");
+      const totalReqBadge = document.getElementById("api-health-total-req-badge");
+      const usersTbody = document.getElementById("api-health-users-tbody");
+
+      if (kpiUserLimit && rl.limit_per_minute != null) {
+        kpiUserLimit.textContent = `${rl.limit_per_minute} req/min`;
+      }
+      if (kpiActiveUsers) {
+        kpiActiveUsers.textContent = `Active Users (60s): ${rl.active_users_count || 0}`;
+      }
+      if (rpmInput && rl.limit_per_minute != null) {
+        rpmInput.value = rl.limit_per_minute;
+      }
+      if (throttledBadge) {
+        const throttled = rl.throttled_users_count || 0;
+        throttledBadge.textContent = `${throttled} Throttled`;
+        throttledBadge.className = throttled > 0
+          ? "px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200"
+          : "px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+      }
+      if (totalReqBadge) {
+        totalReqBadge.textContent = `${rl.total_requests_last_minute || 0} total requests (60s)`;
+      }
+      if (usersTbody) {
+        const ips = Array.isArray(rl.active_ips) ? rl.active_ips : [];
+        if (ips.length === 0) {
+          usersTbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400 text-xs">No active user requests in the last 60 seconds.</td></tr>`;
+        } else {
+          usersTbody.innerHTML = ips.map((u) => `
+            <tr>
+              <td class="py-2 px-2.5 font-mono font-semibold text-slate-800">${u.ip}</td>
+              <td class="py-2 px-2.5 font-mono text-slate-700">${u.requests_in_last_minute} / ${rl.limit_per_minute}</td>
+              <td class="py-2 px-2.5 font-mono text-slate-700">${u.remaining_requests}</td>
+              <td class="py-2 px-2.5">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.is_throttled ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">
+                  ${u.is_throttled ? 'LIMIT REACHED' : 'OK'}
+                </span>
+              </td>
+            </tr>
+          `).join("");
+        }
+      }
+    }
+
+    async function updateAdminUserRateLimit() {
+      const rpmInput = document.getElementById("api-health-rpm-input");
+      const msgEl = document.getElementById("api-health-rate-limit-msg");
+      const newLimit = rpmInput ? parseInt(rpmInput.value, 10) : 30;
+      if (!newLimit || newLimit < 1 || newLimit > 1000) {
+        if (msgEl) msgEl.textContent = "⚠️ Please enter a valid limit between 1 and 1000 requests per minute.";
+        return;
+      }
+      try {
+        const res = await fetch("/api/v1/admin/api-health-check/rate-limit", {
+          method: "POST",
+          headers: getAdminHeaders(),
+          body: JSON.stringify({ limit_per_minute: newLimit })
+        });
+        const data = await res.json();
+        if (data && data.user_rate_limit) {
+          renderAdminUserRateLimitSection(data.user_rate_limit);
+        }
+        if (msgEl) {
+          msgEl.className = "text-[11px] font-semibold text-emerald-700";
+          msgEl.textContent = `✅ User rate limit updated to ${newLimit} requests/minute per IP.`;
+        }
+      } catch (err) {
+        if (msgEl) {
+          msgEl.className = "text-[11px] font-semibold text-rose-600";
+          msgEl.textContent = "❌ Failed to update user rate limit.";
+        }
+      }
+    }
+
+    async function resetAdminUserRateLimits() {
+      const msgEl = document.getElementById("api-health-rate-limit-msg");
+      try {
+        const res = await fetch("/api/v1/admin/api-health-check/rate-limit", {
+          method: "POST",
+          headers: getAdminHeaders(),
+          body: JSON.stringify({ reset_all: true })
+        });
+        const data = await res.json();
+        if (data && data.user_rate_limit) {
+          renderAdminUserRateLimitSection(data.user_rate_limit);
+        }
+        if (msgEl) {
+          msgEl.className = "text-[11px] font-semibold text-emerald-700";
+          msgEl.textContent = "✅ All active user rate-limit counters have been reset.";
+        }
+      } catch (err) {
+        if (msgEl) {
+          msgEl.className = "text-[11px] font-semibold text-rose-600";
+          msgEl.textContent = "❌ Failed to reset rate-limit counters.";
+        }
       }
     }
 

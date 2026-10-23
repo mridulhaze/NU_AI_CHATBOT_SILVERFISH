@@ -1112,3 +1112,72 @@ def test_t4_07_simplified_faq_header_and_admin_maximize_button(index_soup, chat_
     assert "toggleAdminModalFullscreen" in index_html, "toggleAdminModalFullscreen missing in index.html"
 
 
+def test_t4_08_admin_api_health_check_ui_and_endpoints(client, index_soup, index_html):
+    """
+    Scenario 8: Admin Panel Google Gemini API Health Check & User Rate Limit Control
+    - Confirms #btn-api-health-header and #tab-btn-api-health and #tab-content-api-health exist in static/index.html.
+    - Confirms GET /api/v1/admin/api-health-check?live_test=false returns gemini_api and user_rate_limit telemetry.
+    - Confirms POST /api/v1/admin/api-health-check/rate-limit updates user RPM limit and resets counters.
+    """
+    # 1. Verify UI DOM Elements in static/index.html
+    assert index_soup.find(id="btn-api-health-header") is not None, "Missing #btn-api-health-header in Admin Header"
+    assert index_soup.find(id="tab-btn-api-health") is not None, "Missing #tab-btn-api-health in Admin Tab Bar"
+    assert index_soup.find(id="tab-content-api-health") is not None, "Missing #tab-content-api-health panel"
+    assert index_soup.find(id="btn-run-live-api-check") is not None, "Missing #btn-run-live-api-check button"
+    assert index_soup.find(id="api-health-rpm-input") is not None, "Missing #api-health-rpm-input field"
+    assert "runAdminApiHealthCheck" in index_html, "Missing runAdminApiHealthCheck JS handler"
+    assert "updateAdminUserRateLimit" in index_html, "Missing updateAdminUserRateLimit JS handler"
+
+    # 2. Verify Backend API Health Check Endpoint (Quick Config Check)
+    admin_token = create_jwt_token({"sub": "superadmin", "role": Role.SUPER_ADMIN.value})
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    res = client.get("/api/v1/admin/api-health-check?live_test=false", headers=headers)
+    assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
+    payload = res.json()
+    assert payload.get("status") == "success"
+    assert "gemini_api" in payload
+    assert "user_rate_limit" in payload
+    assert "masked_api_key" in payload["gemini_api"]
+    assert "limit_per_minute" in payload["user_rate_limit"]
+
+    # 3. Verify User Rate Limit Update & Reset Endpoint
+    res_rl = client.post(
+        "/api/v1/admin/api-health-check/rate-limit",
+        headers=headers,
+        json={"limit_per_minute": 45, "reset_all": True}
+    )
+    assert res_rl.status_code == 200
+    rl_data = res_rl.json()
+    assert rl_data["user_rate_limit"]["limit_per_minute"] == 45
+
+    # Restore default 30 RPM
+    client.post(
+        "/api/v1/admin/api-health-check/rate-limit",
+        headers=headers,
+        json={"limit_per_minute": 30}
+    )
+
+
+def test_t4_09_chat_upper_blank_space_removed(chat_soup):
+    """
+    Scenario 9: Chat Section Upper Blank Space Removed
+    - Confirms #chat-section uses justify-start (not justify-between) so #welcome-view stays anchored at the top.
+    - Confirms #split-container uses items-start.
+    - Confirms #bottom-controls-bar uses mt-auto so bottom input stays anchored at bottom when chat messages grow.
+    """
+    split_container = chat_soup.find(id="split-container")
+    assert split_container is not None
+    split_classes = split_container.get("class", [])
+    assert "items-start" in split_classes, f"Expected items-start on #split-container, got {split_classes}"
+
+    chat_section = chat_soup.find(id="chat-section")
+    assert chat_section is not None
+    chat_classes = chat_section.get("class", [])
+    assert "justify-start" in chat_classes, f"Expected justify-start on #chat-section, got {chat_classes}"
+    assert "justify-between" not in chat_classes, "#chat-section must not use justify-between (causes upper blank gap)"
+
+    bottom_bar = chat_soup.find(id="bottom-controls-bar")
+    assert bottom_bar is not None
+    bottom_classes = bottom_bar.get("class", [])
+    assert "mt-auto" in bottom_classes, "Expected mt-auto on #bottom-controls-bar"

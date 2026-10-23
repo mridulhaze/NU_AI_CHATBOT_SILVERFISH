@@ -289,6 +289,26 @@ def app_update_recent_notices(payload: Optional[Dict[str, Any]] = None):
     max_rows = payload.get("max_rows", 80) if payload else 80
     return sync_recent_notices(max_rows=max_rows)
 
+@app.get("/api/admin/api-health-check")
+def app_get_api_health_check(live_test: bool = True):
+    from backend.api.admin_routes import perform_gemini_api_health_check
+    return perform_gemini_api_health_check(live_test=live_test)
+
+@app.post("/api/admin/api-health-check")
+def app_post_api_health_check(payload: Optional[Dict[str, Any]] = None):
+    from backend.api.admin_routes import perform_gemini_api_health_check
+    data = payload or {}
+    return perform_gemini_api_health_check(
+        live_test=bool(data.get("live_test", True)),
+        custom_api_key=data.get("custom_api_key"),
+        test_prompt=data.get("test_prompt") or "Reply with OK"
+    )
+
+@app.post("/api/admin/api-health-check/rate-limit")
+def app_update_api_rate_limit(payload: Dict[str, Any]):
+    from backend.api.admin_routes import admin_update_user_rate_limit
+    return admin_update_user_rate_limit(payload=payload, user=None)
+
 
 # --- Deep Crawler (nu_site_crawler_project) Routes ---
 @app.get("/api/admin/deep-crawl-status")
