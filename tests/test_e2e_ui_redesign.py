@@ -1142,6 +1142,17 @@ def test_t4_08_admin_api_health_check_ui_and_endpoints(client, index_soup, index
     assert "saveNewGeminiApiKey" in index_html, "Missing saveNewGeminiApiKey JS handler"
     assert "updateAdminUserRateLimit" in index_html, "Missing updateAdminUserRateLimit JS handler"
 
+    # Verify zero JavaScript syntax errors in inline <script> blocks of static/index.html
+    import subprocess
+    import tempfile
+    scripts = [s.string for s in index_soup.find_all("script") if not s.get("src") and s.string]
+    assert len(scripts) >= 1
+    with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as tf:
+        tf.write("\n;\n".join(scripts))
+        temp_js = tf.name
+    chk = subprocess.run(["node", "--check", temp_js], capture_output=True, text=True)
+    assert chk.returncode == 0, f"JavaScript SyntaxError in static/index.html: {chk.stderr}"
+
     # 2. Verify Backend API Health Check Endpoint (Quick Config Check)
     admin_token = create_jwt_token({"sub": "superadmin", "role": Role.SUPER_ADMIN.value})
     headers = {"Authorization": f"Bearer {admin_token}"}

@@ -5669,7 +5669,7 @@
       try {
         let res;
         if (customKey) {
-          res = await fetch(`${API_BASE}/api/v1/admin/api-health-check", {
+          res = await fetch(`${API_BASE}/api/v1/admin/api-health-check`, {
             method: "POST",
             headers: getAdminHeaders(),
             body: JSON.stringify({
@@ -5886,7 +5886,7 @@
         return;
       }
       try {
-        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check/rate-limit", {
+        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check/rate-limit`, {
           method: "POST",
           headers: getAdminHeaders(),
           body: JSON.stringify({ limit_per_minute: newLimit })
@@ -5910,7 +5910,7 @@
     async function resetAdminUserRateLimits() {
       const msgEl = document.getElementById("api-health-rate-limit-msg");
       try {
-        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check/rate-limit", {
+        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check/rate-limit`, {
           method: "POST",
           headers: getAdminHeaders(),
           body: JSON.stringify({ reset_all: true })
@@ -5967,7 +5967,7 @@
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check", {
+        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check`, {
           method: "POST",
           headers: getAdminHeaders(),
           body: JSON.stringify({
@@ -6021,7 +6021,7 @@
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check/update-key", {
+        const res = await fetch(`${API_BASE}/api/v1/admin/api-health-check/update-key`, {
           method: "POST",
           headers: getAdminHeaders(),
           body: JSON.stringify({
