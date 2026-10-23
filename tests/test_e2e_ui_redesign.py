@@ -1137,6 +1137,7 @@ def test_t4_08_admin_api_health_check_ui_and_endpoints(client, index_soup, index
     assert index_soup.find(id="api-health-new-key-input") is not None, "Missing #api-health-new-key-input field"
     assert index_soup.find(id="btn-save-new-api-key") is not None, "Missing #btn-save-new-api-key button"
     assert index_soup.find(id="api-health-rpm-input") is not None, "Missing #api-health-rpm-input field"
+    assert "function getAdminHeaders()" in index_html, "Missing getAdminHeaders() helper definition in static/index.html"
     assert "runAdminApiHealthCheck" in index_html, "Missing runAdminApiHealthCheck JS handler"
     assert "saveNewGeminiApiKey" in index_html, "Missing saveNewGeminiApiKey JS handler"
     assert "updateAdminUserRateLimit" in index_html, "Missing updateAdminUserRateLimit JS handler"
