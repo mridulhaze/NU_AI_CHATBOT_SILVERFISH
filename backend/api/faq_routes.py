@@ -28,7 +28,7 @@ def list_faqs(
     search: Optional[str] = Query(None, description="Search keyword in Bengali or English"),
     sort: str = Query("most_liked", description="Sort order: most_liked, latest, all"),
     page: int = Query(1, ge=1, description="Page number"),
-    limit: int = Query(20, ge=1, le=100, description="Items per page"),
+    limit: int = Query(25, ge=1, le=100, description="Items per page"),
     session_id: Optional[str] = Query(None, description="Client session ID for like status"),
     x_session_id: Optional[str] = Header(None, alias="X-Session-ID")
 ):
