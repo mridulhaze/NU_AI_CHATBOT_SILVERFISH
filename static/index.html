@@ -1173,44 +1173,46 @@
           </div>
         </div>
 
-        <!-- Top-Level Tab Buttons (Unified Executive Folder Tab Bar) -->
-        <div class="flex items-center px-3 sm:px-6 gap-1.5 sm:gap-2 text-xs font-bold overflow-x-auto scrollbar-thin pt-2">
-          <button id="tab-btn-tokens" onclick="switchAdminTab('tokens')" onmouseenter="showGlobalTabTip('টোকেন সহায়তা ও সমস্যা সমাধান কেন্দ্র')" onmouseleave="resetGlobalTabTip()" title="টোকেন সহায়তা ও সমস্যা সমাধান কেন্দ্র (Token Support Center)" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-white text-slate-900 border-t-2 border-t-emerald-700 border-x border-[#D5CDC0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-bold shadow-xs -mb-px z-20">
-            <span>🎫 Token Support Center</span>
-            <span id="token-count-badge" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
-          </button>
-          
-          <button id="tab-btn-sitemap" onclick="switchAdminTab('sitemap')" onmouseenter="showGlobalTabTip('জাতীয় বিশ্ববিদ্যালয়ের ওয়েবসাইটের পূর্ণাঙ্গ কাঠামো মানচিত্র')" onmouseleave="resetGlobalTabTip()" title="জাতীয় বিশ্ববিদ্যালয়ের ওয়েবসাইটের পূর্ণাঙ্গ কাঠামো মানচিত্র (Website Structure Map)" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
-            <span>🗺️ Website Structure Map</span>
-          </button>
+        <!-- Top-Level Tab Buttons (Unified Segmented Control Tab Bar - Ref 1 & 2) -->
+        <div class="px-3 sm:px-6 py-2">
+          <div class="flex items-center gap-1.5 text-xs overflow-x-auto scrollbar-thin p-1.5 bg-slate-200/50 dark:bg-neutral-800/60 rounded-2xl border border-slate-300/40 dark:border-neutral-700/50">
+            <button id="tab-btn-tokens" onclick="switchAdminTab('tokens')" onmouseenter="showGlobalTabTip('টোকেন সহায়তা ও সমস্যা সমাধান কেন্দ্র')" onmouseleave="resetGlobalTabTip()" title="টোকেন সহায়তা ও সমস্যা সমাধান কেন্দ্র (Token Support Center)" class="py-2 px-3.5 rounded-xl bg-white text-slate-900 border border-slate-200/80 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-bold shadow-xs">
+              <span>🎫 Token Support Center</span>
+              <span id="token-count-badge" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            
+            <button id="tab-btn-sitemap" onclick="switchAdminTab('sitemap')" onmouseenter="showGlobalTabTip('জাতীয় বিশ্ববিদ্যালয়ের ওয়েবসাইটের পূর্ণাঙ্গ কাঠামো মানচিত্র')" onmouseleave="resetGlobalTabTip()" title="জাতীয় বিশ্ববিদ্যালয়ের ওয়েবসাইটের পূর্ণাঙ্গ কাঠামো মানচিত্র (Website Structure Map)" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>🗺️ Website Structure Map</span>
+            </button>
 
-          <button id="tab-btn-ai-engine" onclick="switchAdminTab('ai_engine')" onmouseenter="showGlobalTabTip('স্মার্ট এআই ইঞ্জিন, স্বায়ত্তশাসিত ক্রলার, নলেজ এজেন্ট ও এআই ল্যাব')" onmouseleave="resetGlobalTabTip()" title="স্মার্ট এআই ইঞ্জিন, স্বায়ত্তশাসিত ক্রলার, নলেজ এজেন্ট ও এআই ল্যাব (Autonomous AI & Knowledge Engine Hub)" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
-            <span>⚙️ 6-in-1 Hub</span>
-          </button>
+            <button id="tab-btn-ai-engine" onclick="switchAdminTab('ai_engine')" onmouseenter="showGlobalTabTip('স্মার্ট এআই ইঞ্জিন, স্বায়ত্তশাসিত ক্রলার, নলেজ এজেন্ট ও এআই ল্যাব')" onmouseleave="resetGlobalTabTip()" title="স্মার্ট এআই ইঞ্জিন, স্বায়ত্তশাসিত ক্রলার, নলেজ এজেন্ট ও এআই ল্যাব (Autonomous AI & Knowledge Engine Hub)" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>⚙️ 6-in-1 Hub</span>
+            </button>
 
-          <button id="tab-btn-qa-knowledge" onclick="switchAdminTab('qa_knowledge')" onmouseenter="showGlobalTabTip('প্রশ্ন ও বহুবিধ উত্তর ডাটাবেজ সমৃদ্ধকরণ (Many-to-Many Q&A Hub)')" onmouseleave="resetGlobalTabTip()" title="Many-to-Many Q&A Knowledge Base" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
-            <span>📚 Q&A Knowledge Hub</span>
-            <span class="bg-purple-100 text-purple-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Many-to-Many</span>
-          </button>
+            <button id="tab-btn-qa-knowledge" onclick="switchAdminTab('qa_knowledge')" onmouseenter="showGlobalTabTip('প্রশ্ন ও বহুবিধ উত্তর ডাটাবেজ সমৃদ্ধকরণ (Many-to-Many Q&A Hub)')" onmouseleave="resetGlobalTabTip()" title="Many-to-Many Q&A Knowledge Base" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>📚 Q&A Knowledge Hub</span>
+              <span class="bg-purple-100 text-purple-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Many-to-Many</span>
+            </button>
 
-          <button id="tab-btn-academic-static" onclick="switchAdminTab('academic_static')" onmouseenter="showGlobalTabTip('অনার্স, ডিগ্রি, মাস্টার্স ও প্রফেশনাল পরীক্ষার তথ্য এন্ট্রি ও হালনাগাদ')" onmouseleave="resetGlobalTabTip()" title="Academic Exam Schedules & Results Info" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
-            <span>🎓 Academic Exam & Results Hub</span>
-            <span class="bg-blue-100 text-blue-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Static Info</span>
-          </button>
+            <button id="tab-btn-academic-static" onclick="switchAdminTab('academic_static')" onmouseenter="showGlobalTabTip('অনার্স, ডিগ্রি, মাস্টার্স ও প্রফেশনাল পরীক্ষার তথ্য এন্ট্রি ও হালনাগাদ')" onmouseleave="resetGlobalTabTip()" title="Academic Exam Schedules & Results Info" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>🎓 Academic Exam & Results Hub</span>
+              <span class="bg-blue-100 text-blue-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Static Info</span>
+            </button>
 
-          <button id="tab-btn-users" onclick="switchAdminTab('users')" onmouseenter="showGlobalTabTip('ব্যবহারকারী ও বিভাগীয় কর্মকর্তা অ্যাকাউন্ট ব্যবস্থাপনা')" onmouseleave="resetGlobalTabTip()" title="ব্যবহারকারী ও বিভাগীয় কর্মকর্তা অ্যাকাউন্ট ব্যবস্থাপনা (User & Department Accounts)" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
-            <span>👥 User & Department Accounts</span>
-          </button>
+            <button id="tab-btn-users" onclick="switchAdminTab('users')" onmouseenter="showGlobalTabTip('ব্যবহারকারী ও বিভাগীয় কর্মকর্তা অ্যাকাউন্ট ব্যবস্থাপনা')" onmouseleave="resetGlobalTabTip()" title="ব্যবহারকারী ও বিভাগীয় কর্মকর্তা অ্যাকাউন্ট ব্যবস্থাপনা (User & Department Accounts)" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>👥 User & Department Accounts</span>
+            </button>
 
-          <button id="tab-btn-logs" onclick="switchAdminTab('logs')" onmouseenter="showGlobalTabTip('সিস্টেমের দৈনন্দিন সার্বিক কার্যক্রম ও সার্ভিস অডিট লগ')" onmouseleave="resetGlobalTabTip()" title="সিস্টেমের দৈনন্দিন সার্বিক কার্যক্রম ও সার্ভিস অডিট লগ (Activity & Service Logs)" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
-            <span>📊 Activity & Service Logs</span>
-            <span id="log-count-badge" class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Live</span>
-          </button>
+            <button id="tab-btn-logs" onclick="switchAdminTab('logs')" onmouseenter="showGlobalTabTip('সিস্টেমের দৈনন্দিন সার্বিক কার্যক্রম ও সার্ভিস অডিট লগ')" onmouseleave="resetGlobalTabTip()" title="সিস্টেমের দৈনন্দিন সার্বিক কার্যক্রম ও সার্ভিস অডিট লগ (Activity & Service Logs)" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>📊 Activity & Service Logs</span>
+              <span id="log-count-badge" class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Live</span>
+            </button>
 
-          <button id="tab-btn-backups" onclick="switchAdminTab('backups')" onmouseenter="showGlobalTabTip('ডাটাবেজ ও সিস্টেমের পূর্ণাঙ্গ পোর্টেবল ব্যাকআপ ও রিস্টোর হাব')" onmouseleave="resetGlobalTabTip()" title="ডাটাবেজ ও সিস্টেমের পূর্ণাঙ্গ পোর্টেবল ব্যাকআপ ও রিস্টোর হাব (System Backup & Restore)" class="py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
-            <span>📦 Backup & Restore</span>
-            <span class="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Portable</span>
-          </button>
+            <button id="tab-btn-backups" onclick="switchAdminTab('backups')" onmouseenter="showGlobalTabTip('ডাটাবেজ ও সিস্টেমের পূর্ণাঙ্গ পোর্টেবল ব্যাকআপ ও রিস্টোর হাব')" onmouseleave="resetGlobalTabTip()" title="ডাটাবেজ ও সিস্টেমের পূর্ণাঙ্গ পোর্টেবল ব্যাকআপ ও রিস্টোর হাব (System Backup & Restore)" class="py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 text-slate-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold">
+              <span>📦 Backup & Restore</span>
+              <span class="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.5 rounded-full font-bold">Portable</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -5352,8 +5354,8 @@
       const btnLogs = document.getElementById("tab-btn-logs");
       const btnBackups = document.getElementById("tab-btn-backups");
 
-      const inactiveTabClass = "py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-[#DDD6C8]/70 hover:bg-[#D0C8B8] text-slate-700 border-t border-x border-transparent hover:border-[#CBC2B0] shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold";
-      const getActiveTabClass = (colorBorder) => `py-2.5 px-3.5 sm:px-4 rounded-t-xl bg-white text-slate-900 border-t-2 ${colorBorder} border-x border-[#D5CDC0] font-bold shadow-xs -mb-px z-20 shrink-0 flex items-center gap-1.5 cursor-pointer transition`;
+      const inactiveTabClass = "py-2 px-3.5 rounded-xl bg-transparent hover:bg-white/60 dark:hover:bg-neutral-700/60 text-slate-700 dark:text-neutral-300 shrink-0 flex items-center gap-1.5 cursor-pointer transition font-semibold text-xs";
+      const getActiveTabClass = (colorBorder) => `py-2 px-3.5 rounded-xl bg-white dark:bg-neutral-800 text-slate-900 dark:text-white font-bold shadow-xs border border-slate-200/80 dark:border-neutral-700 shrink-0 flex items-center gap-1.5 cursor-pointer transition text-xs`;
 
       [tabTokens, tabSitemap, tabAIEngine, tabQAKnowledge, tabAcademicStatic, tabUsers, tabLogs, tabBackups].forEach(el => { if (el) el.classList.add("hidden"); });
       [btnTokens, btnSitemap, btnAIEngine, btnQAKnowledge, btnAcademicStatic, btnUsers, btnLogs, btnBackups].forEach(el => {

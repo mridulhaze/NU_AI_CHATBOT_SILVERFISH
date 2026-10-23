@@ -1,10 +1,40 @@
 # 📜 National University AI Knowledge Changelog
-> **Last Synchronized (UTC):** `2026-10-20T17:25:53.561729+00:00`  
-> **Total Enriched Pages:** `16` | **Total QA Pairs:** `43`  
+> **Last Synchronized (UTC):** `2026-10-21T16:20:42.152995+00:00`  
+> **Total Enriched Pages:** `16` | **Total QA Pairs:** `48`  
 
 ---
 
 ## 🕒 Recent Autonomous Knowledge Updates
+
+### 📌 #32 - Test Circular for 24/7 Enrichment
+- **Section:** `ADMISSION` | **Date:** `2026-10-21 16:20:39`
+- **Source:** [https://www.nu.ac.bd/notice-test.php](https://www.nu.ac.bd/notice-test.php)
+- **Summary:** ভর্তি পরীক্ষার টেস্ট সার্কুলার।
+- **Synthesized QA:** `1` pairs | **Agent:** `TestEnrichmentRunner`
+
+### 📌 #31 - Test Circular for 24/7 Enrichment
+- **Section:** `ADMISSION` | **Date:** `2026-10-21 16:15:54`
+- **Source:** [https://www.nu.ac.bd/notice-test.php](https://www.nu.ac.bd/notice-test.php)
+- **Summary:** ভর্তি পরীক্ষার টেস্ট সার্কুলার।
+- **Synthesized QA:** `1` pairs | **Agent:** `TestEnrichmentRunner`
+
+### 📌 #30 - Test Circular for 24/7 Enrichment
+- **Section:** `ADMISSION` | **Date:** `2026-10-21 15:58:28`
+- **Source:** [https://www.nu.ac.bd/notice-test.php](https://www.nu.ac.bd/notice-test.php)
+- **Summary:** ভর্তি পরীক্ষার টেস্ট সার্কুলার।
+- **Synthesized QA:** `1` pairs | **Agent:** `TestEnrichmentRunner`
+
+### 📌 #29 - Test Circular for 24/7 Enrichment
+- **Section:** `ADMISSION` | **Date:** `2026-10-21 15:55:38`
+- **Source:** [https://www.nu.ac.bd/notice-test.php](https://www.nu.ac.bd/notice-test.php)
+- **Summary:** ভর্তি পরীক্ষার টেস্ট সার্কুলার।
+- **Synthesized QA:** `1` pairs | **Agent:** `TestEnrichmentRunner`
+
+### 📌 #28 - Test Circular for 24/7 Enrichment
+- **Section:** `ADMISSION` | **Date:** `2026-10-21 15:39:14`
+- **Source:** [https://www.nu.ac.bd/notice-test.php](https://www.nu.ac.bd/notice-test.php)
+- **Summary:** ভর্তি পরীক্ষার টেস্ট সার্কুলার।
+- **Synthesized QA:** `1` pairs | **Agent:** `TestEnrichmentRunner`
 
 ### 📌 #27 - Test Circular for 24/7 Enrichment
 - **Section:** `ADMISSION` | **Date:** `2026-10-20 17:25:53`
@@ -124,34 +154,4 @@
 - **Section:** `Notices` | **Date:** `2026-08-23 03:09:02`
 - **Source:** [https://www.nu.ac.bd/noticeinstruction.php](https://www.nu.ac.bd/noticeinstruction.php)
 - **Summary:** জাতীয় বিশ্ববিদ্যালয়ের এই পৃষ্ঠায় বিশ্ববিদ্যালয়ের বিভিন্ন প্রশাসনিক ও একাডেমিক বিভাগের তালিকা প্রদান করা হয়েছে। এখানে রেজিস্ট্রার অফিস থেকে শুরু করে প্রকৌশল ও কলেজ মনিটরিং বিভাগের মতো গুরুত্বপূর্ণ বিভাগগুলোর নাম উল্লেখ রয়েছে।
-- **Synthesized QA:** `2` pairs | **Agent:** `GeminiAnalyzer (gemini-3.1-flash-lite)`
-
-### 📌 #7 - National University Academic Portal
-- **Section:** `Notices` | **Date:** `2026-08-23 03:08:49`
-- **Source:** [https://www.nu.ac.bd/uploads/notices/Bangladesh_Election_Commission_Documents_28.01.2026.zip](https://www.nu.ac.bd/uploads/notices/Bangladesh_Election_Commission_Documents_28.01.2026.zip)
-- **Summary:** জাতীয় বিশ্ববিদ্যালয়ের ওয়েবসাইটে বাংলাদেশ নির্বাচন কমিশনের নথিপত্র সংক্রান্ত একটি জিপ ফাইল আপলোড করা হয়েছে। এই নথিপত্রগুলো ২৮ জানুয়ারি ২০২৬ তারিখে প্রকাশিত হয়েছে। শিক্ষার্থীদের এই ফাইলটি ডাউনলোড করে প্রয়োজনীয় তথ্য যাচাই করার পরামর্শ দেওয়া হচ্ছে।
-- **Synthesized QA:** `2` pairs | **Agent:** `GeminiAnalyzer (gemini-3.1-flash-lite)`
-
-### 📌 #6 - National University Academic Portal
-- **Section:** `Forms & Syllabi` | **Date:** `2026-08-23 03:08:33`
-- **Source:** [https://www.nu.ac.bd/uploads/notices/College_Teachers_Information_19.07.2026.zip](https://www.nu.ac.bd/uploads/notices/College_Teachers_Information_19.07.2026.zip)
-- **Summary:** জাতীয় বিশ্ববিদ্যালয়ের অধিভুক্ত কলেজ শিক্ষকদের তথ্যাবলি সংক্রান্ত একটি জিপ ফাইল ১৯ জুলাই ২০২৬ তারিখে প্রকাশিত হয়েছে। এই নথিতে কলেজ শিক্ষকদের প্রয়োজনীয় তথ্যের একটি এক্সেল ফাইল অন্তর্ভুক্ত রয়েছে।
-- **Synthesized QA:** `2` pairs | **Agent:** `GeminiAnalyzer (gemini-3.1-flash-lite)`
-
-### 📌 #5 - National University Academic Portal
-- **Section:** `Forms & Syllabi` | **Date:** `2026-08-23 03:08:11`
-- **Source:** [https://www.nu.ac.bd/uploads/notices/College_Teachers_Information_pub_date_07072026.zip](https://www.nu.ac.bd/uploads/notices/College_Teachers_Information_pub_date_07072026.zip)
-- **Summary:** জাতীয় বিশ্ববিদ্যালয়ের অধিভুক্ত কলেজসমূহের শিক্ষকদের তথ্যাবলি সংগ্রহের উদ্দেশ্যে এই ফাইলটি প্রকাশ করা হয়েছে। এটি মূলত একটি জিপ ফাইল যার ভেতরে শিক্ষকদের তথ্যের এক্সেল শিট সংরক্ষিত আছে। সংশ্লিষ্ট কলেজ কর্তৃপক্ষকে এই তথ্যাবলি যথাযথভাবে পূরণ ও সংরক্ষণের নির্দেশনা দেওয়া হয়েছে।
-- **Synthesized QA:** `2` pairs | **Agent:** `GeminiAnalyzer (gemini-3.1-flash-lite)`
-
-### 📌 #4 - National University Academic Portal
-- **Section:** `Notices` | **Date:** `2026-08-23 03:07:44`
-- **Source:** [https://www.nu.ac.bd/uploads/notices/Bangladesh_Election_Commission_Documents.zip](https://www.nu.ac.bd/uploads/notices/Bangladesh_Election_Commission_Documents.zip)
-- **Summary:** জাতীয় বিশ্ববিদ্যালয়ের ওয়েবসাইটে প্রকাশিত এই ফাইলটি বাংলাদেশ নির্বাচন কমিশনের নথিপত্রের একটি সংকলন। এটি মূলত একটি জিপ (ZIP) ফাইল যা নির্বাচন সংক্রান্ত বিভিন্ন দাপ্তরিক নথির সমন্বয়ে গঠিত।
-- **Synthesized QA:** `2` pairs | **Agent:** `GeminiAnalyzer (gemini-3.1-flash-lite)`
-
-### 📌 #3 - National University Academic Portal
-- **Section:** `Notices` | **Date:** `2026-08-23 03:07:24`
-- **Source:** [https://www.nu.ac.bd/uploads/2018/notice_2158_pub_date_20022020.zip](https://www.nu.ac.bd/uploads/2018/notice_2158_pub_date_20022020.zip)
-- **Summary:** জাতীয় বিশ্ববিদ্যালয়ের এই বিজ্ঞপ্তিতে ঢাকা মেট্রোপলিটন এলাকায় আয়োজিত একটি র‍্যালি বা শোভাযাত্রা সম্পর্কিত তথ্য প্রদান করা হয়েছে। এটি মূলত কলেজ সংশ্লিষ্ট একটি বিশেষ ইভেন্টের নোটিশ যা ১৭ মার্চ ২০২০ তারিখে প্রকাশিত হয়েছিল।
 - **Synthesized QA:** `2` pairs | **Agent:** `GeminiAnalyzer (gemini-3.1-flash-lite)`
