@@ -1114,18 +1114,31 @@ def test_t4_07_simplified_faq_header_and_admin_maximize_button(index_soup, chat_
 
 def test_t4_08_admin_api_health_check_ui_and_endpoints(client, index_soup, index_html):
     """
-    Scenario 8: Admin Panel Google Gemini API Health Check & User Rate Limit Control
+    Scenario 8: Admin Panel Google Gemini API Health Check, Change API Key & User Rate Limit Control
     - Confirms #btn-api-health-header and #tab-btn-api-health and #tab-content-api-health exist in static/index.html.
+    - Confirms #tab-content-api-health is NOT nested inside #tab-content-academic-static (so it renders visibly).
+    - Confirms #api-health-new-key-input and #btn-save-new-api-key exist for replacing expired Gemini API keys.
     - Confirms GET /api/v1/admin/api-health-check?live_test=false returns gemini_api and user_rate_limit telemetry.
+    - Confirms POST /api/v1/admin/api-health-check/update-key updates and hot-reloads the Gemini API key.
     - Confirms POST /api/v1/admin/api-health-check/rate-limit updates user RPM limit and resets counters.
     """
-    # 1. Verify UI DOM Elements in static/index.html
+    # 1. Verify UI DOM Elements & Hierarchy in static/index.html
     assert index_soup.find(id="btn-api-health-header") is not None, "Missing #btn-api-health-header in Admin Header"
     assert index_soup.find(id="tab-btn-api-health") is not None, "Missing #tab-btn-api-health in Admin Tab Bar"
-    assert index_soup.find(id="tab-content-api-health") is not None, "Missing #tab-content-api-health panel"
+    api_health_panel = index_soup.find(id="tab-content-api-health")
+    assert api_health_panel is not None, "Missing #tab-content-api-health panel"
+    academic_panel = index_soup.find(id="tab-content-academic-static")
+    assert academic_panel is not None
+    assert academic_panel.find(id="tab-content-api-health") is None, (
+        "#tab-content-api-health must be a sibling of #tab-content-academic-static, NOT nested inside it!"
+    )
+
     assert index_soup.find(id="btn-run-live-api-check") is not None, "Missing #btn-run-live-api-check button"
+    assert index_soup.find(id="api-health-new-key-input") is not None, "Missing #api-health-new-key-input field"
+    assert index_soup.find(id="btn-save-new-api-key") is not None, "Missing #btn-save-new-api-key button"
     assert index_soup.find(id="api-health-rpm-input") is not None, "Missing #api-health-rpm-input field"
     assert "runAdminApiHealthCheck" in index_html, "Missing runAdminApiHealthCheck JS handler"
+    assert "saveNewGeminiApiKey" in index_html, "Missing saveNewGeminiApiKey JS handler"
     assert "updateAdminUserRateLimit" in index_html, "Missing updateAdminUserRateLimit JS handler"
 
     # 2. Verify Backend API Health Check Endpoint (Quick Config Check)
@@ -1141,7 +1154,29 @@ def test_t4_08_admin_api_health_check_ui_and_endpoints(client, index_soup, index
     assert "masked_api_key" in payload["gemini_api"]
     assert "limit_per_minute" in payload["user_rate_limit"]
 
-    # 3. Verify User Rate Limit Update & Reset Endpoint
+    # 3. Verify Change / Update Gemini API Key Endpoint (and restore original key)
+    from backend.config import settings
+    original_key = settings.GEMINI_API_KEY
+    try:
+        test_key = "AIzaSyTestReplacementKey1234567890"
+        res_key = client.post(
+            "/api/v1/admin/api-health-check/update-key",
+            headers=headers,
+            json={"new_api_key": test_key, "live_test": False}
+        )
+        assert res_key.status_code == 200, f"Update key failed: {res_key.text}"
+        key_data = res_key.json()
+        assert key_data.get("key_updated") is True
+        assert settings.GEMINI_API_KEY == test_key
+    finally:
+        if original_key:
+            client.post(
+                "/api/v1/admin/api-health-check/update-key",
+                headers=headers,
+                json={"new_api_key": original_key, "live_test": False}
+            )
+
+    # 4. Verify User Rate Limit Update & Reset Endpoint
     res_rl = client.post(
         "/api/v1/admin/api-health-check/rate-limit",
         headers=headers,

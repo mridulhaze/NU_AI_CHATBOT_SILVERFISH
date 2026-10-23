@@ -868,7 +868,8 @@ def perform_gemini_api_health_check(
                             "model": model_name,
                             "status": "WORKING",
                             "latency_ms": m_lat,
-                            "detail": reply_text[:40]
+                            "detail": reply_text[:40],
+                            "reply_preview": reply_text[:40]
                         })
                         active_working_model = model_name
                         sample_reply = reply_text[:80]
@@ -889,7 +890,8 @@ def perform_gemini_api_health_check(
                                 "model": model_name,
                                 "status": "INVALID_KEY",
                                 "latency_ms": m_lat,
-                                "detail": err_s[:120]
+                                "detail": err_s[:120],
+                                "error": err_s[:120]
                             })
                             gemini_status = "INVALID_KEY"
                             is_working = False
@@ -903,7 +905,8 @@ def perform_gemini_api_health_check(
                                 "model": model_name,
                                 "status": "RATE_LIMITED",
                                 "latency_ms": m_lat,
-                                "detail": "Quota / Rate Limit Exceeded (429)"
+                                "detail": "Quota / Rate Limit Exceeded (429)",
+                                "error": "Quota / Rate Limit Exceeded (429)"
                             })
                             key_valid = True
                             gemini_status = "RATE_LIMITED"
@@ -915,7 +918,8 @@ def perform_gemini_api_health_check(
                                 "model": model_name,
                                 "status": "ERROR",
                                 "latency_ms": m_lat,
-                                "detail": err_s[:120]
+                                "detail": err_s[:120],
+                                "error": err_s[:120]
                             })
 
                 if not latency_ms:
@@ -1068,6 +1072,75 @@ def admin_update_user_rate_limit(
         "user_rate_limit": snapshot["user_rate_limit"]
     }
 
+@router.post("/api-health-check/update-key", summary="Change and persist a new Google Gemini API Key in .env and live RAG engine")
+def admin_update_gemini_api_key(
+    payload: Dict[str, Any],
+    user: Optional[dict] = Depends(get_current_user_optional)
+):
+    import os
+    import re
+    from pathlib import Path
+    from backend.config import settings
+    from google import genai
 
+    raw_key = (payload.get("new_api_key") or payload.get("api_key") or "").strip().strip('"').strip("'")
+    live_test = bool(payload.get("live_test", True))
 
+    if not raw_key or len(raw_key) < 15:
+        raise HTTPException(
+            status_code=400,
+            detail="একটি বৈধ Google Gemini API Key প্রদান করুন (Minimum 15 characters, e.g., AIzaSy...)."
+        )
+
+    # 1. Update in-memory settings and environment variable immediately
+    os.environ["GEMINI_API_KEY"] = raw_key
+    settings.GEMINI_API_KEY = raw_key
+
+    # 2. Persist into project .env file so restarts keep the new API key
+    env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+    try:
+        if env_path.exists():
+            env_content = env_path.read_text(encoding="utf-8")
+            env_nl = "\r\n" if "\r\n" in env_content else "\n"
+            if re.search(r"^GEMINI_API_KEY\s*=", env_content, flags=re.MULTILINE):
+                env_content = re.sub(
+                    r"^GEMINI_API_KEY\s*=.*$",
+                    f"GEMINI_API_KEY={raw_key}",
+                    env_content,
+                    flags=re.MULTILINE
+                )
+            else:
+                if not env_content.endswith(("\n", "\r\n")):
+                    env_content += env_nl
+                env_content += f"GEMINI_API_KEY={raw_key}{env_nl}"
+            env_path.write_text(env_content, encoding="utf-8")
+        else:
+            env_path.write_text(f"GEMINI_API_KEY={raw_key}\n", encoding="utf-8")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to write new API key to .env file: {e}")
+
+    # 3. Hot-reload live RAG Engine & Vector Store embeddings without server restart
+    try:
+        from backend.rag_engine import get_rag_engine
+        rag = get_rag_engine()
+        rag.api_key = raw_key
+        rag.client = genai.Client(api_key=raw_key)
+    except Exception:
+        pass
+
+    try:
+        from db.vector_store import get_vector_store, ResilientEmbeddings
+        vs = get_vector_store()
+        vs.embeddings = ResilientEmbeddings(api_key=raw_key)
+    except Exception:
+        pass
+
+    # 4. Run health check on the newly activated key
+    report = perform_gemini_api_health_check(live_test=live_test, custom_api_key=raw_key)
+    report["key_updated"] = True
+    report["update_message"] = (
+        "✅ নতুন Google Gemini API Key সফলভাবে সংরক্ষণ (.env) ও সক্রিয় (Hot-Reload) করা হয়েছে! "
+        "(New Gemini API Key saved and activated immediately without server restart.)"
+    )
+    return report
 

@@ -309,6 +309,11 @@ def app_update_api_rate_limit(payload: Dict[str, Any]):
     from backend.api.admin_routes import admin_update_user_rate_limit
     return admin_update_user_rate_limit(payload=payload, user=None)
 
+@app.post("/api/admin/api-health-check/update-key")
+def app_update_gemini_api_key(payload: Dict[str, Any]):
+    from backend.api.admin_routes import admin_update_gemini_api_key
+    return admin_update_gemini_api_key(payload=payload, user=None)
+
 
 # --- Deep Crawler (nu_site_crawler_project) Routes ---
 @app.get("/api/admin/deep-crawl-status")

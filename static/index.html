@@ -2736,8 +2736,10 @@
                   </div>
                 </form>
               </div>
+          </div>
+        </div>
 
-        <!-- Tab Content: API Health Check & User Rate Limits -->
+        <!-- Tab Content: API Health Check, Change Gemini API Key & User Rate Limits -->
         <div id="tab-content-api-health" class="space-y-5 hidden">
           <!-- Top Banner & Live Diagnostic Action -->
           <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -2745,10 +2747,10 @@
               <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center text-xl shadow-xs shrink-0">🩺</div>
               <div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <h3 class="text-base font-extrabold text-slate-900">Google Gemini API Health Check &amp; User Limits</h3>
+                  <h3 class="text-base font-extrabold text-slate-900">Google Gemini API Health Check, Key Manager &amp; User Limits</h3>
                   <span id="api-health-overall-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-300">Checking...</span>
                 </div>
-                <p class="text-xs text-slate-500 mt-0.5">Verify Google Gemini API key validity, live model connectivity, quota limits, and per-user request rate limits (RPM).</p>
+                <p class="text-xs text-slate-500 mt-0.5">Verify Google Gemini API validity, replace expired API keys with instant hot-reload, and control per-user rate limits (RPM).</p>
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
@@ -2802,7 +2804,53 @@
             </div>
           </div>
 
-          <!-- Two-Column Grid: Left = Gemini API Diagnostic & Custom Key Tester | Right = User Rate Limit & Traffic Control -->
+          <!-- Change / Update Google Gemini API Key Card (Prominent Action Box when API expires) -->
+          <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 rounded-2xl border border-slate-800 p-5 text-white shadow-md space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center text-lg font-bold shrink-0">🔑</div>
+                <div>
+                  <h4 class="text-sm font-extrabold text-white flex items-center gap-2">
+                    <span>Change / Replace Google Gemini API Key (নতুন এপিআই কী সংযোজন)</span>
+                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] px-2 py-0.5 rounded-full font-bold">Hot-Reload &amp; .env Save</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-300">If your current Gemini API key expires or exceeds quota, enter a new key below to replace it immediately without restarting the server.</p>
+                </div>
+              </div>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline shrink-0">
+                Get New Key from Google AI Studio ↗
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+              <div class="lg:col-span-6">
+                <label for="api-health-new-key-input" class="block text-[11px] font-bold text-slate-300 mb-1">New Google Gemini API Key <span class="text-rose-400">*</span></label>
+                <div class="relative flex items-center">
+                  <input type="password" id="api-health-new-key-input" placeholder="Paste new Gemini API key (e.g. AIzaSy...)" class="w-full bg-slate-800/90 border border-slate-700 text-white text-xs font-mono rounded-xl pl-3.5 pr-16 py-2.5 focus:outline-none focus:border-amber-400" />
+                  <button type="button" onclick="toggleNewApiKeyVisibility()" id="btn-toggle-new-key-vis" class="absolute right-2 text-[10px] font-bold px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 cursor-pointer">
+                    Show
+                  </button>
+                </div>
+              </div>
+              <div class="lg:col-span-3">
+                <label for="api-health-custom-prompt-input" class="block text-[11px] font-bold text-slate-300 mb-1">Verification Ping Prompt</label>
+                <input type="text" id="api-health-custom-prompt-input" value="Reply with exact word: OK" class="w-full bg-slate-800/90 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-400" />
+              </div>
+              <div class="lg:col-span-3 flex items-center gap-2">
+                <button type="button" id="btn-test-custom-key" onclick="testNewGeminiApiKeyOnly()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-bold text-xs px-3 py-2.5 rounded-xl transition cursor-pointer shrink-0" title="Test this key without saving">
+                  🧪 Test Only
+                </button>
+                <button type="button" id="btn-save-new-api-key" onclick="saveNewGeminiApiKey()" class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-extrabold text-xs px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                  <span id="btn-save-new-api-key-icon">💾</span>
+                  <span id="btn-save-new-api-key-text">Save &amp; Activate Key</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="api-health-save-key-msg" class="hidden text-xs font-bold px-3.5 py-2.5 rounded-xl border"></div>
+          </div>
+
+          <!-- Two-Column Grid: Left = Gemini API Diagnostic Report | Right = User Rate Limit & Traffic Control -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             <!-- Left Column: Google Gemini API Live Diagnostic Details (7 cols) -->
             <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
@@ -2841,21 +2889,6 @@
                       </tr>
                     </tbody>
                   </table>
-                </div>
-              </div>
-
-              <!-- Optional Custom API Key / Prompt Tester -->
-              <div class="pt-2 border-t border-slate-100">
-                <h5 class="text-xs font-bold text-slate-800 mb-2">🧪 Test Another Gemini API Key or Custom Prompt</h5>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Custom Gemini API Key (Optional)</label>
-                    <input type="password" id="api-health-custom-key-input" placeholder="Leave blank to test system .env key" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-600 bg-slate-50/60 font-mono" />
-                  </div>
-                  <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Test Ping Prompt</label>
-                    <input type="text" id="api-health-custom-prompt-input" value="Reply with exact word: OK" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-600 bg-slate-50/60" />
-                  </div>
                 </div>
               </div>
             </div>
@@ -2917,8 +2950,9 @@
             </div>
           </div>
         </div>
-          </div>
-        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Academic Exam Student Card Preview Modal -->
   <div id="admin-exam-preview-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-[65] hidden flex items-center justify-center p-3 sm:p-6">
@@ -5618,9 +5652,9 @@
           : "Checking configured Gemini API key and user rate limits...";
       }
 
-      const customKeyEl = document.getElementById("api-health-custom-key-input");
+      const customKeyEl = document.getElementById("api-health-new-key-input");
       const customPromptEl = document.getElementById("api-health-custom-prompt-input");
-      const customKey = customKeyEl ? customKeyEl.value.trim() : "";
+      const customKey = "";
       const customPrompt = customPromptEl ? customPromptEl.value.trim() : "Reply with exact word: OK";
 
       try {
@@ -5885,6 +5919,133 @@
           msgEl.className = "text-[11px] font-semibold text-rose-600";
           msgEl.textContent = "❌ Failed to reset rate-limit counters.";
         }
+      }
+    }
+
+    function toggleNewApiKeyVisibility() {
+      const inp = document.getElementById("api-health-new-key-input");
+      const btn = document.getElementById("btn-toggle-new-key-vis");
+      if (!inp) return;
+      if (inp.type === "password") {
+        inp.type = "text";
+        if (btn) btn.textContent = "Hide";
+      } else {
+        inp.type = "password";
+        if (btn) btn.textContent = "Show";
+      }
+    }
+
+    async function testNewGeminiApiKeyOnly() {
+      const inp = document.getElementById("api-health-new-key-input");
+      const promptInp = document.getElementById("api-health-custom-prompt-input");
+      const msgEl = document.getElementById("api-health-save-key-msg");
+      const candidateKey = inp ? inp.value.trim() : "";
+      const promptText = promptInp ? promptInp.value.trim() : "Reply with exact word: OK";
+
+      if (!candidateKey || candidateKey.length < 15) {
+        if (msgEl) {
+          msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-rose-950/80 border-rose-500/50 text-rose-200";
+          msgEl.textContent = "⚠️ Please paste a valid Google Gemini API key (at least 15 characters) to test.";
+          msgEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (msgEl) {
+        msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-amber-950/80 border-amber-500/50 text-amber-200";
+        msgEl.textContent = "⏳ Testing candidate Gemini API key against Google servers (not saved yet)...";
+        msgEl.classList.remove("hidden");
+      }
+
+      try {
+        const res = await fetch("/api/v1/admin/api-health-check", {
+          method: "POST",
+          headers: getAdminHeaders(),
+          body: JSON.stringify({
+            custom_api_key: candidateKey,
+            test_prompt: promptText || "Reply with exact word: OK",
+            live_test: true
+          })
+        });
+        const data = await res.json();
+        renderAdminApiHealthReport(data);
+        const g = data.gemini_api || {};
+        if (msgEl) {
+          if (g.is_working) {
+            msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-emerald-950/80 border-emerald-500/50 text-emerald-200";
+            msgEl.textContent = `✅ Candidate Key is VALID & WORKING! Click "Save & Activate Key" to make it permanent.`;
+          } else {
+            msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-rose-950/80 border-rose-500/50 text-rose-200";
+            msgEl.textContent = `❌ Candidate Key Test Result: ${g.status_label || g.status} (${g.error_detail || "Failed"})`;
+          }
+        }
+      } catch (err) {
+        if (msgEl) {
+          msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-rose-950/80 border-rose-500/50 text-rose-200";
+          msgEl.textContent = "❌ Error testing candidate API key: " + (err.message || err);
+        }
+      }
+    }
+
+    async function saveNewGeminiApiKey() {
+      const inp = document.getElementById("api-health-new-key-input");
+      const btnIcon = document.getElementById("btn-save-new-api-key-icon");
+      const btnText = document.getElementById("btn-save-new-api-key-text");
+      const msgEl = document.getElementById("api-health-save-key-msg");
+      const newKey = inp ? inp.value.trim() : "";
+
+      if (!newKey || newKey.length < 15) {
+        if (msgEl) {
+          msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-rose-950/80 border-rose-500/50 text-rose-200";
+          msgEl.textContent = "⚠️ অনুগ্রহ করে একটি বৈধ Google Gemini API Key প্রদান করুন (Minimum 15 characters, e.g. AIzaSy...).";
+          msgEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (btnIcon) btnIcon.textContent = "⏳";
+      if (btnText) btnText.textContent = "Saving & Activating...";
+      if (msgEl) {
+        msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-amber-950/80 border-amber-500/50 text-amber-200";
+        msgEl.textContent = "⏳ Saving new Gemini API Key to .env, hot-reloading AI engine, and verifying live status...";
+        msgEl.classList.remove("hidden");
+      }
+
+      try {
+        const res = await fetch("/api/v1/admin/api-health-check/update-key", {
+          method: "POST",
+          headers: getAdminHeaders(),
+          body: JSON.stringify({
+            new_api_key: newKey,
+            live_test: true
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || data.message || "Failed to save API key");
+        }
+        renderAdminApiHealthReport(data);
+        if (inp) inp.value = "";
+        if (msgEl) {
+          const g = data.gemini_api || {};
+          if (g.is_working) {
+            msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-emerald-950/80 border-emerald-500/50 text-emerald-200";
+            msgEl.textContent = data.update_message || "✅ New Google Gemini API Key saved and verified WORKING!";
+          } else {
+            msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-amber-950/80 border-amber-500/50 text-amber-200";
+            msgEl.textContent = `${data.update_message || "✅ Key saved to .env."} Current status: ${g.status_label || g.status}`;
+          }
+          msgEl.classList.remove("hidden");
+        }
+      } catch (err) {
+        if (msgEl) {
+          msgEl.className = "text-xs font-bold px-3.5 py-2.5 rounded-xl border bg-rose-950/80 border-rose-500/50 text-rose-200";
+          msgEl.textContent = "❌ Failed to save API key: " + (err.message || err);
+          msgEl.classList.remove("hidden");
+        }
+      } finally {
+        if (btnIcon) btnIcon.textContent = "💾";
+        if (btnText) btnText.textContent = "Save & Activate Key";
       }
     }
 
