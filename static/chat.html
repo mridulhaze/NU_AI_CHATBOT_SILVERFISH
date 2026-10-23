@@ -964,47 +964,36 @@
       <!-- State A: Welcome View (Apple Monochromatic 3x3 Grid) -->
       <div id="welcome-view" class="space-y-4">
         
-        <!-- Section Title & Focus Button -->
-        <div class="flex items-center justify-between">
-          <div class="text-left">
-            <h2 class="text-[22px] sm:text-[26px] font-bold text-[var(--text)] tracking-tight leading-snug">
+        <!-- Unified Single-Row Compact Header, Live Status & Timeline Bar -->
+        <div class="ember-glance-bar py-2 px-3.5 flex items-center justify-between gap-2 flex-nowrap overflow-x-auto no-scrollbar">
+          <!-- Left: Title + Live Status Badge -->
+          <div class="flex items-center gap-2.5 min-w-0 shrink-0">
+            <h2 class="text-[16px] sm:text-[18px] font-bold text-[var(--text)] tracking-tight whitespace-nowrap">
               মূল একাডেমিক সেবা ও পরীক্ষা মেনু
             </h2>
-            <p class="text-[13px] sm:text-[14px] text-[var(--text-secondary)] mt-0.5 font-normal">
-              যেকোনো কার্ডে ক্লিক করে সরাসরি বিস্তারিত তথ্য জেনে নিন:
-            </p>
-          </div>
-          <button id="chat-focus-pill" onclick="setSplitMode('chat')" class="hidden apple-quiet-btn text-[11px] py-1 px-3 bg-[var(--surface)] border border-[var(--hairline)] text-[var(--accent)] font-semibold shadow-xs" title="চ্যাট বড় করুন (৭০%)">
-            <span>💬 চ্যাট ফোকাস (৭০%)</span>
-          </button>
-        </div>
-
-        <!-- Ember Dashboard Glance Bar (Ref 2 Status & Metrics Overview) -->
-        <div class="ember-glance-bar">
-          <div class="flex items-center gap-2">
-            <span class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#DC2626]"></span>
+            <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-[#DC2626] border border-red-200/70 dark:bg-red-950/50 dark:text-red-300 shrink-0">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-[#DC2626]"></span>
+              </span>
+              <span>নোটিশ ও এআই: লাইভ</span>
             </span>
-            <span class="text-xs font-semibold text-[var(--text)]">নোটিশ ও তথ্যভাণ্ডার: লাইভ</span>
-            <span class="text-[11px] text-[var(--text-secondary)] hidden md:inline">• nu.ac.bd সিঙ্ক সম্পন্ন</span>
           </div>
-          <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            <span class="ember-stat-pill">🎓 ৪টি একাডেমি প্রোগ্রাম</span>
-            <span class="ember-stat-pill">🌐 ৯টি ডিজিটাল সেবা</span>
-            <span class="ember-stat-pill text-[#DC2626] dark:text-red-400 font-semibold">⚡ এআই লাইভ</span>
-          </div>
-        </div>
 
-        <!-- Ember Vibrant Spotlight Card (One-Line Minimalist Red/Black/White Bar) -->
-        <div onclick="openAllExamTimelinesHub()" class="ember-spotlight-card group cursor-pointer" title="সকল পরীক্ষার টাইমলাইন ও রোডম্যাপ দেখুন">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-xs sm:text-sm font-bold text-[#111827] dark:text-white tracking-tight truncate">
-              পরীক্ষা টাইমলাইন ও ফলাফল অগ্রগতি ২০২৬
-            </span>
-            <button class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#DC2626] text-white group-hover:bg-[#B91C1C] transition shadow-xs flex items-center gap-1.5 shrink-0">
-              <span>সকল টাইমলাইন</span>
-              <span>→</span>
+          <!-- Right: Timeline Action & Chat Focus Pill in the Same Row -->
+          <div class="flex items-center gap-2 shrink-0">
+            <div onclick="openAllExamTimelinesHub()" class="inline-flex items-center gap-2 px-2.5 py-1 rounded-xl bg-red-50/60 dark:bg-zinc-800 border border-red-200 dark:border-red-800/60 hover:border-[#DC2626] cursor-pointer transition group" title="সকল পরীক্ষার টাইমলাইন ও রোডম্যাপ দেখুন">
+              <span class="text-[11.5px] sm:text-xs font-bold text-[#111827] dark:text-white whitespace-nowrap hidden md:inline">
+                পরীক্ষা টাইমলাইন ও ফলাফল অগ্রগতি ২০২৬
+              </span>
+              <button class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#DC2626] text-white group-hover:bg-[#B91C1C] transition shadow-2xs flex items-center gap-1 shrink-0 cursor-pointer">
+                <span>সকল টাইমলাইন</span>
+                <span>→</span>
+              </button>
+            </div>
+
+            <button id="chat-focus-pill" onclick="setSplitMode('chat')" class="hidden apple-quiet-btn text-[11px] py-1 px-2.5 bg-[var(--surface)] border border-[var(--hairline)] text-[var(--accent)] font-semibold shadow-xs shrink-0" title="চ্যাট বড় করুন (৭০%)">
+              <span>💬 চ্যাট ফোকাস (৭০%)</span>
             </button>
           </div>
         </div>
