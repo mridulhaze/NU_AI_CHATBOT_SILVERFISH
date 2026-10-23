@@ -108,7 +108,7 @@ class NetworkLauncherApp:
         self.root.title("NU AI Assistant — Intelligent Network Launcher")
         self.root.geometry("740x650")
         self.root.minsize(660, 520)
-        self.root.configure(bg="#0b1120")
+        self.root.configure(bg="#FFFFFF")
 
         self.lan_ip = detect_lan_ip()
         self.current_port = DEFAULT_PORT
@@ -124,19 +124,19 @@ class NetworkLauncherApp:
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def setup_ui(self):
-        # 1. Header Frame (Aristocratic Navy & Emerald accent)
-        hdr = tk.Frame(self.root, bg="#1e293b", padx=16, pady=12, bd=1, relief="solid")
+        # 1. Header Frame (Jet Black & Crimson Red Accent)
+        hdr = tk.Frame(self.root, bg="#111827", padx=16, pady=12, bd=1, relief="solid")
         hdr.pack(fill="x", padx=12, pady=(12, 6))
 
-        title_row = tk.Frame(hdr, bg="#1e293b")
+        title_row = tk.Frame(hdr, bg="#111827")
         title_row.pack(fill="x")
 
         title = tk.Label(
             title_row,
             text="🎓 National University AI Assistant",
             font=("Segoe UI", 15, "bold"),
-            bg="#1e293b",
-            fg="#10b981",
+            bg="#111827",
+            fg="#FFFFFF",
         )
         title.pack(side="left")
 
@@ -144,7 +144,7 @@ class NetworkLauncherApp:
             title_row,
             text="PRO v2.5",
             font=("Segoe UI", 8, "bold"),
-            bg="#059669",
+            bg="#DC2626",
             fg="white",
             padx=6,
             pady=2,
@@ -155,18 +155,18 @@ class NetworkLauncherApp:
             hdr,
             text="Intelligent Network Launcher • Multi-Device LAN Distribution • Live Port Manager",
             font=("Segoe UI", 9),
-            bg="#1e293b",
-            fg="#94a3b8",
+            bg="#111827",
+            fg="#E5E7EB",
         )
         subtitle.pack(anchor="w", pady=(3, 0))
 
-        # 2. Network & Port Configuration Frame
+        # 2. Network & Port Configuration Frame (White Card with Black/Red Accents)
         cfg_frame = tk.LabelFrame(
             self.root,
             text="  🌐 Network & Port Management  ",
             font=("Segoe UI", 9, "bold"),
-            bg="#0f172a",
-            fg="#38bdf8",
+            bg="#FFFFFF",
+            fg="#DC2626",
             bd=1,
             relief="solid",
             padx=12,
@@ -175,27 +175,27 @@ class NetworkLauncherApp:
         cfg_frame.pack(fill="x", padx=12, pady=4)
 
         # Row 1: LAN IP info & Port Input
-        row1 = tk.Frame(cfg_frame, bg="#0f172a")
+        row1 = tk.Frame(cfg_frame, bg="#FFFFFF")
         row1.pack(fill="x", pady=2)
 
         tk.Label(
             row1,
             text="Host IP:",
             font=("Segoe UI", 9, "bold"),
-            bg="#0f172a",
-            fg="#cbd5e1",
+            bg="#FFFFFF",
+            fg="#111827",
         ).pack(side="left")
 
         self.lbl_detected_ip = tk.Label(
             row1,
             text=f"{self.lan_ip} (LAN) / 127.0.0.1 (Local)",
             font=("Consolas", 10, "bold"),
-            bg="#1e293b",
-            fg="#38bdf8",
+            bg="#F9FAFB",
+            fg="#DC2626",
             padx=8,
             pady=2,
             bd=1,
-            relief="groove",
+            relief="solid",
         )
         self.lbl_detected_ip.pack(side="left", padx=(6, 16))
 
@@ -203,8 +203,8 @@ class NetworkLauncherApp:
             row1,
             text="Port:",
             font=("Segoe UI", 9, "bold"),
-            bg="#0f172a",
-            fg="#cbd5e1",
+            bg="#FFFFFF",
+            fg="#111827",
         ).pack(side="left")
 
         self.port_entry = tk.Entry(
@@ -212,9 +212,9 @@ class NetworkLauncherApp:
             font=("Consolas", 10, "bold"),
             width=8,
             justify="center",
-            bg="#1e293b",
-            fg="#f8fafc",
-            insertbackground="white",
+            bg="#FFFFFF",
+            fg="#111827",
+            insertbackground="#111827",
             bd=1,
             relief="solid",
         )
@@ -227,8 +227,10 @@ class NetworkLauncherApp:
             text="Apply Port",
             command=self.apply_port,
             font=("Segoe UI", 8, "bold"),
-            bg="#2563eb",
+            bg="#DC2626",
             fg="white",
+            activebackground="#B91C1C",
+            activeforeground="white",
             relief="flat",
             cursor="hand2",
             padx=8,
@@ -240,9 +242,11 @@ class NetworkLauncherApp:
             row1,
             text="Find Free Port",
             command=self.find_and_set_free_port,
-            font=("Segoe UI", 8),
-            bg="#334155",
-            fg="#cbd5e1",
+            font=("Segoe UI", 8, "bold"),
+            bg="#111827",
+            fg="white",
+            activebackground="#374151",
+            activeforeground="white",
             relief="flat",
             cursor="hand2",
             padx=8,
@@ -255,9 +259,10 @@ class NetworkLauncherApp:
             text="Reset (5005)",
             command=self.reset_default_port,
             font=("Segoe UI", 8),
-            bg="#1e293b",
-            fg="#94a3b8",
-            relief="flat",
+            bg="#F3F4F6",
+            fg="#111827",
+            relief="solid",
+            bd=1,
             cursor="hand2",
             padx=6,
             pady=2,
@@ -265,7 +270,7 @@ class NetworkLauncherApp:
         btn_reset_port.pack(side="left", padx=4)
 
         # Row 2: Auto-fallback toggle & Live URLs
-        row2 = tk.Frame(cfg_frame, bg="#0f172a")
+        row2 = tk.Frame(cfg_frame, bg="#FFFFFF")
         row2.pack(fill="x", pady=(6, 2))
 
         cb_fallback = tk.Checkbutton(
@@ -273,27 +278,27 @@ class NetworkLauncherApp:
             text="Auto-Fallback to next free port if occupied",
             variable=self.auto_fallback_var,
             font=("Segoe UI", 8),
-            bg="#0f172a",
-            fg="#94a3b8",
-            selectcolor="#1e293b",
-            activebackground="#0f172a",
-            activeforeground="#f8fafc",
+            bg="#FFFFFF",
+            fg="#111827",
+            selectcolor="#FFFFFF",
+            activebackground="#FFFFFF",
+            activeforeground="#DC2626",
         )
         cb_fallback.pack(side="left")
 
-        # 3. Status Banner
-        self.status_frame = tk.Frame(self.root, bg="#1e293b", bd=1, relief="solid")
+        # 3. Status Banner (Black Bar with Red/White Status)
+        self.status_frame = tk.Frame(self.root, bg="#111827", bd=1, relief="solid")
         self.status_frame.pack(fill="x", padx=12, pady=6)
 
-        status_inner = tk.Frame(self.status_frame, bg="#1e293b", padx=12, pady=8)
+        status_inner = tk.Frame(self.status_frame, bg="#111827", padx=12, pady=8)
         status_inner.pack(fill="x")
 
         self.lbl_status = tk.Label(
             status_inner,
             text="🔴 STATUS: STOPPED (OFFLINE)",
             font=("Segoe UI", 11, "bold"),
-            bg="#1e293b",
-            fg="#ef4444",
+            bg="#111827",
+            fg="#EF4444",
         )
         self.lbl_status.pack(side="left")
 
@@ -301,24 +306,24 @@ class NetworkLauncherApp:
             status_inner,
             text=f"Local: http://127.0.0.1:{self.current_port}  |  LAN: http://{self.lan_ip}:{self.current_port}",
             font=("Consolas", 9),
-            bg="#1e293b",
-            fg="#38bdf8",
+            bg="#111827",
+            fg="#FFFFFF",
         )
         self.lbl_urls.pack(side="right")
 
-        # 4. Main Action Command Bar
-        action_bar = tk.Frame(self.root, bg="#0b1120")
+        # 4. Main Action Command Bar (White Bar with Red & Black Buttons)
+        action_bar = tk.Frame(self.root, bg="#FFFFFF")
         action_bar.pack(fill="x", padx=12, pady=6)
 
-        # Big START Button
+        # Big START Button (Crimson Red)
         self.btn_start = tk.Button(
             action_bar,
             text="▶  START SERVER",
             command=self.start_program,
             font=("Segoe UI", 11, "bold"),
-            bg="#059669",
+            bg="#DC2626",
             fg="white",
-            activebackground="#047857",
+            activebackground="#B91C1C",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
@@ -328,15 +333,15 @@ class NetworkLauncherApp:
         )
         self.btn_start.pack(side="left", padx=(0, 8))
 
-        # Big STOP Button
+        # Big STOP Button (Jet Black)
         self.btn_stop = tk.Button(
             action_bar,
             text="⏹  STOP",
             command=self.stop_program,
             font=("Segoe UI", 11, "bold"),
-            bg="#dc2626",
+            bg="#111827",
             fg="white",
-            activebackground="#b91c1c",
+            activebackground="#000000",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
@@ -347,15 +352,15 @@ class NetworkLauncherApp:
         )
         self.btn_stop.pack(side="left", padx=(0, 8))
 
-        # RESTART Button
+        # RESTART Button (Crimson Red)
         self.btn_restart = tk.Button(
             action_bar,
             text="🔄 RESTART",
             command=self.restart_program,
             font=("Segoe UI", 9, "bold"),
-            bg="#475569",
+            bg="#DC2626",
             fg="white",
-            activebackground="#334155",
+            activebackground="#B91C1C",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
@@ -365,15 +370,15 @@ class NetworkLauncherApp:
         )
         self.btn_restart.pack(side="left", padx=(0, 8))
 
-        # Open Local Chat
+        # Open Local Chat (Jet Black)
         self.btn_open_local = tk.Button(
             action_bar,
             text="🌐 Local Chat",
             command=self.open_local_browser,
             font=("Segoe UI", 9, "bold"),
-            bg="#2563eb",
+            bg="#111827",
             fg="white",
-            activebackground="#1d4ed8",
+            activebackground="#374151",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
@@ -383,15 +388,15 @@ class NetworkLauncherApp:
         )
         self.btn_open_local.pack(side="left", padx=(0, 6))
 
-        # Open LAN Chat
+        # Open LAN Chat (Crimson Red)
         self.btn_open_lan = tk.Button(
             action_bar,
             text="📱 LAN Chat",
             command=self.open_lan_browser,
             font=("Segoe UI", 9, "bold"),
-            bg="#0891b2",
+            bg="#DC2626",
             fg="white",
-            activebackground="#0e7490",
+            activebackground="#B91C1C",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
@@ -401,15 +406,15 @@ class NetworkLauncherApp:
         )
         self.btn_open_lan.pack(side="left", padx=(0, 6))
 
-        # Staff Portal
+        # Staff Portal (Jet Black)
         self.btn_admin = tk.Button(
             action_bar,
             text="🔒 Staff Portal",
             command=self.open_admin,
             font=("Segoe UI", 9, "bold"),
-            bg="#334155",
+            bg="#111827",
             fg="white",
-            activebackground="#1e293b",
+            activebackground="#374151",
             activeforeground="white",
             relief="flat",
             cursor="hand2",
@@ -419,52 +424,53 @@ class NetworkLauncherApp:
         )
         self.btn_admin.pack(side="left", padx=(0, 6))
 
-        # Copy URLs button
+        # Copy URLs button (White with Black border)
         btn_copy = tk.Button(
             action_bar,
             text="📋 Copy Link",
             command=self.copy_lan_url,
-            font=("Segoe UI", 8),
-            bg="#1e293b",
-            fg="#94a3b8",
-            relief="flat",
+            font=("Segoe UI", 8, "bold"),
+            bg="#FFFFFF",
+            fg="#111827",
+            relief="solid",
+            bd=1,
             cursor="hand2",
             padx=8,
-            pady=7,
+            pady=6,
         )
         btn_copy.pack(side="left")
 
         # 5. Terminal Logs Header & Body
-        log_header = tk.Frame(self.root, bg="#0b1120")
+        log_header = tk.Frame(self.root, bg="#FFFFFF")
         log_header.pack(fill="x", padx=12, pady=(8, 4))
 
         tk.Label(
             log_header,
             text="Live Service & Terminal Logs:",
             font=("Segoe UI", 9, "bold"),
-            bg="#0b1120",
-            fg="#94a3b8",
+            bg="#FFFFFF",
+            fg="#111827",
         ).pack(side="left")
 
         tk.Button(
             log_header,
             text="Clear",
             command=self.clear_logs,
-            font=("Segoe UI", 8),
-            bg="#1e293b",
-            fg="#cbd5e1",
+            font=("Segoe UI", 8, "bold"),
+            bg="#DC2626",
+            fg="#FFFFFF",
             relief="flat",
             cursor="hand2",
-            padx=6,
+            padx=8,
             pady=1,
         ).pack(side="right")
 
         self.log_text = scrolledtext.ScrolledText(
             self.root,
             wrap="word",
-            bg="#020617",
-            fg="#4ade80",
-            insertbackground="white",
+            bg="#111827",
+            fg="#FFFFFF",
+            insertbackground="#DC2626",
             font=("Consolas", 9),
             bd=1,
             relief="solid",
@@ -537,7 +543,7 @@ class NetworkLauncherApp:
     def set_running_state(self, running: bool):
         self.is_running = running
         if running:
-            self.lbl_status.config(text=f"🟢 STATUS: ONLINE (Port {self.current_port})", fg="#10b981")
+            self.lbl_status.config(text=f"🔴 STATUS: ONLINE (Port {self.current_port})", fg="#FFFFFF")
             self.btn_start.config(state="disabled")
             self.btn_stop.config(state="normal")
             self.btn_restart.config(state="normal")
@@ -577,7 +583,7 @@ class NetworkLauncherApp:
                     return
 
         self.log(f"Starting NU AI Assistant on 0.0.0.0:{target_port}...")
-        self.lbl_status.config(text="🟡 STATUS: STARTING...", fg="#facc15")
+        self.lbl_status.config(text="⏳ STATUS: STARTING...", fg="#FCA5A5")
 
         main_py = BASE_DIR / "main.py"
         if not main_py.exists():

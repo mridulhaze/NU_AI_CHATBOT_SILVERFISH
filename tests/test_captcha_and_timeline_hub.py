@@ -149,3 +149,32 @@ def test_chat_html_exam_timeline_tab_and_sticky_bottom():
     assert "submitCaptchaVerification" in html
     assert "loadNewCaptchaChallenge" in html
     assert "X-Captcha-Token" in html
+
+
+def test_masters_timeline_tab_and_one_line_spotlight_and_red_black_white_theme():
+    """Verify Master's records in all-timelines, escaped onclick in filter tabs, one-line spotlight card, and Red/Black/White theme."""
+    res = client.get("/api/v1/academic-exams/all-timelines")
+    assert res.status_code == 200
+    items = res.json()["items"]
+    masters_items = [i for i in items if i.get("record", {}).get("program_type") == "Master's"]
+    assert len(masters_items) >= 1, "Master's records must exist in all-timelines endpoint"
+
+    with open(os.path.join("static", "chat.html"), "r", encoding="utf-8") as f:
+        html = f.read()
+
+    # Spotlight card keeps only 'পরীক্ষা টাইমলাইন ও ফলাফল অগ্রগতি ২০২৬' in one line (removed ফিচার্ড রোডম্যাপ & step chips)
+    assert "পরীক্ষা টাইমলাইন ও ফলাফল অগ্রগতি ২০২৬" in html
+    assert "ফিচার্ড রোডম্যাপ" not in html
+
+    # Single quote escaping for Master's filter button
+    assert "t.id.replace(/'/g" in html
+
+    # White, Red, Black theme tokens
+    assert "--accent: #DC2626" in html
+    assert "--accent-hover: #B91C1C" in html
+
+    with open("ui.py", "r", encoding="utf-8") as f:
+        ui_code = f.read()
+    assert '#FFFFFF' in ui_code
+    assert '#DC2626' in ui_code
+    assert '#111827' in ui_code

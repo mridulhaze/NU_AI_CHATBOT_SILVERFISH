@@ -801,8 +801,17 @@ class SQLStore:
                 params.extend([f"%{c_clean}%", f"%{c_clean}%", f"%{c_clean}%"])
             elif part and isinstance(part, str) and part.lower() != "all":
                 p_clean = part.lower()
-                query += " AND (LOWER(part) = LOWER(?) OR LOWER(course_name) LIKE ? OR LOWER(part) LIKE ?)"
-                params.extend([part, f"%{p_clean}%", f"%{p_clean}%"])
+                alt_part = part
+                if p_clean == "final":
+                    alt_part = "শেষ পর্ব"
+                elif p_clean == "শেষ পর্ব":
+                    alt_part = "Final"
+                elif p_clean == "preliminary":
+                    alt_part = "প্রিলিমিনারি"
+                elif p_clean == "প্রিলিমিনারি":
+                    alt_part = "Preliminary"
+                query += " AND (LOWER(part) = LOWER(?) OR LOWER(part) = LOWER(?) OR LOWER(course_name) LIKE ? OR LOWER(part) LIKE ?)"
+                params.extend([part, alt_part, f"%{p_clean}%", f"%{p_clean}%"])
 
             if semester and isinstance(semester, str) and semester.lower() != "all":
                 sem_clean = semester.lower()

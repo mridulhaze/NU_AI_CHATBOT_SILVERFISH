@@ -1586,7 +1586,7 @@ def format_exam_card_markdown(item: Dict[str, Any]) -> str:
         <span>🔗</span>
         <span>অফিসিয়াল পোর্টাল:</span>
       </span>
-      <button onclick="openTimelineView('{prog}', '{part}', '{year}', '{course_name}', '{sem}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1 rounded-lg text-xs shadow-2xs transition inline-flex items-center gap-1 cursor-pointer">
+      <button onclick="openTimelineView('{prog.replace("'", "\\'")}', '{part}', '{year}', '{course_name}', '{sem}')" class="bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold px-3 py-1 rounded-lg text-xs shadow-2xs transition inline-flex items-center gap-1 cursor-pointer">
         <span>📅 টাইমলাইন ও অগ্রগতি দেখুন</span>
         <span>→</span>
       </button>

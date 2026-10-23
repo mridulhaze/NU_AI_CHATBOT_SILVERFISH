@@ -22,11 +22,11 @@
       --text-secondary: #6E6E73;
       --hairline: rgba(0, 0, 0, 0.08);
       --hairline-hover: rgba(0, 0, 0, 0.16);
-      --accent: #006A4E; /* Official National University Green */
-      --accent-hover: #00563F;
-      --accent-light: rgba(0, 106, 78, 0.12);
-      --accent-orange: #FF6B35; /* Ember Dashboard Warm Orange Spotlight */
-      --accent-orange-light: rgba(255, 107, 53, 0.12);
+      --accent: #DC2626; /* Crimson Red Primary Accent */
+      --accent-hover: #B91C1C;
+      --accent-light: rgba(220, 38, 38, 0.12);
+      --accent-orange: #111827; /* Crisp Black Accent */
+      --accent-orange-light: rgba(17, 24, 39, 0.08);
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
       --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
       --shadow-ember: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
@@ -43,9 +43,9 @@
       --text-secondary: #98989D;
       --hairline: rgba(255, 255, 255, 0.10);
       --hairline-hover: rgba(255, 255, 255, 0.20);
-      --accent: #008763;
-      --accent-hover: #059669;
-      --accent-light: rgba(0, 135, 99, 0.22);
+      --accent: #EF4444;
+      --accent-hover: #DC2626;
+      --accent-light: rgba(239, 68, 68, 0.22);
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
       --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
     }
@@ -58,9 +58,9 @@
         --text-secondary: #98989D;
         --hairline: rgba(255, 255, 255, 0.10);
         --hairline-hover: rgba(255, 255, 255, 0.20);
-        --accent: #008763;
-        --accent-hover: #059669;
-        --accent-light: rgba(0, 135, 99, 0.22);
+        --accent: #EF4444;
+        --accent-hover: #DC2626;
+        --accent-light: rgba(239, 68, 68, 0.22);
         --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
         --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
       }
@@ -159,10 +159,14 @@
       color: var(--text);
     }
     .segmented-nav-btn.active, .segmented-nav-btn:active {
-      background: var(--surface);
-      color: var(--text);
+      background: #111827;
+      color: #FFFFFF;
       font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+    }
+    [data-theme="dark"] .segmented-nav-btn.active, [data-theme="dark"] .segmented-nav-btn:active {
+      background: #DC2626;
+      color: #FFFFFF;
     }
 
     /* Sliding Theme Switcher (Ref 1) */
@@ -214,25 +218,25 @@
       gap: 5px;
     }
 
-    /* Ember Spotlight Card (Ref 2 Accent Feature Card) */
+    /* Ember Spotlight Card (One-Line White/Red/Black Bar) */
     .ember-spotlight-card {
-      background: linear-gradient(135deg, rgba(255, 107, 53, 0.06) 0%, rgba(255, 237, 213, 0.35) 50%, var(--surface) 100%);
-      border: 1px solid rgba(255, 107, 53, 0.22);
-      border-radius: 22px;
-      padding: 18px 22px;
+      background: linear-gradient(90deg, rgba(220, 38, 38, 0.05) 0%, var(--surface) 100%);
+      border: 1.5px solid rgba(220, 38, 38, 0.30);
+      border-radius: 16px;
+      padding: 10px 18px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 20px -2px rgba(255, 107, 53, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+      box-shadow: 0 2px 10px -2px rgba(220, 38, 38, 0.08);
       transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
     }
     [data-theme="dark"] .ember-spotlight-card {
-      background: linear-gradient(135deg, rgba(255, 107, 53, 0.12) 0%, rgba(44, 44, 46, 0.95) 100%);
-      border-color: rgba(255, 107, 53, 0.32);
+      background: linear-gradient(90deg, rgba(220, 38, 38, 0.16) 0%, rgba(44, 44, 46, 0.95) 100%);
+      border-color: rgba(239, 68, 68, 0.40);
     }
     .ember-spotlight-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px -4px rgba(255, 107, 53, 0.16);
-      border-color: rgba(255, 107, 53, 0.45);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px -4px rgba(220, 38, 38, 0.18);
+      border-color: #DC2626;
     }
 
     /* Micro-badge for Ember cards */
@@ -315,15 +319,19 @@
     .apple-card:active {
       transform: scale(0.985);
     }
-    .card-tint-emerald .apple-card-icon-wrap { background: rgba(16, 185, 129, 0.12); color: #059669; }
-    .card-tint-teal .apple-card-icon-wrap { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
-    .card-tint-indigo .apple-card-icon-wrap { background: rgba(99, 102, 241, 0.12); color: #4f46e5; }
-    .card-tint-amber .apple-card-icon-wrap { background: rgba(245, 158, 11, 0.12); color: #d97706; }
-    .card-tint-sky .apple-card-icon-wrap { background: rgba(14, 165, 233, 0.12); color: #0284c7; }
-    .card-tint-purple .apple-card-icon-wrap { background: rgba(168, 85, 247, 0.12); color: #9333ea; }
-    .card-tint-rose .apple-card-icon-wrap { background: rgba(244, 63, 94, 0.12); color: #e11d48; }
-    .card-tint-blue .apple-card-icon-wrap { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
-    .card-tint-cyan .apple-card-icon-wrap { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+    .card-tint-emerald .apple-card-icon-wrap { background: rgba(220, 38, 38, 0.10); color: #DC2626; }
+    .card-tint-teal .apple-card-icon-wrap { background: rgba(17, 24, 39, 0.08); color: #111827; }
+    .card-tint-indigo .apple-card-icon-wrap { background: rgba(220, 38, 38, 0.10); color: #DC2626; }
+    .card-tint-amber .apple-card-icon-wrap { background: rgba(17, 24, 39, 0.08); color: #111827; }
+    .card-tint-sky .apple-card-icon-wrap { background: rgba(220, 38, 38, 0.10); color: #DC2626; }
+    .card-tint-purple .apple-card-icon-wrap { background: rgba(17, 24, 39, 0.08); color: #111827; }
+    .card-tint-rose .apple-card-icon-wrap { background: rgba(220, 38, 38, 0.10); color: #DC2626; }
+    .card-tint-blue .apple-card-icon-wrap { background: rgba(17, 24, 39, 0.08); color: #111827; }
+    .card-tint-cyan .apple-card-icon-wrap { background: rgba(220, 38, 38, 0.10); color: #DC2626; }
+    [data-theme="dark"] .card-tint-teal .apple-card-icon-wrap,
+    [data-theme="dark"] .card-tint-amber .apple-card-icon-wrap,
+    [data-theme="dark"] .card-tint-purple .apple-card-icon-wrap,
+    [data-theme="dark"] .card-tint-blue .apple-card-icon-wrap { background: rgba(255, 255, 255, 0.12); color: #F5F5F7; }
     .apple-card-icon-wrap {
       width: 40px;
       height: 40px;
@@ -731,15 +739,15 @@
       }
     }
 
-    /* Slim Lighting Lite-Green Animated Bar for Chat */
+    /* Slim Lighting Crimson-Red Animated Bar for Chat */
     .chat-lighting-bar-green {
       height: 3.5px;
       width: 100%;
       border-radius: 999px;
-      background: linear-gradient(90deg, #10b981 0%, #34d399 25%, #6ee7b7 50%, #34d399 75%, #10b981 100%);
+      background: linear-gradient(90deg, #dc2626 0%, #ef4444 25%, #111827 50%, #ef4444 75%, #dc2626 100%);
       background-size: 200% 100%;
       animation: liteGreenGlow 3s ease-in-out infinite;
-      box-shadow: 0 0 12px rgba(52, 211, 153, 0.7), 0 0 3px rgba(16, 185, 129, 0.9);
+      box-shadow: 0 0 12px rgba(220, 38, 38, 0.65), 0 0 3px rgba(220, 38, 38, 0.85);
     }
     @keyframes liteGreenGlow {
       0% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
@@ -747,15 +755,15 @@
       100% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
     }
 
-    /* Slim Lighting Lite-Orange Animated Bar for FAQ */
+    /* Slim Lighting Black-Red Animated Bar for FAQ */
     .faq-lighting-bar-orange {
       height: 3.5px;
       width: 100%;
       border-radius: 999px;
-      background: linear-gradient(90deg, #f97316 0%, #fb923c 25%, #fdba74 50%, #fb923c 75%, #f97316 100%);
+      background: linear-gradient(90deg, #111827 0%, #dc2626 50%, #111827 100%);
       background-size: 200% 100%;
       animation: liteOrangeGlow 3s ease-in-out infinite;
-      box-shadow: 0 0 12px rgba(251, 146, 60, 0.7), 0 0 3px rgba(249, 115, 22, 0.9);
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.45), 0 0 2px rgba(17, 24, 39, 0.8);
     }
     @keyframes liteOrangeGlow {
       0% { background-position: 0% 50%; opacity: 0.85; filter: brightness(1); }
@@ -865,7 +873,7 @@
       
       <!-- Left: Logo Circle + Title + Green Status Dot -->
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-[var(--surface)] border border-[var(--hairline)] flex items-center justify-center text-[var(--text)] shrink-0 shadow-xs">
+        <div class="w-9 h-9 rounded-full bg-[#111827] dark:bg-[#DC2626] border border-black flex items-center justify-center text-white shrink-0 shadow-xs">
           <!-- Monoline Graduation Cap Icon -->
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -911,7 +919,7 @@
               <line x1="12" y1="8" x2="12" y2="16"/>
               <line x1="17" y1="8" x2="17" y2="16"/>
             </svg>
-            <span class="font-medium text-emerald-700 dark:text-emerald-400">Exam Timeline</span>
+            <span class="font-semibold text-[#DC2626] dark:text-red-400">Exam Timeline</span>
           </button>
 
           <!-- Mobile FAQ Scroll Toggle -->
@@ -975,8 +983,8 @@
         <div class="ember-glance-bar">
           <div class="flex items-center gap-2">
             <span class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#DC2626]"></span>
             </span>
             <span class="text-xs font-semibold text-[var(--text)]">নোটিশ ও তথ্যভাণ্ডার: লাইভ</span>
             <span class="text-[11px] text-[var(--text-secondary)] hidden md:inline">• nu.ac.bd সিঙ্ক সম্পন্ন</span>
@@ -984,39 +992,20 @@
           <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <span class="ember-stat-pill">🎓 ৪টি একাডেমি প্রোগ্রাম</span>
             <span class="ember-stat-pill">🌐 ৯টি ডিজিটাল সেবা</span>
-            <span class="ember-stat-pill text-emerald-700 dark:text-emerald-300 font-semibold">⚡ এআই লাইভ</span>
+            <span class="ember-stat-pill text-[#DC2626] dark:text-red-400 font-semibold">⚡ এআই লাইভ</span>
           </div>
         </div>
 
-        <!-- Ember Vibrant Spotlight Card (Ref 2 Accent Feature Card) -->
+        <!-- Ember Vibrant Spotlight Card (One-Line Minimalist Red/Black/White Bar) -->
         <div onclick="openAllExamTimelinesHub()" class="ember-spotlight-card group cursor-pointer" title="সকল পরীক্ষার টাইমলাইন ও রোডম্যাপ দেখুন">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="space-y-1.5 flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-[#FF6B35] text-white shadow-2xs">
-                  ফিচার্ড রোডম্যাপ
-                </span>
-                <span class="text-xs font-semibold text-[#FF6B35] dark:text-[#FFA07A]">
-                  পরীক্ষা টাইমলাইন ও ফলাফল অগ্রগতি ২০২৬
-                </span>
-              </div>
-              <p class="text-xs text-[var(--text-secondary)] line-clamp-2">
-                ইনকোর্স পরীক্ষা, ফরম পূরণ, রুটিন, মূল পরীক্ষা, ফলাফল ও সনদের চলমান অগ্রগতি সোজা টাইমলাইনে ট্র্যাক করুন।
-              </p>
-              <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)]">১. ইনকোর্স</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)]">২. ফরম পূরণ</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)]">৩. পরীক্ষা</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)]">৪. ফলাফল</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)]">৫. সনদ</span>
-              </div>
-            </div>
-            <div class="shrink-0 flex items-center">
-              <button class="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#FF6B35] text-white group-hover:bg-[#E85D26] transition shadow-sm flex items-center gap-1.5">
-                <span>সকল টাইমলাইন</span>
-                <span>→</span>
-              </button>
-            </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-xs sm:text-sm font-bold text-[#111827] dark:text-white tracking-tight truncate">
+              পরীক্ষা টাইমলাইন ও ফলাফল অগ্রগতি ২০২৬
+            </span>
+            <button class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#DC2626] text-white group-hover:bg-[#B91C1C] transition shadow-xs flex items-center gap-1.5 shrink-0">
+              <span>সকল টাইমলাইন</span>
+              <span>→</span>
+            </button>
           </div>
         </div>
 
@@ -1034,7 +1023,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">অনার্স পরীক্ষা</span>
-                <span class="ember-card-badge bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">একাডেমিক</span>
+                <span class="ember-card-badge bg-red-50 text-red-700 border border-red-200/70 dark:bg-red-950/60 dark:text-red-300">একাডেমিক</span>
               </div>
               <div class="apple-card-sub">১ম, ২য়, ৩য়, ৪র্থ বর্ষ</div>
             </div>
@@ -1055,7 +1044,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">ডিগ্রি পরীক্ষা</span>
-                <span class="ember-card-badge bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300">৩ বর্ষ কোর্স</span>
+                <span class="ember-card-badge bg-zinc-900 text-white dark:bg-zinc-700 dark:text-zinc-100">৩ বর্ষ কোর্স</span>
               </div>
               <div class="apple-card-sub">১ম, ২য়, ৩য় বর্ষ</div>
             </div>
@@ -1075,7 +1064,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">মাস্টার্স পরীক্ষা</span>
-                <span class="ember-card-badge bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">পোস্টগ্রাজুয়েট</span>
+                <span class="ember-card-badge bg-red-50 text-red-700 border border-red-200/70 dark:bg-red-950/60 dark:text-red-300">পোস্টগ্রাজুয়েট</span>
               </div>
               <div class="apple-card-sub">শেষ পর্ব ও প্রিলি</div>
             </div>
@@ -1096,7 +1085,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">প্রফেশনাল পরীক্ষা</span>
-                <span class="ember-card-badge bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">১৮টি কোর্স</span>
+                <span class="ember-card-badge bg-zinc-900 text-white dark:bg-zinc-700 dark:text-zinc-100">১৮টি কোর্স</span>
               </div>
               <div class="apple-card-sub">১৮টি কোর্স ও সেমিস্টার</div>
             </div>
@@ -1120,7 +1109,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">অনার্স ভর্তি তথ্য</span>
-                <span class="ember-card-badge bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">অনলাইন ভর্তি</span>
+                <span class="ember-card-badge bg-red-50 text-red-700 border border-red-200/70 dark:bg-red-950/60 dark:text-red-300">অনলাইন ভর্তি</span>
               </div>
               <div class="apple-card-sub">মেধা তালিকা ও সার্কুলার</div>
             </div>
@@ -1145,7 +1134,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">পরীক্ষার রুটিন</span>
-                <span class="ember-card-badge bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300">লাইভ রুটিন</span>
+                <span class="ember-card-badge bg-zinc-900 text-white dark:bg-zinc-700 dark:text-zinc-100">লাইভ রুটিন</span>
               </div>
               <div class="apple-card-sub">সকল শিক্ষাবর্ষ</div>
             </div>
@@ -1167,7 +1156,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">সার্টিফিকেট উত্তোলন</span>
-                <span class="ember-card-badge bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">ই-সার্ভিস</span>
+                <span class="ember-card-badge bg-red-50 text-red-700 border border-red-200/70 dark:bg-red-950/60 dark:text-red-300">ই-সার্ভিস</span>
               </div>
               <div class="apple-card-sub">ফি ও উত্তোলনের নিয়ম</div>
             </div>
@@ -1188,7 +1177,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">ফরম পূরণ (EMS)</span>
-                <span class="ember-card-badge bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">ems.nu.ac.bd</span>
+                <span class="ember-card-badge bg-zinc-900 text-white dark:bg-zinc-700 dark:text-zinc-100">ems.nu.ac.bd</span>
               </div>
               <div class="apple-card-sub">সময়সীমা ও ফি জমা</div>
             </div>
@@ -1213,7 +1202,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="apple-card-title">কলেজ টিসি (TC)</span>
-                <span class="ember-card-badge bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300">ছাড়পত্র</span>
+                <span class="ember-card-badge bg-red-50 text-red-700 border border-red-200/70 dark:bg-red-950/60 dark:text-red-300">ছাড়পত্র</span>
               </div>
               <div class="apple-card-sub">অনলাইন ছাড়পত্র</div>
             </div>
@@ -1568,6 +1557,11 @@
       const filtered = allExamsTimelineData.filter(item => {
         if (!item.record) return false;
         if (allExamsFilterProg === "All") return true;
+        const pType = String(item.record.program_type || "").toLowerCase();
+        const pName = String(item.record.program_type_name || "");
+        if (allExamsFilterProg === "Master's" || allExamsFilterProg === "Masters") {
+          return pType.includes("master") || pName.includes("মাস্টার্স") || pName.includes("মাস্টাস");
+        }
         return item.record.program_type === allExamsFilterProg;
       });
 
@@ -1582,9 +1576,10 @@
       const tabsHtml = filterTabs.map(t => {
         const isActive = allExamsFilterProg === t.id;
         const cls = isActive
-          ? "bg-[var(--text)] text-[var(--surface)] font-semibold shadow-xs"
-          : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)] hover:text-[var(--text)]";
-        return `<button onclick="filterAllExamTimelines('${t.id}')" class="px-3 py-1 rounded-full text-xs transition cursor-pointer ${cls}">${t.label}</button>`;
+          ? "bg-[#DC2626] text-white font-semibold shadow-xs border border-[#DC2626]"
+          : "bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--hairline)] hover:text-[var(--text)] hover:border-black";
+        const safeId = t.id.replace(/'/g, "\\'");
+        return `<button onclick="filterAllExamTimelines('${safeId}')" class="px-3 py-1 rounded-full text-xs transition cursor-pointer ${cls}">${t.label}</button>`;
       }).join("");
 
       let examsListHtml = "";
@@ -1602,42 +1597,48 @@
           const examYear = rec.examination_year ? `${toBnDigits(rec.examination_year)} খ্রি.` : "চলতি";
           
           // Step definitions: 1. ইনকোর্স, 2. ফরম পূরণ, 3. রুটিন, 4. মূল পরীক্ষা, 5. ফলাফল, 6. সনদ
+          const ffEnd = rec.form_fillup_deadline || rec.form_fillup_end_date || "";
+          const routineDt = rec.routine_publication_date || rec.exam_routine_published_date || rec.admit_card_date || rec.admit_card_available_date || "";
+          const examStart = rec.exam_date || rec.exam_start_date || "";
+          const examEnd = rec.last_exam_date || rec.exam_end_date || "";
+          const resPub = String(rec.results_published || "").toLowerCase();
+          const docPub = String(rec.documents_printed || "").toLowerCase();
           const steps = [
             {
               id: "incourse",
               name: "ইনকোর্স",
-              date: rec.incourse_exam_date || rec.incourse_marks_submission_deadline || "তথ্য নেই",
+              date: rec.incourse_exam_date || rec.incourse_marks_deadline || rec.incourse_marks_submission_deadline || "তথ্য নেই",
               isDone: !!rec.incourse_exam_date
             },
             {
               id: "form_fillup",
               name: "ফরম পূরণ",
-              date: rec.form_fillup_start_date ? `${rec.form_fillup_start_date} হতে ${rec.form_fillup_end_date || ''}` : "তথ্য নেই",
-              isDone: !!rec.form_fillup_end_date
+              date: rec.form_fillup_start_date ? `${rec.form_fillup_start_date}${ffEnd ? " হতে " + ffEnd : ""}` : (ffEnd || "তথ্য নেই"),
+              isDone: !!(ffEnd || rec.form_fillup_start_date)
             },
             {
               id: "routine",
               name: "রুটিন ও প্রবেশপত্র",
-              date: rec.exam_routine_published_date || rec.admit_card_available_date || "তথ্য নেই",
-              isDone: !!rec.exam_routine_link || !!rec.exam_routine_published_date
+              date: (routineDt && !routineDt.startsWith("http")) ? routineDt : (routineDt ? "প্রকাশিত" : "তথ্য নেই"),
+              isDone: !!(rec.exam_routine_link || routineDt)
             },
             {
               id: "exam",
               name: "মূল পরীক্ষা",
-              date: rec.exam_start_date ? `${rec.exam_start_date} হতে ${rec.exam_end_date || ''}` : "অপেক্ষমাণ",
-              isDone: !!rec.exam_end_date
+              date: examStart ? `${examStart}${examEnd ? " হতে " + examEnd : ""}` : "অপেক্ষমাণ",
+              isDone: !!(examEnd || examStart)
             },
             {
               id: "results",
               name: "ফলাফল প্রকাশ",
-              date: rec.actual_result_date || rec.expected_result_date || "অপেক্ষমাণ",
-              isDone: rec.results_published === 1 || rec.results_published === "1"
+              date: rec.actual_result_date || rec.probable_result_date || rec.expected_result_date || "অপেক্ষমাণ",
+              isDone: resPub === "1" || resPub === "yes" || resPub === "true" || resPub === "হ্যাঁ"
             },
             {
               id: "certificate",
               name: "সনদ ও মার্কশিট",
-              date: rec.documents_printed_date || "অপেক্ষমাণ",
-              isDone: rec.documents_printed === 1 || rec.documents_printed === "1"
+              date: rec.document_printing_date || rec.documents_printed_date || "অপেক্ষমাণ",
+              isDone: docPub === "1" || docPub === "yes" || docPub === "true" || docPub === "হ্যাঁ"
             }
           ];
 
@@ -1646,7 +1647,7 @@
             let badgeCls = "";
             if (st.isDone) {
               statusBadge = "সম্পন্ন";
-              badgeCls = "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
+              badgeCls = "bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800";
             } else if (st.date && st.date !== "তথ্য নেই" && st.date !== "অপেক্ষমাণ") {
               statusBadge = "ঘোষিত";
               badgeCls = "bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800";
@@ -1692,8 +1693,8 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <button onclick="openTimelineView('${rec.program_type}', '${rec.part || ''}', '${rec.examination_year || ''}', '${rec.course_name || ''}', '${rec.semester || ''}')" 
-                    class="apple-quiet-btn text-xs py-1 px-2.5 border border-[var(--hairline)] rounded-lg text-indigo-600 dark:text-indigo-400 font-semibold hover:border-indigo-300 flex items-center gap-1 cursor-pointer">
+                  <button onclick="openTimelineView('${String(rec.program_type || '').replace(/'/g, "\\'")}', '${rec.part || ''}', '${rec.examination_year || ''}', '${rec.course_name || ''}', '${rec.semester || ''}')" 
+                    class="apple-quiet-btn text-xs py-1 px-2.5 border border-red-200 rounded-lg text-[#DC2626] dark:text-red-400 font-semibold hover:border-[#DC2626] flex items-center gap-1 cursor-pointer">
                     <span>বিস্তারিত দেখুন</span>
                     <span>↗</span>
                   </button>
@@ -1916,7 +1917,7 @@
         if (chip.action === "menu") {
           clickHandler = "goToMainMenu()";
         } else if (chip.action === "category") {
-          clickHandler = `handleExamCategoryClick('${chip.category}')`;
+          clickHandler = `handleExamCategoryClick('${chip.category.replace(/'/g, "\\'")}')`;
         } else if (chip.action === "query") {
           clickHandler = `sendQuickQuestion('${chip.query.replace(/'/g, "\\'")}')`;
         } else {
@@ -2029,7 +2030,7 @@
               <span>মূল মেনু</span>
             </button>
             <span>/</span>
-            <button onclick="handleExamCategoryClick('${timeline.program_type}')" class="hover:text-[var(--text)] transition cursor-pointer">
+            <button onclick="handleExamCategoryClick('${String(timeline.program_type || '').replace(/'/g, "\\'")}')" class="hover:text-[var(--text)] transition cursor-pointer">
               ${timeline.program_type_name}
             </button>
             <span>/</span>
@@ -2050,7 +2051,7 @@
           ? "bg-[var(--text)] text-[var(--surface)] font-semibold shadow-xs" 
           : "bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)] border border-[var(--hairline)] hover:border-indigo-400";
         return `
-          <button onclick="openTimelineView('${timeline.program_type}', '${timeline.part}', '${yr}', '${timeline.course_name || ''}', '${timeline.semester || ''}')" 
+          <button onclick="openTimelineView('${String(timeline.program_type || '').replace(/'/g, "\\'")}', '${timeline.part}', '${yr}', '${timeline.course_name || ''}', '${timeline.semester || ''}')" 
             class="px-2.5 py-1 rounded-full text-xs transition cursor-pointer ${activeClass}">
             📅 ${toBnDigits(yr)} ${isActive ? '(চলতি)' : ''}
           </button>
