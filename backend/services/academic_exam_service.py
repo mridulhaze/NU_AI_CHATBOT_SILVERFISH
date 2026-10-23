@@ -1337,6 +1337,8 @@ def format_exam_card_markdown(item: Dict[str, Any]) -> str:
     Empty fields display neutral notice 'তথ্য এখনো প্রকাশ করা হয়নি।'
     """
     prog = item.get("program_type", "Honours")
+    prog_safe = str(prog).replace("'", "\\'")
+    prog_safe = str(prog).replace("'", "\\'")
     course_name = item.get("course_name") or ""
     prog_bn = item.get("program_type_name") or PROGRAM_CONFIG.get(prog, {}).get("bn_name", prog)
     year = item.get("examination_year") or "নির্ধারিত হয়নি"
@@ -1586,7 +1588,7 @@ def format_exam_card_markdown(item: Dict[str, Any]) -> str:
         <span>🔗</span>
         <span>অফিসিয়াল পোর্টাল:</span>
       </span>
-      <button onclick="openTimelineView('{prog.replace("'", "\\'")}', '{part}', '{year}', '{course_name}', '{sem}')" class="bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold px-3 py-1 rounded-lg text-xs shadow-2xs transition inline-flex items-center gap-1 cursor-pointer">
+      <button onclick="openTimelineView('{prog_safe}', '{part}', '{year}', '{course_name}', '{sem}')" class="bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold px-3 py-1 rounded-lg text-xs shadow-2xs transition inline-flex items-center gap-1 cursor-pointer">
         <span>📅 টাইমলাইন ও অগ্রগতি দেখুন</span>
         <span>→</span>
       </button>

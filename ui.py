@@ -632,8 +632,12 @@ class NetworkLauncherApp:
             pass
 
     def _monitor_startup(self, port: int):
-        for _ in range(30):
+        for _ in range(90):
             time.sleep(0.5)
+            if self.server_proc and self.server_proc.poll() is not None:
+                self.root.after(0, lambda: self.set_running_state(False))
+                self.root.after(0, lambda: self.log("⚠️ Server process exited unexpectedly. Please check logs above."))
+                return
             if is_port_in_use(port):
                 self.root.after(0, lambda: self.set_running_state(True))
                 self.root.after(0, lambda: self.log("✓ Server is ONLINE and accepting connections!"))
